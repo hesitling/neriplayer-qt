@@ -12,10 +12,27 @@ include(GNUInstallDirs)
 find_package(Qt6 REQUIRED COMPONENTS Core Gui Widgets Network WebSockets)
 
 # QCoro
-find_package(QCoro6 REQUIRED COMPONENTS Core Network WebSockets)
+set(NERIPLAYER_QCORO_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../qcoro" CACHE PATH
+    "Path to a local QCoro source checkout")
+option(NERIPLAYER_USE_SYSTEM_QCORO "Always use an installed QCoro package" OFF)
 
-# 启用协程支持
-qcoro_enable_coroutines()
+if(NOT NERIPLAYER_USE_SYSTEM_QCORO AND EXISTS "${NERIPLAYER_QCORO_SOURCE_DIR}/CMakeLists.txt")
+    set(QCORO_BUILD_EXAMPLES OFF CACHE BOOL "Build QCoro examples" FORCE)
+    set(QCORO_BUILD_TESTING OFF CACHE BOOL "Build QCoro tests" FORCE)
+    set(QCORO_WITH_QTDBUS OFF CACHE BOOL "Build QCoro QtDBus support" FORCE)
+    set(QCORO_WITH_QTNETWORK ON CACHE BOOL "Build QCoro QtNetwork support" FORCE)
+    set(QCORO_WITH_QTWEBSOCKETS ON CACHE BOOL "Build QCoro QtWebSockets support" FORCE)
+    set(QCORO_WITH_QTQUICK OFF CACHE BOOL "Build QCoro QtQuick support" FORCE)
+    set(QCORO_WITH_QML OFF CACHE BOOL "Build QCoro QML support" FORCE)
+    set(QCORO_WITH_QTTEST OFF CACHE BOOL "Build QCoro QtTest support" FORCE)
+
+    add_subdirectory("${NERIPLAYER_QCORO_SOURCE_DIR}" "${CMAKE_BINARY_DIR}/_deps/qcoro")
+    set(NERIPLAYER_QCORO_LIBRARIES QCoro6::Core QCoro6::Network QCoro6::WebSockets)
+else()
+    find_package(QCoro6 REQUIRED COMPONENTS Core Network WebSockets)
+    qcoro_enable_coroutines()
+    set(NERIPLAYER_QCORO_LIBRARIES QCoro::Core QCoro::Network QCoro::WebSockets)
+endif()
 
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
@@ -56,9 +73,7 @@ target_link_libraries(NeriPlayerQt PRIVATE
     Qt6::Widgets
     Qt6::Network
     Qt6::WebSockets
-    QCoro::Core
-    QCoro::Network
-    QCoro::WebSockets
+    ${NERIPLAYER_QCORO_LIBRARIES}
 )
 
 # 包含目录
