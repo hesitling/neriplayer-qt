@@ -43,7 +43,7 @@ public:
     static QString lastError();
 
 private:
-    static QString s_lastError;
+    static thread_local QString s_lastError;
 };
 
 } // namespace NeriPlayerQt

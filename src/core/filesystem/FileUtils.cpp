@@ -11,7 +11,7 @@
 
 namespace NeriPlayerQt {
 
-QString FileUtils::s_lastError;
+thread_local QString FileUtils::s_lastError;
 
 bool FileUtils::ensureDir(const QString &path)
 {
