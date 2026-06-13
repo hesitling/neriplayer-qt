@@ -1,18 +1,18 @@
 ## 1. Domain Models
 
-- [ ] 1.1 Create `src/domain/` directory and `Domain.h` umbrella header
-- [ ] 1.2 Define `MusicPlatform` enum with Unknown, NetEase, Bilibili, YouTube, QQMusic values
-- [ ] 1.3 Define `SearchType` enum with Song, Album, Artist, Playlist, All values
-- [ ] 1.4 Define `PlaybackState` enum with Stopped, Playing, Paused, Loading, Error values
-- [ ] 1.5 Define `RepeatMode` enum with Off, One, All values
-- [ ] 1.6 Define `AudioQuality` enum with Low, Standard, High, Lossless values
-- [ ] 1.7 Define `Song` struct with all fields and default values
-- [ ] 1.8 Define `Album` struct with all fields
-- [ ] 1.9 Define `Artist` struct with all fields
-- [ ] 1.10 Define `Playlist` struct with embedded songs vector
-- [ ] 1.11 Define `LyricLine` and `Lyrics` structs
-- [ ] 1.12 Define `SearchResult` struct
-- [ ] 1.13 Register all types with Q_DECLARE_METATYPE for QVariant interop
+- [x] 1.1 Create `src/domain/` directory and `Domain.h` umbrella header
+- [x] 1.2 Define `MusicPlatform` enum with Unknown, NetEase, Bilibili, YouTube, QQMusic values
+- [x] 1.3 Define `SearchType` enum with Song, Album, Artist, Playlist, All values
+- [x] 1.4 Define `PlaybackState` enum with Stopped, Playing, Paused, Loading, Error values
+- [x] 1.5 Define `RepeatMode` enum with Off, One, All values
+- [x] 1.6 Define `AudioQuality` enum with Low, Standard, High, Lossless values
+- [x] 1.7 Define `Song` struct with all fields and default values
+- [x] 1.8 Define `Album` struct with all fields
+- [x] 1.9 Define `Artist` struct with all fields
+- [x] 1.10 Define `Playlist` struct with embedded songs vector
+- [x] 1.11 Define `LyricLine` and `Lyrics` structs
+- [x] 1.12 Define `SearchResult` struct
+- [x] 1.13 Register all types with Q_DECLARE_METATYPE for QVariant interop
 
 ## 2. Database Module
 

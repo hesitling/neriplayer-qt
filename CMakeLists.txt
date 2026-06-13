@@ -57,6 +57,14 @@ set(HEADERS
     src/core/network/WebSocketClient.h
     src/core/network/NetworkManager.h
     src/core/network/NetworkMonitor.h
+    src/domain/Domain.h
+    src/domain/Enums.h
+    src/domain/Song.h
+    src/domain/Album.h
+    src/domain/Artist.h
+    src/domain/Playlist.h
+    src/domain/Lyrics.h
+    src/domain/SearchResult.h
     src/mainwindow.h
 )
 
@@ -87,3 +95,22 @@ install(TARGETS NeriPlayerQt
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
 )
+
+# Testing
+enable_testing()
+find_package(Qt6 REQUIRED COMPONENTS Test)
+
+add_executable(TestDomainModels
+    tests/domain/TestDomainModels.cpp
+)
+target_include_directories(TestDomainModels PRIVATE
+    ${CMAKE_SOURCE_DIR}/src
+)
+target_link_libraries(TestDomainModels PRIVATE
+    Qt6::Core
+    Qt6::Test
+)
+target_compile_definitions(TestDomainModels PRIVATE
+    QT_NO_KEYWORDS
+)
+add_test(NAME TestDomainModels COMMAND TestDomainModels)

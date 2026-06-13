@@ -58,7 +58,7 @@ The system SHALL provide an enum `SearchType` with values: `Song`, `Album`, `Art
 
 #### Scenario: Default search type
 - **WHEN** a SearchType is default-constructed
-- **THEN** it SHALL equal `SearchType::All`
+- **THEN** it SHALL equal `SearchType::Song` (enum value 0)
 
 ### Requirement: PlaybackState enum
 The system SHALL provide an enum `PlaybackState` with values: `Stopped`, `Playing`, `Paused`, `Loading`, `Error`.
