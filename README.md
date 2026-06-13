@@ -1,63 +1,36 @@
 # NeriPlayer Qt Desktop Client
 
-A Qt-based desktop client for NeriPlayer, providing a native desktop experience for music playback.
+A Qt 6 desktop client for NeriPlayer, providing a native cross-platform music playback experience.
 
 ## Features
 
 - Native Qt Widgets-based user interface
-- Cross-platform support (Windows, macOS, Linux)
-- Basic media player controls (Play, Pause, Stop)
-- Menu bar with standard application options
-- Status bar for feedback and messages
-- Modern C++17 codebase
+- Cross-platform support for Windows, macOS, and Linux
+- C++20 codebase with QCoro for asynchronous Qt workflows
+- Application bootstrap module with service registration
+- Core network scaffolding for HTTP, WebSocket, and network-state services
+- Menu bar, toolbar, and status bar placeholders for early development
 
 ## Building
 
 ### Prerequisites
 
-- Qt 5.15 or later
+- Qt 6.5 or later with Core, Gui, Widgets, Network, and WebSockets components
+- QCoro 0.10 or later with Core, Network, and WebSockets components
 - CMake 3.16 or later
-- C++17 compatible compiler
+- C++20-compatible compiler
 
 ### Build Instructions
 
 ```bash
 # Create build directory
-mkdir build && cd build
-
-# Configure with CMake
-cmake ..
+cmake -S . -B build
 
 # Build the project
-cmake --build .
+cmake --build build
 
 # Run the application
-./NeriPlayerQt
-```
-
-### Alternative: Using qmake
-
-If you prefer qmake, you can create a .pro file:
-
-```qmake
-QT += core gui widgets
-
-TARGET = NeriPlayerQt
-TEMPLATE = app
-
-SOURCES += src/main.cpp \
-           src/mainwindow.cpp
-
-HEADERS += src/mainwindow.h
-
-FORMS += src/mainwindow.ui
-```
-
-Then build with:
-
-```bash
-qmake
-make
+./build/NeriPlayerQt
 ```
 
 ## Project Structure
@@ -65,26 +38,28 @@ make
 ```
 neriplayer-qt/
 ├── CMakeLists.txt          # CMake build configuration
-├── README.md               # This file
-├── .gitignore              # Git ignore rules
+├── README.md               # Project overview and build instructions
+├── docs/                   # Architecture and module design documents
 └── src/
+    ├── app/                # Application bootstrap and service registration
+    ├── core/network/       # HTTP, WebSocket, and network status services
     ├── main.cpp            # Application entry point
     ├── mainwindow.h        # Main window header
     ├── mainwindow.cpp      # Main window implementation
     └── mainwindow.ui       # Qt Designer UI file
 ```
 
-## Development Status
+## Architecture Status
 
-This is an initial project setup with basic window functionality. Future development will include:
+The project is in early implementation. The current code establishes the application shell and first core services. The architecture documents describe the intended layered design, with Android NeriPlayer used as a feature reference rather than a direct dependency-shape template.
 
-- Media library management
-- Audio playback engine integration
-- Playlist management
-- Audio visualization
-- Settings and preferences
-- Theme support
-- Keyboard shortcuts
+Near-term implementation areas:
+
+- Domain models shared by API, repositories, player, and UI
+- Platform API clients for NetEase, Bilibili, YouTube Music, and QQ Music
+- Repository and service layers for search, playback, playlists, settings, and sync
+- ViewModels that expose Qt properties/signals without depending on UI widgets
+- Player integration and persistent local storage
 
 ## License
 
