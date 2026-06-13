@@ -18,7 +18,7 @@ private Q_SLOTS:
     void musicPlatform_defaultIsUnknown();
 
     // SearchType enum
-    void searchType_defaultIsAll();
+    void searchType_defaultIsSong();
 
     // PlaybackState enum
     void playbackState_playingNotStopped();
@@ -66,7 +66,7 @@ void TestDomainModels::musicPlatform_defaultIsUnknown()
     QCOMPARE(p, MusicPlatform::Unknown);
 }
 
-void TestDomainModels::searchType_defaultIsAll()
+void TestDomainModels::searchType_defaultIsSong()
 {
     SearchType t{};
     QCOMPARE(t, SearchType::Song); // default-constructed enum is 0 = Song
