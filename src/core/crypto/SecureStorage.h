@@ -6,8 +6,8 @@
 #define NERIPLAYERQT_SECURESTORAGE_H
 
 #include <QByteArray>
-#include <QString>
 #include <QHash>
+#include <QString>
 
 namespace NeriPlayerQt {
 

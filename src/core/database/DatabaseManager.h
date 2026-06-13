@@ -5,8 +5,8 @@
 #ifndef NERIPLAYERQT_DATABASEMANAGER_H
 #define NERIPLAYERQT_DATABASEMANAGER_H
 
-#include <QVariant>
 #include <QString>
+#include <QVariant>
 #include <QVector>
 
 #include <functional>
@@ -24,7 +24,9 @@ namespace NeriPlayerQt {
 class DatabaseError : public std::runtime_error {
 public:
     explicit DatabaseError(const std::string &message)
-        : std::runtime_error(message) {}
+        : std::runtime_error(message)
+    {
+    }
 };
 
 /**
@@ -79,8 +81,7 @@ public:
      * @return Rows for SELECT queries, empty for others
      * @throws DatabaseError on failure
      */
-    QVector<QueryRow> exec(const QString &sql,
-                           const QVariantList &params = {});
+    QVector<QueryRow> exec(const QString &sql, const QVariantList &params = { });
 
     /**
      * @brief Execute a SQL statement with named parameters
@@ -89,8 +90,7 @@ public:
      * @return Rows for SELECT queries, empty for others
      * @throws DatabaseError on failure
      */
-    QVector<QueryRow> execNamed(const QString &sql,
-                                const QVariantMap &params);
+    QVector<QueryRow> execNamed(const QString &sql, const QVariantMap &params);
 
     /**
      * @brief Begin a transaction

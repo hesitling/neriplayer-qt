@@ -15,7 +15,7 @@ namespace NeriPlayerQt {
  * @brief A single timed lyric line
  */
 struct LyricLine {
-    qint64 timestamp = 0;  ///< Milliseconds from song start
+    qint64 timestamp = 0; ///< Milliseconds from song start
     QString text;
 };
 
@@ -24,7 +24,7 @@ struct LyricLine {
  */
 struct Lyrics {
     QString rawText;
-    QVector<LyricLine> lines;  ///< Sorted by timestamp ascending
+    QVector<LyricLine> lines; ///< Sorted by timestamp ascending
 };
 
 } // namespace NeriPlayerQt

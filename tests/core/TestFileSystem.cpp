@@ -6,11 +6,11 @@
 #include "core/filesystem/FileUtils.h"
 #include "core/filesystem/FileWatcher.h"
 
-#include <QTest>
-#include <QTemporaryDir>
-#include <QFile>
 #include <QDir>
+#include <QFile>
 #include <QSignalSpy>
+#include <QTemporaryDir>
+#include <QTest>
 
 using namespace NeriPlayerQt;
 

@@ -20,8 +20,7 @@ class Logger;
 class AppPaths;
 class SecureStorage;
 
-class NeriPlayerApplication : public QApplication
-{
+class NeriPlayerApplication : public QApplication {
     Q_OBJECT
 
 public:

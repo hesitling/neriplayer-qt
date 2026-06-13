@@ -4,8 +4,8 @@
 
 #include "core/crypto/CryptoUtils.h"
 
-#include <openssl/rand.h>
 #include <openssl/evp.h>
+#include <openssl/rand.h>
 
 #include <array>
 #include <iomanip>
@@ -27,8 +27,7 @@ QByteArray CryptoUtils::sha256(const QByteArray &data)
     unsigned char hash[EVP_MAX_MD_SIZE];
     unsigned int length = 0;
 
-    if (EVP_Digest(data.constData(), data.size(), hash, &length,
-                   EVP_sha256(), nullptr) != 1) {
+    if (EVP_Digest(data.constData(), data.size(), hash, &length, EVP_sha256(), nullptr) != 1) {
         throw CryptoError("SHA-256 computation failed");
     }
 

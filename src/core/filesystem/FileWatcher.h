@@ -5,8 +5,8 @@
 #ifndef NERIPLAYERQT_FILEWATCHER_H
 #define NERIPLAYERQT_FILEWATCHER_H
 
-#include <QObject>
 #include <QFileSystemWatcher>
+#include <QObject>
 #include <QString>
 
 namespace NeriPlayerQt {

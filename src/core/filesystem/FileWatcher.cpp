@@ -9,10 +9,8 @@ namespace NeriPlayerQt {
 FileWatcher::FileWatcher(QObject *parent)
     : QObject(parent)
 {
-    connect(&m_watcher, &QFileSystemWatcher::fileChanged,
-            this, &FileWatcher::fileChanged);
-    connect(&m_watcher, &QFileSystemWatcher::directoryChanged,
-            this, &FileWatcher::fileChanged);
+    connect(&m_watcher, &QFileSystemWatcher::fileChanged, this, &FileWatcher::fileChanged);
+    connect(&m_watcher, &QFileSystemWatcher::directoryChanged, this, &FileWatcher::fileChanged);
 }
 
 void FileWatcher::watch(const QString &path)

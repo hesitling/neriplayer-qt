@@ -13,8 +13,7 @@ namespace NeriPlayerQt {
 static constexpr int NONCE_SIZE = 12;
 static constexpr int TAG_SIZE = 16;
 
-QByteArray Encryptor::encrypt(const QByteArray &plaintext,
-                              const QByteArray &key)
+QByteArray Encryptor::encrypt(const QByteArray &plaintext, const QByteArray &key)
 {
     if (key.size() != 32) {
         throw CryptoError("Key must be 32 bytes");
@@ -32,23 +31,20 @@ QByteArray Encryptor::encrypt(const QByteArray &plaintext,
     }
 
     // Initialize encryption
-    if (EVP_EncryptInit_ex(ctx, EVP_aes_256_gcm(), nullptr, nullptr,
-                           nullptr) != 1) {
+    if (EVP_EncryptInit_ex(ctx, EVP_aes_256_gcm(), nullptr, nullptr, nullptr) != 1) {
         EVP_CIPHER_CTX_free(ctx);
         throw CryptoError("Failed to initialize AES-256-GCM");
     }
 
     // Set nonce length
-    if (EVP_CIPHER_CTX_ctrl(ctx, EVP_CTRL_GCM_SET_IVLEN, NONCE_SIZE,
-                            nullptr) != 1) {
+    if (EVP_CIPHER_CTX_ctrl(ctx, EVP_CTRL_GCM_SET_IVLEN, NONCE_SIZE, nullptr) != 1) {
         EVP_CIPHER_CTX_free(ctx);
         throw CryptoError("Failed to set nonce length");
     }
 
     // Set nonce
-    if (EVP_EncryptInit_ex(ctx, nullptr, nullptr,
-                           reinterpret_cast<const unsigned char *>(key.constData()),
-                           nonce) != 1) {
+    if (EVP_EncryptInit_ex(ctx, nullptr, nullptr, reinterpret_cast<const unsigned char *>(key.constData()), nonce)
+        != 1) {
         EVP_CIPHER_CTX_free(ctx);
         throw CryptoError("Failed to set key and nonce");
     }
@@ -56,19 +52,15 @@ QByteArray Encryptor::encrypt(const QByteArray &plaintext,
     // Encrypt
     QByteArray ciphertext(plaintext.size(), '\0');
     int outLen = 0;
-    if (EVP_EncryptUpdate(ctx,
-                          reinterpret_cast<unsigned char *>(ciphertext.data()),
-                          &outLen,
-                          reinterpret_cast<const unsigned char *>(plaintext.constData()),
-                          plaintext.size()) != 1) {
+    if (EVP_EncryptUpdate(ctx, reinterpret_cast<unsigned char *>(ciphertext.data()), &outLen,
+                          reinterpret_cast<const unsigned char *>(plaintext.constData()), plaintext.size())
+        != 1) {
         EVP_CIPHER_CTX_free(ctx);
         throw CryptoError("Encryption failed");
     }
 
     int finalLen = 0;
-    if (EVP_EncryptFinal_ex(ctx,
-                            reinterpret_cast<unsigned char *>(ciphertext.data()) + outLen,
-                            &finalLen) != 1) {
+    if (EVP_EncryptFinal_ex(ctx, reinterpret_cast<unsigned char *>(ciphertext.data()) + outLen, &finalLen) != 1) {
         EVP_CIPHER_CTX_free(ctx);
         throw CryptoError("Encryption finalization failed");
     }

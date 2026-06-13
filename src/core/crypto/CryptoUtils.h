@@ -16,7 +16,9 @@ namespace NeriPlayerQt {
 class CryptoError : public std::runtime_error {
 public:
     explicit CryptoError(const std::string &message)
-        : std::runtime_error(message) {}
+        : std::runtime_error(message)
+    {
+    }
 };
 
 /**

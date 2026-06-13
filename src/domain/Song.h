@@ -23,11 +23,11 @@ struct Song {
     QString artist;
     QString album;
     QString albumId;
-    qint64 duration = 0;      ///< Duration in milliseconds
+    qint64 duration = 0; ///< Duration in milliseconds
     QUrl coverUrl;
     QUrl playbackUrl;
     MusicPlatform platform = MusicPlatform::Unknown;
-    QVariantMap extra;          ///< Platform-specific fields
+    QVariantMap extra; ///< Platform-specific fields
 };
 
 } // namespace NeriPlayerQt

@@ -57,8 +57,7 @@ int DatabaseManager::schemaVersion() const
     return m_currentVersion;
 }
 
-void DatabaseManager::registerMigration(int version,
-                                        std::function<bool(sqlite3 *)> fn)
+void DatabaseManager::registerMigration(int version, std::function<bool(sqlite3 *)> fn)
 {
     m_migrations.emplace_back(version, std::move(fn));
 }
@@ -66,77 +65,66 @@ void DatabaseManager::registerMigration(int version,
 static void bindVariant(sqlite3_stmt *stmt, int idx, const QVariant &value)
 {
     switch (value.typeId()) {
-    case QMetaType::QString: {
-        QByteArray utf8 = value.toString().toUtf8();
-        sqlite3_bind_text(stmt, idx, utf8.constData(), utf8.size(),
-                          SQLITE_TRANSIENT);
-        break;
-    }
-    case QMetaType::Int:
-    case QMetaType::UInt:
-        sqlite3_bind_int(stmt, idx, value.toInt());
-        break;
-    case QMetaType::LongLong:
-    case QMetaType::ULongLong:
-        sqlite3_bind_int64(stmt, idx, value.toLongLong());
-        break;
-    case QMetaType::Double:
-        sqlite3_bind_double(stmt, idx, value.toDouble());
-        break;
-    case QMetaType::QByteArray: {
-        QByteArray ba = value.toByteArray();
-        sqlite3_bind_blob(stmt, idx, ba.constData(), ba.size(),
-                          SQLITE_TRANSIENT);
-        break;
-    }
-    case QMetaType::Nullptr:
-    case QMetaType::UnknownType:
-        sqlite3_bind_null(stmt, idx);
-        break;
-    default: {
-        QByteArray utf8 = value.toString().toUtf8();
-        sqlite3_bind_text(stmt, idx, utf8.constData(), utf8.size(),
-                          SQLITE_TRANSIENT);
-        break;
-    }
+        case QMetaType::QString: {
+            QByteArray utf8 = value.toString().toUtf8();
+            sqlite3_bind_text(stmt, idx, utf8.constData(), utf8.size(), SQLITE_TRANSIENT);
+            break;
+        }
+        case QMetaType::Int:
+        case QMetaType::UInt:
+            sqlite3_bind_int(stmt, idx, value.toInt());
+            break;
+        case QMetaType::LongLong:
+        case QMetaType::ULongLong:
+            sqlite3_bind_int64(stmt, idx, value.toLongLong());
+            break;
+        case QMetaType::Double:
+            sqlite3_bind_double(stmt, idx, value.toDouble());
+            break;
+        case QMetaType::QByteArray: {
+            QByteArray ba = value.toByteArray();
+            sqlite3_bind_blob(stmt, idx, ba.constData(), ba.size(), SQLITE_TRANSIENT);
+            break;
+        }
+        case QMetaType::Nullptr:
+        case QMetaType::UnknownType:
+            sqlite3_bind_null(stmt, idx);
+            break;
+        default: {
+            QByteArray utf8 = value.toString().toUtf8();
+            sqlite3_bind_text(stmt, idx, utf8.constData(), utf8.size(), SQLITE_TRANSIENT);
+            break;
+        }
     }
 }
 
 static QVariant readColumn(sqlite3_stmt *stmt, int col)
 {
     switch (sqlite3_column_type(stmt, col)) {
-    case SQLITE_INTEGER:
-        return QVariant(sqlite3_column_int64(stmt, col));
-    case SQLITE_FLOAT:
-        return QVariant(sqlite3_column_double(stmt, col));
-    case SQLITE_TEXT:
-        return QVariant(
-            QString::fromUtf8(
-                reinterpret_cast<const char *>(
-                    sqlite3_column_text(stmt, col)),
-                sqlite3_column_bytes(stmt, col)));
-    case SQLITE_BLOB:
-        return QVariant(
-            QByteArray(
-                static_cast<const char *>(
-                    sqlite3_column_blob(stmt, col)),
-                sqlite3_column_bytes(stmt, col)));
-    case SQLITE_NULL:
-    default:
-        return QVariant();
+        case SQLITE_INTEGER:
+            return QVariant(sqlite3_column_int64(stmt, col));
+        case SQLITE_FLOAT:
+            return QVariant(sqlite3_column_double(stmt, col));
+        case SQLITE_TEXT:
+            return QVariant(QString::fromUtf8(reinterpret_cast<const char *>(sqlite3_column_text(stmt, col)),
+                                              sqlite3_column_bytes(stmt, col)));
+        case SQLITE_BLOB:
+            return QVariant(
+                QByteArray(static_cast<const char *>(sqlite3_column_blob(stmt, col)), sqlite3_column_bytes(stmt, col)));
+        case SQLITE_NULL:
+        default:
+            return QVariant();
     }
 }
 
-QVector<QueryRow> DatabaseManager::exec(const QString &sql,
-                                        const QVariantList &params)
+QVector<QueryRow> DatabaseManager::exec(const QString &sql, const QVariantList &params)
 {
     if (!m_db) {
         throw DatabaseError("Database not open");
     }
 
     sqlite3_stmt *stmt = nullptr;
-    int rc = sqlite3_prepare_v2(m_db, sql.toUtf8().constData(), -1, &stmt,
-                                nullptr);
+    int rc = sqlite3_prepare_v2(m_db, sql.toUtf8().constData(), -1, &stmt, nullptr);
     if (rc != SQLITE_OK) {
         std::string err = sqlite3_errmsg(m_db);
         throw DatabaseError("Prepare failed: " + err);
@@ -169,16 +157,14 @@ QVector<QueryRow> DatabaseManager::exec(const QString &sql,
     return rows;
 }
 
-QVector<QueryRow> DatabaseManager::execNamed(const QString &sql,
-                                             const QVariantMap &params)
+QVector<QueryRow> DatabaseManager::execNamed(const QString &sql, const QVariantMap &params)
 {
     if (!m_db) {
         throw DatabaseError("Database not open");
     }
 
     sqlite3_stmt *stmt = nullptr;
-    int rc = sqlite3_prepare_v2(m_db, sql.toUtf8().constData(), -1, &stmt,
-                                nullptr);
+    int rc = sqlite3_prepare_v2(m_db, sql.toUtf8().constData(), -1, &stmt, nullptr);
     if (rc != SQLITE_OK) {
         std::string err = sqlite3_errmsg(m_db);
         throw DatabaseError("Prepare failed: " + err);
@@ -186,8 +172,7 @@ QVector<QueryRow> DatabaseManager::execNamed(const QString &sql,
 
     // Bind named parameters
     for (auto it = params.begin(); it != params.end(); ++it) {
-        int idx = sqlite3_bind_parameter_index(stmt,
-                                               it.key().toUtf8().constData());
+        int idx = sqlite3_bind_parameter_index(stmt, it.key().toUtf8().constData());
         if (idx > 0) {
             bindVariant(stmt, idx, it.value());
         }
@@ -220,11 +205,9 @@ void DatabaseManager::beginTransaction()
     if (!m_db) {
         throw DatabaseError(std::string("Database not open"));
     }
-    int rc = sqlite3_exec(m_db, "BEGIN TRANSACTION;", nullptr, nullptr,
-                          nullptr);
+    int rc = sqlite3_exec(m_db, "BEGIN TRANSACTION;", nullptr, nullptr, nullptr);
     if (rc != SQLITE_OK) {
-        throw DatabaseError(std::string("Begin failed: ") +
-                            sqlite3_errmsg(m_db));
+        throw DatabaseError(std::string("Begin failed: ") + sqlite3_errmsg(m_db));
     }
 }
 
@@ -235,8 +218,7 @@ void DatabaseManager::commitTransaction()
     }
     int rc = sqlite3_exec(m_db, "COMMIT;", nullptr, nullptr, nullptr);
     if (rc != SQLITE_OK) {
-        throw DatabaseError(std::string("Commit failed: ") +
-                            sqlite3_errmsg(m_db));
+        throw DatabaseError(std::string("Commit failed: ") + sqlite3_errmsg(m_db));
     }
 }
 
@@ -247,8 +229,7 @@ void DatabaseManager::rollbackTransaction()
     }
     int rc = sqlite3_exec(m_db, "ROLLBACK;", nullptr, nullptr, nullptr);
     if (rc != SQLITE_OK) {
-        throw DatabaseError(std::string("Rollback failed: ") +
-                            sqlite3_errmsg(m_db));
+        throw DatabaseError(std::string("Rollback failed: ") + sqlite3_errmsg(m_db));
     }
 }
 
@@ -262,8 +243,7 @@ void DatabaseManager::ensureSchemaVersionTable()
 
     auto rows = exec("SELECT version FROM schema_version");
     if (rows.isEmpty()) {
-        exec("INSERT INTO schema_version (version) VALUES (?)",
-             {QVariant(0)});
+        exec("INSERT INTO schema_version (version) VALUES (?)", { QVariant(0) });
         m_currentVersion = 0;
     } else {
         m_currentVersion = rows[0][0].toInt();
@@ -275,13 +255,12 @@ void DatabaseManager::runMigrations()
     // Apply initial schema (version 1) if needed
     if (m_currentVersion < 1) {
         applyInitialSchema(m_db);
-        exec("UPDATE schema_version SET version = ?", {QVariant(1)});
+        exec("UPDATE schema_version SET version = ?", { QVariant(1) });
         m_currentVersion = 1;
     }
 
     // Apply registered migrations in version order
-    std::sort(m_migrations.begin(), m_migrations.end(),
-              [](const auto &a, const auto &b) { return a.first < b.first; });
+    std::sort(m_migrations.begin(), m_migrations.end(), [](const auto &a, const auto &b) { return a.first < b.first; });
 
     for (const auto &[version, fn] : m_migrations) {
         if (m_currentVersion < version) {
@@ -289,11 +268,9 @@ void DatabaseManager::runMigrations()
             try {
                 if (!fn(m_db)) {
                     rollbackTransaction();
-                    throw DatabaseError("Migration to version " +
-                                        std::to_string(version) + " failed");
+                    throw DatabaseError("Migration to version " + std::to_string(version) + " failed");
                 }
-                exec("UPDATE schema_version SET version = ?",
-                     {QVariant(version)});
+                exec("UPDATE schema_version SET version = ?", { QVariant(version) });
                 commitTransaction();
                 m_currentVersion = version;
             } catch (...) {

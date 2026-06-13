@@ -62,13 +62,13 @@ void TestDomainModels::musicPlatform_comparison()
 
 void TestDomainModels::musicPlatform_defaultIsUnknown()
 {
-    MusicPlatform p{};
+    MusicPlatform p { };
     QCOMPARE(p, MusicPlatform::Unknown);
 }
 
 void TestDomainModels::searchType_defaultIsSong()
 {
-    SearchType t{};
+    SearchType t { };
     QCOMPARE(t, SearchType::Song); // default-constructed enum is 0 = Song
 }
 
@@ -160,7 +160,7 @@ void TestDomainModels::playlist_withSongs()
 
     Playlist p;
     p.name = QStringLiteral("My Playlist");
-    p.songs = {s1, s2, s3};
+    p.songs = { s1, s2, s3 };
     p.songCount = p.songs.size();
 
     QCOMPARE(p.songCount, 3);
@@ -173,10 +173,7 @@ void TestDomainModels::lyrics_ordering()
 {
     Lyrics lyrics;
     lyrics.rawText = QStringLiteral("[00:00.000]Hello\n[00:05.000]World");
-    lyrics.lines = {
-        {0, QStringLiteral("Hello")},
-        {5000, QStringLiteral("World")}
-    };
+    lyrics.lines = { { 0, QStringLiteral("Hello") }, { 5000, QStringLiteral("World") } };
 
     QCOMPARE(lyrics.lines[0].timestamp, 0);
     QCOMPARE(lyrics.lines[0].text, QStringLiteral("Hello"));

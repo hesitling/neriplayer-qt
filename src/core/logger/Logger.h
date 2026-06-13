@@ -5,9 +5,9 @@
 #ifndef NERIPLAYERQT_LOGGER_H
 #define NERIPLAYERQT_LOGGER_H
 
-#include <spdlog/spdlog.h>
 #include <spdlog/sinks/rotating_file_sink.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
+#include <spdlog/spdlog.h>
 
 #include <QString>
 
@@ -19,24 +19,17 @@ namespace NeriPlayerQt {
 /**
  * @brief Log severity levels
  */
-enum class LogLevel {
-    Trace,
-    Debug,
-    Info,
-    Warn,
-    Error,
-    Fatal
-};
+enum class LogLevel { Trace, Debug, Info, Warn, Error, Fatal };
 
 /**
  * @brief Logger configuration
  */
 struct LoggerConfig {
-    QString logDir;           ///< Directory for log files
+    QString logDir; ///< Directory for log files
     LogLevel level = LogLevel::Info;
     bool enableConsole = true;
-    int maxFileSize = 10 * 1024 * 1024;  ///< 10 MB per file
-    int maxFiles = 7;         ///< Keep 7 rotated files
+    int maxFileSize = 10 * 1024 * 1024; ///< 10 MB per file
+    int maxFiles = 7;                   ///< Keep 7 rotated files
 };
 
 /**
@@ -55,33 +48,33 @@ public:
     void error(const char *msg);
     void fatal(const char *msg);
 
-    template<typename... Args>
-    void trace(fmt::format_string<Args...> fmt, Args &&...args) {
+    template <typename... Args> void trace(fmt::format_string<Args...> fmt, Args &&...args)
+    {
         m_logger->trace(fmt, std::forward<Args>(args)...);
     }
 
-    template<typename... Args>
-    void debug(fmt::format_string<Args...> fmt, Args &&...args) {
+    template <typename... Args> void debug(fmt::format_string<Args...> fmt, Args &&...args)
+    {
         m_logger->debug(fmt, std::forward<Args>(args)...);
     }
 
-    template<typename... Args>
-    void info(fmt::format_string<Args...> fmt, Args &&...args) {
+    template <typename... Args> void info(fmt::format_string<Args...> fmt, Args &&...args)
+    {
         m_logger->info(fmt, std::forward<Args>(args)...);
     }
 
-    template<typename... Args>
-    void warn(fmt::format_string<Args...> fmt, Args &&...args) {
+    template <typename... Args> void warn(fmt::format_string<Args...> fmt, Args &&...args)
+    {
         m_logger->warn(fmt, std::forward<Args>(args)...);
     }
 
-    template<typename... Args>
-    void error(fmt::format_string<Args...> fmt, Args &&...args) {
+    template <typename... Args> void error(fmt::format_string<Args...> fmt, Args &&...args)
+    {
         m_logger->error(fmt, std::forward<Args>(args)...);
     }
 
-    template<typename... Args>
-    void fatal(fmt::format_string<Args...> fmt, Args &&...args) {
+    template <typename... Args> void fatal(fmt::format_string<Args...> fmt, Args &&...args)
+    {
         m_logger->critical(fmt, std::forward<Args>(args)...);
     }
 

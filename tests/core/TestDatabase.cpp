@@ -6,8 +6,8 @@
 
 #include <sqlite3.h>
 
-#include <QTest>
 #include <QTemporaryDir>
+#include <QTest>
 
 using namespace NeriPlayerQt;
 
@@ -145,11 +145,9 @@ void TestDatabase::exec_selectWithPositionalParams()
     DatabaseManager db;
     QVERIFY(db.open(path));
 
-    db.exec("INSERT INTO settings (key, value) VALUES (?, ?)",
-            {QString("mykey"), QString("myval")});
+    db.exec("INSERT INTO settings (key, value) VALUES (?, ?)", { QString("mykey"), QString("myval") });
 
-    auto rows = db.exec("SELECT key, value FROM settings WHERE key = ?",
-                        {QString("mykey")});
+    auto rows = db.exec("SELECT key, value FROM settings WHERE key = ?", { QString("mykey") });
     QCOMPARE(rows.size(), 1);
     QCOMPARE(rows[0][0].toString(), QStringLiteral("mykey"));
     QCOMPARE(rows[0][1].toString(), QStringLiteral("myval"));
@@ -164,10 +162,8 @@ void TestDatabase::exec_insertAndSelect()
     DatabaseManager db;
     QVERIFY(db.open(path));
 
-    db.exec("INSERT INTO settings (key, value) VALUES (?, ?)",
-            {QString("k1"), QString("v1")});
-    db.exec("INSERT INTO settings (key, value) VALUES (?, ?)",
-            {QString("k2"), QString("v2")});
+    db.exec("INSERT INTO settings (key, value) VALUES (?, ?)", { QString("k1"), QString("v1") });
+    db.exec("INSERT INTO settings (key, value) VALUES (?, ?)", { QString("k2"), QString("v2") });
 
     auto rows = db.exec("SELECT key, value FROM settings ORDER BY key");
     QCOMPARE(rows.size(), 2);
@@ -184,13 +180,11 @@ void TestDatabase::exec_selectWithNamedParams()
     DatabaseManager db;
     QVERIFY(db.open(path));
 
-    db.exec("INSERT INTO settings (key, value) VALUES (?, ?)",
-            {QString("named_test"), QString("val")});
+    db.exec("INSERT INTO settings (key, value) VALUES (?, ?)", { QString("named_test"), QString("val") });
 
     QVariantMap params;
     params[":k"] = QString("named_test");
-    auto rows = db.execNamed(
-        "SELECT key, value FROM settings WHERE key = :k", params);
+    auto rows = db.execNamed("SELECT key, value FROM settings WHERE key = :k", params);
     QCOMPARE(rows.size(), 1);
     QCOMPARE(rows[0][0].toString(), QStringLiteral("named_test"));
 
@@ -205,10 +199,8 @@ void TestDatabase::transaction_commit()
     QVERIFY(db.open(path));
 
     db.beginTransaction();
-    db.exec("INSERT INTO settings (key, value) VALUES (?, ?)",
-            {QString("txn_k1"), QString("txn_v1")});
-    db.exec("INSERT INTO settings (key, value) VALUES (?, ?)",
-            {QString("txn_k2"), QString("txn_v2")});
+    db.exec("INSERT INTO settings (key, value) VALUES (?, ?)", { QString("txn_k1"), QString("txn_v1") });
+    db.exec("INSERT INTO settings (key, value) VALUES (?, ?)", { QString("txn_k2"), QString("txn_v2") });
     db.commitTransaction();
 
     auto rows = db.exec("SELECT key FROM settings WHERE key LIKE 'txn_%'");
@@ -225,8 +217,7 @@ void TestDatabase::transaction_rollback()
     QVERIFY(db.open(path));
 
     db.beginTransaction();
-    db.exec("INSERT INTO settings (key, value) VALUES (?, ?)",
-            {QString("rollback_k"), QString("rollback_v")});
+    db.exec("INSERT INTO settings (key, value) VALUES (?, ?)", { QString("rollback_k"), QString("rollback_v") });
     db.rollbackTransaction();
 
     auto rows = db.exec("SELECT key FROM settings WHERE key = 'rollback_k'");
@@ -255,8 +246,7 @@ void TestDatabase::initialSchema_createsAllTables()
     QVERIFY(db.open(path));
 
     // Check all tables exist by querying sqlite_master
-    auto rows = db.exec(
-        "SELECT name FROM sqlite_master WHERE type='table' ORDER BY name");
+    auto rows = db.exec("SELECT name FROM sqlite_master WHERE type='table' ORDER BY name");
 
     QStringList tables;
     for (const auto &row : rows) {

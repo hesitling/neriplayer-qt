@@ -24,12 +24,30 @@ void NamedLogger::setLevel(LogLevel level)
     m_logger->set_level(Logger::toSpdlogLevel(level));
 }
 
-void NamedLogger::trace(const char *msg) { m_logger->trace(msg); }
-void NamedLogger::debug(const char *msg) { m_logger->debug(msg); }
-void NamedLogger::info(const char *msg)  { m_logger->info(msg); }
-void NamedLogger::warn(const char *msg)  { m_logger->warn(msg); }
-void NamedLogger::error(const char *msg) { m_logger->error(msg); }
-void NamedLogger::fatal(const char *msg) { m_logger->critical(msg); }
+void NamedLogger::trace(const char *msg)
+{
+    m_logger->trace(msg);
+}
+void NamedLogger::debug(const char *msg)
+{
+    m_logger->debug(msg);
+}
+void NamedLogger::info(const char *msg)
+{
+    m_logger->info(msg);
+}
+void NamedLogger::warn(const char *msg)
+{
+    m_logger->warn(msg);
+}
+void NamedLogger::error(const char *msg)
+{
+    m_logger->error(msg);
+}
+void NamedLogger::fatal(const char *msg)
+{
+    m_logger->critical(msg);
+}
 
 // Logger static members
 
@@ -57,10 +75,8 @@ void Logger::initialize(const LoggerConfig &config)
 
     // File sink with daily-style rotation (by size, with max files)
     QString logPath = logDir.filePath("neriplayer-" + QDate::currentDate().toString("yyyy-MM-dd") + ".log");
-    s_fileSink = std::make_shared<spdlog::sinks::rotating_file_sink_mt>(
-        logPath.toStdString(),
-        config.maxFileSize,
-        config.maxFiles);
+    s_fileSink = std::make_shared<spdlog::sinks::rotating_file_sink_mt>(logPath.toStdString(), config.maxFileSize,
+                                                                        config.maxFiles);
 
     std::vector<spdlog::sink_ptr> sinks;
     sinks.push_back(s_fileSink);
@@ -72,14 +88,13 @@ void Logger::initialize(const LoggerConfig &config)
     }
 
     // Create the default logger
-    auto defaultLogger = std::make_shared<spdlog::logger>(
-        "default", sinks.begin(), sinks.end());
+    auto defaultLogger = std::make_shared<spdlog::logger>("default", sinks.begin(), sinks.end());
     defaultLogger->set_level(toSpdlogLevel(config.level));
     defaultLogger->set_pattern("[%Y-%m-%d %H:%M:%S.%e] [%l] [%n] %v");
     spdlog::set_default_logger(defaultLogger);
 
     // Pre-create standard loggers
-    for (const auto &name : {"app", "network", "player", "api", "ui"}) {
+    for (const auto &name : { "app", "network", "player", "api", "ui" }) {
         auto logger = std::make_shared<spdlog::logger>(name, sinks.begin(), sinks.end());
         logger->set_level(toSpdlogLevel(config.level));
         logger->set_pattern("[%Y-%m-%d %H:%M:%S.%e] [%l] [%n] %v");
@@ -104,8 +119,10 @@ std::shared_ptr<NamedLogger> Logger::get(const QString &name)
 
     // Create a new logger with the same sinks
     std::vector<spdlog::sink_ptr> sinks;
-    if (s_fileSink) sinks.push_back(s_fileSink);
-    if (s_consoleSink) sinks.push_back(s_consoleSink);
+    if (s_fileSink)
+        sinks.push_back(s_fileSink);
+    if (s_consoleSink)
+        sinks.push_back(s_consoleSink);
 
     auto logger = std::make_shared<spdlog::logger>(key, sinks.begin(), sinks.end());
     logger->set_level(toSpdlogLevel(s_config.level));
@@ -131,20 +148,29 @@ void Logger::setLevel(LogLevel level)
     spdlog::set_level(spdLevel);
 
     // Update all sinks
-    if (s_fileSink) s_fileSink->set_level(spdLevel);
-    if (s_consoleSink) s_consoleSink->set_level(spdLevel);
+    if (s_fileSink)
+        s_fileSink->set_level(spdLevel);
+    if (s_consoleSink)
+        s_consoleSink->set_level(spdLevel);
 }
 
 spdlog::level::level_enum Logger::toSpdlogLevel(LogLevel level)
 {
     switch (level) {
-    case LogLevel::Trace: return spdlog::level::trace;
-    case LogLevel::Debug: return spdlog::level::debug;
-    case LogLevel::Info:  return spdlog::level::info;
-    case LogLevel::Warn:  return spdlog::level::warn;
-    case LogLevel::Error: return spdlog::level::err;
-    case LogLevel::Fatal: return spdlog::level::critical;
-    default: return spdlog::level::info;
+        case LogLevel::Trace:
+            return spdlog::level::trace;
+        case LogLevel::Debug:
+            return spdlog::level::debug;
+        case LogLevel::Info:
+            return spdlog::level::info;
+        case LogLevel::Warn:
+            return spdlog::level::warn;
+        case LogLevel::Error:
+            return spdlog::level::err;
+        case LogLevel::Fatal:
+            return spdlog::level::critical;
+        default:
+            return spdlog::level::info;
     }
 }
 

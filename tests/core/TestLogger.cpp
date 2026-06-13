@@ -4,10 +4,10 @@
 
 #include "core/logger/Logger.h"
 
-#include <QTest>
-#include <QTemporaryDir>
 #include <QDir>
 #include <QFile>
+#include <QTemporaryDir>
+#include <QTest>
 
 using namespace NeriPlayerQt;
 

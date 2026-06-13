@@ -23,8 +23,7 @@ public:
      * @return Decrypted plaintext
      * @throws CryptoError on authentication failure or invalid key
      */
-    static QByteArray decrypt(const QByteArray &ciphertext,
-                              const QByteArray &key);
+    static QByteArray decrypt(const QByteArray &ciphertext, const QByteArray &key);
 };
 
 } // namespace NeriPlayerQt

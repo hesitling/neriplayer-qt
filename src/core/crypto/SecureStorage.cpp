@@ -3,14 +3,14 @@
 /// @date 2024-01-15
 
 #include "core/crypto/SecureStorage.h"
-#include "core/crypto/Encryptor.h"
-#include "core/crypto/Decryptor.h"
 #include "core/crypto/CryptoUtils.h"
+#include "core/crypto/Decryptor.h"
+#include "core/crypto/Encryptor.h"
 
 #include <QFile>
+#include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
-#include <QJsonArray>
 
 namespace NeriPlayerQt {
 
@@ -25,8 +25,7 @@ void SecureStorage::set(const QString &key, const QString &value)
         load();
     }
 
-    QByteArray encryptedValue = Encryptor::encrypt(
-        value.toUtf8(), m_masterKey);
+    QByteArray encryptedValue = Encryptor::encrypt(value.toUtf8(), m_masterKey);
     m_encryptedData[key] = encryptedValue;
     save();
 }
@@ -39,14 +38,14 @@ QString SecureStorage::get(const QString &key) const
 
     auto it = m_encryptedData.find(key);
     if (it == m_encryptedData.end()) {
-        return {};
+        return { };
     }
 
     try {
         QByteArray decrypted = Decryptor::decrypt(it.value(), m_masterKey);
         return QString::fromUtf8(decrypted);
     } catch (const CryptoError &) {
-        return {};
+        return { };
     }
 }
 
@@ -88,8 +87,7 @@ void SecureStorage::load() const
 
     QJsonObject root = doc.object();
     for (auto it = root.begin(); it != root.end(); ++it) {
-        QByteArray encryptedBytes = QByteArray::fromBase64(
-            it.value().toString().toUtf8());
+        QByteArray encryptedBytes = QByteArray::fromBase64(it.value().toString().toUtf8());
         m_encryptedData[it.key()] = encryptedBytes;
     }
 }

@@ -80,8 +80,7 @@ void NeriPlayerApplication::initializeCoreServices()
     m_services.registerService<DatabaseManager>(std::move(db));
 
     // 3. SecureStorage
-    auto storage = std::make_unique<SecureStorage>(
-        AppPaths::dataDir() + QStringLiteral("/secrets.dat"));
+    auto storage = std::make_unique<SecureStorage>(AppPaths::dataDir() + QStringLiteral("/secrets.dat"));
     m_services.registerService<SecureStorage>(std::move(storage));
 
     // 4. Network

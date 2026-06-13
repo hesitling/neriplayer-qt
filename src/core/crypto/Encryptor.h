@@ -23,8 +23,7 @@ public:
      * @return Encrypted data with prepended nonce and appended auth tag
      * @throws CryptoError on failure
      */
-    static QByteArray encrypt(const QByteArray &plaintext,
-                              const QByteArray &key);
+    static QByteArray encrypt(const QByteArray &plaintext, const QByteArray &key);
 };
 
 } // namespace NeriPlayerQt

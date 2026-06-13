@@ -2,16 +2,16 @@
 /// @brief Unit tests for the crypto module
 /// @date 2024-01-15
 
-#include "core/crypto/Encryptor.h"
-#include "core/crypto/Decryptor.h"
 #include "core/crypto/CryptoUtils.h"
+#include "core/crypto/Decryptor.h"
+#include "core/crypto/Encryptor.h"
 #include "core/crypto/SecureStorage.h"
 
-#include <QTest>
-#include <QTemporaryDir>
 #include <QFile>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <QTemporaryDir>
+#include <QTest>
 
 using namespace NeriPlayerQt;
 

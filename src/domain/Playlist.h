@@ -26,7 +26,7 @@ struct Playlist {
     int songCount = 0;
     QString owner;
     MusicPlatform platform = MusicPlatform::Unknown;
-    QVector<Song> songs;  ///< Optionally populated
+    QVector<Song> songs; ///< Optionally populated
 };
 
 } // namespace NeriPlayerQt
