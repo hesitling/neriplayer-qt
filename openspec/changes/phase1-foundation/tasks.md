@@ -52,15 +52,15 @@
 
 ## 5. Crypto Module
 
-- [ ] 5.1 Create `src/core/crypto/` directory structure
-- [ ] 5.2 Add OpenSSL dependency check to CMakeLists.txt
-- [ ] 5.3 Implement `Encryptor` class with AES-256-GCM encrypt (12-byte random nonce prepended)
-- [ ] 5.4 Implement `Decryptor` class with AES-256-GCM decrypt and tag verification
-- [ ] 5.5 Define `CryptoError` exception type
-- [ ] 5.6 Implement `CryptoUtils::generateKey()` for 32-byte random key
-- [ ] 5.7 Implement `CryptoUtils::sha256()` returning hex string
-- [ ] 5.8 Implement `SecureStorage` class with encrypted key-value persistence on disk
-- [ ] 5.9 Implement encryption key derivation/storage using OS secure storage (Keychain/DPAPI/Secret Service)
+- [x] 5.1 Create `src/core/crypto/` directory structure
+- [x] 5.2 Add OpenSSL dependency check to CMakeLists.txt
+- [x] 5.3 Implement `Encryptor` class with AES-256-GCM encrypt (12-byte random nonce prepended)
+- [x] 5.4 Implement `Decryptor` class with AES-256-GCM decrypt and tag verification
+- [x] 5.5 Define `CryptoError` exception type
+- [x] 5.6 Implement `CryptoUtils::generateKey()` for 32-byte random key
+- [x] 5.7 Implement `CryptoUtils::sha256()` returning hex string
+- [x] 5.8 Implement `SecureStorage` class with encrypted key-value persistence on disk
+- [x] 5.9 Implement encryption key derivation/storage using OS secure storage (Keychain/DPAPI/Secret Service)
 
 ## 6. App Bootstrap Integration
 

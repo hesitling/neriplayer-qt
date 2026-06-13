@@ -42,6 +42,10 @@ set(CMAKE_AUTORCC ON)
 set(SOURCES
     src/main.cpp
     src/app/NeriPlayerApplication.cpp
+    src/core/crypto/CryptoUtils.cpp
+    src/core/crypto/Encryptor.cpp
+    src/core/crypto/Decryptor.cpp
+    src/core/crypto/SecureStorage.cpp
     src/core/database/DatabaseManager.cpp
     src/core/filesystem/AppPaths.cpp
     src/core/filesystem/FileUtils.cpp
@@ -58,6 +62,10 @@ set(SOURCES
 set(HEADERS
     src/app/NeriPlayerApplication.h
     src/app/ServiceLocator.h
+    src/core/crypto/CryptoUtils.h
+    src/core/crypto/Encryptor.h
+    src/core/crypto/Decryptor.h
+    src/core/crypto/SecureStorage.h
     src/core/database/DatabaseManager.h
     src/core/filesystem/AppPaths.h
     src/core/filesystem/FileUtils.h
@@ -94,6 +102,7 @@ target_link_libraries(NeriPlayerQt PRIVATE
     ${NERIPLAYER_QCORO_LIBRARIES}
     ${SQLITE3_LIBRARIES}
     ${SPDLOG_LIBRARIES}
+    OpenSSL::Crypto
 )
 
 # 包含目录
@@ -132,6 +141,9 @@ if(NOT SPDLOG_FOUND)
         message(FATAL_ERROR "spdlog not found. Install libspdlog-dev or equivalent.")
     endif()
 endif()
+
+# OpenSSL
+find_package(OpenSSL REQUIRED)
 
 # Testing
 enable_testing()
@@ -208,3 +220,24 @@ target_compile_definitions(TestFileSystem PRIVATE
     QT_NO_KEYWORDS
 )
 add_test(NAME TestFileSystem COMMAND TestFileSystem)
+
+add_executable(TestCrypto
+    tests/core/TestCrypto.cpp
+    src/core/crypto/CryptoUtils.cpp
+    src/core/crypto/Encryptor.cpp
+    src/core/crypto/Decryptor.cpp
+    src/core/crypto/SecureStorage.cpp
+)
+target_include_directories(TestCrypto PRIVATE
+    ${CMAKE_SOURCE_DIR}/src
+)
+target_link_libraries(TestCrypto PRIVATE
+    Qt6::Core
+    Qt6::Network
+    Qt6::Test
+    OpenSSL::Crypto
+)
+target_compile_definitions(TestCrypto PRIVATE
+    QT_NO_KEYWORDS
+)
+add_test(NAME TestCrypto COMMAND TestCrypto)
