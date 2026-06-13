@@ -66,11 +66,12 @@ void DatabaseManager::registerMigration(int version,
 static void bindVariant(sqlite3_stmt *stmt, int idx, const QVariant &value)
 {
     switch (value.typeId()) {
-    case QMetaType::QString:
-        sqlite3_bind_text(stmt, idx,
-                          value.toString().toUtf8().constData(), -1,
+    case QMetaType::QString: {
+        QByteArray utf8 = value.toString().toUtf8();
+        sqlite3_bind_text(stmt, idx, utf8.constData(), utf8.size(),
                           SQLITE_TRANSIENT);
         break;
+    }
     case QMetaType::Int:
     case QMetaType::UInt:
         sqlite3_bind_int(stmt, idx, value.toInt());
@@ -92,12 +93,12 @@ static void bindVariant(sqlite3_stmt *stmt, int idx, const QVariant &value)
     case QMetaType::UnknownType:
         sqlite3_bind_null(stmt, idx);
         break;
-    default:
-        // Try as string
-        sqlite3_bind_text(stmt, idx,
-                          value.toString().toUtf8().constData(), -1,
+    default: {
+        QByteArray utf8 = value.toString().toUtf8();
+        sqlite3_bind_text(stmt, idx, utf8.constData(), utf8.size(),
                           SQLITE_TRANSIENT);
         break;
+    }
     }
 }
 
