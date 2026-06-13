@@ -1,10 +1,12 @@
-#include "mainwindow.h"
-#include <QApplication>
+#include "app/NeriPlayerApplication.h"
 
 int main(int argc, char *argv[])
 {
-    QApplication a(argc, argv);
-    NeriPlayerQt::MainWindow w;
-    w.show();
-    return a.exec();
+    NeriPlayerQt::NeriPlayerApplication app(argc, argv);
+    if (!app.initialize()) {
+        return 1;
+    }
+
+    app.showMainWindow();
+    return app.exec();
 }

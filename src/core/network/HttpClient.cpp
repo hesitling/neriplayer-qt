@@ -1,0 +1,44 @@
+#include "core/network/HttpClient.h"
+
+#include <QCoroNetworkReply>
+
+#include <QNetworkReply>
+
+namespace NeriPlayerQt {
+
+bool HttpResponse::isSuccess() const
+{
+    return statusCode >= 200 && statusCode < 300 && errorString.isEmpty();
+}
+
+HttpClient::HttpClient(QObject *parent)
+    : QObject(parent)
+{
+}
+
+QCoro::Task<HttpResponse> HttpClient::get(const QUrl &url)
+{
+    co_return co_await send(m_networkAccess.get(QNetworkRequest(url)));
+}
+
+QCoro::Task<HttpResponse> HttpClient::post(const QUrl &url, const QByteArray &body)
+{
+    co_return co_await send(m_networkAccess.post(QNetworkRequest(url), body));
+}
+
+QCoro::Task<HttpResponse> HttpClient::send(QNetworkReply *reply)
+{
+    co_await reply;
+
+    HttpResponse response;
+    response.statusCode = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
+    response.body = reply->readAll();
+    if (reply->error() != QNetworkReply::NoError) {
+        response.errorString = reply->errorString();
+    }
+
+    reply->deleteLater();
+    co_return response;
+}
+
+} // namespace NeriPlayerQt
