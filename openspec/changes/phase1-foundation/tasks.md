@@ -29,14 +29,14 @@
 
 ## 3. Logger Module
 
-- [ ] 3.1 Create `src/core/logger/` directory structure
-- [ ] 3.2 Add spdlog dependency to CMakeLists.txt
-- [ ] 3.3 Implement `Logger` class with initialize() and get(name) methods
-- [ ] 3.4 Configure file sink with daily rotation and 7-day retention
-- [ ] 3.5 Configure console sink with ANSI color support detection
-- [ ] 3.6 Define log format: `[timestamp] [level] [logger] message`
-- [ ] 3.7 Implement runtime log level change
-- [ ] 3.8 Create predefined logger categories: "app", "network", "player", "api", "ui"
+- [x] 3.1 Create `src/core/logger/` directory structure
+- [x] 3.2 Add spdlog dependency to CMakeLists.txt
+- [x] 3.3 Implement `Logger` class with initialize() and get(name) methods
+- [x] 3.4 Configure file sink with daily rotation and 7-day retention
+- [x] 3.5 Configure console sink with ANSI color support detection
+- [x] 3.6 Define log format: `[timestamp] [level] [logger] message`
+- [x] 3.7 Implement runtime log level change
+- [x] 3.8 Create predefined logger categories: "app", "network", "player", "api", "ui"
 
 ## 4. FileSystem Module
 

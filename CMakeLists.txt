@@ -43,6 +43,7 @@ set(SOURCES
     src/main.cpp
     src/app/NeriPlayerApplication.cpp
     src/core/database/DatabaseManager.cpp
+    src/core/logger/Logger.cpp
     src/core/network/HttpClient.cpp
     src/core/network/WebSocketClient.cpp
     src/core/network/NetworkManager.cpp
@@ -55,6 +56,7 @@ set(HEADERS
     src/app/NeriPlayerApplication.h
     src/app/ServiceLocator.h
     src/core/database/DatabaseManager.h
+    src/core/logger/Logger.h
     src/core/network/HttpClient.h
     src/core/network/WebSocketClient.h
     src/core/network/NetworkManager.h
@@ -85,12 +87,14 @@ target_link_libraries(NeriPlayerQt PRIVATE
     Qt6::WebSockets
     ${NERIPLAYER_QCORO_LIBRARIES}
     ${SQLITE3_LIBRARIES}
+    ${SPDLOG_LIBRARIES}
 )
 
 # 包含目录
 target_include_directories(NeriPlayerQt PRIVATE
     ${CMAKE_SOURCE_DIR}/src
     ${SQLITE3_INCLUDE_DIRS}
+    ${SPDLOG_INCLUDE_DIRS}
 )
 
 # Install target
@@ -110,6 +114,16 @@ if(NOT SQLITE3_FOUND)
     find_path(SQLITE3_INCLUDE_DIRS sqlite3.h)
     if(NOT SQLITE3_LIBRARIES OR NOT SQLITE3_INCLUDE_DIRS)
         message(FATAL_ERROR "sqlite3 not found. Install libsqlite3-dev or equivalent.")
+    endif()
+endif()
+
+# spdlog
+pkg_check_modules(SPDLOG spdlog)
+if(NOT SPDLOG_FOUND)
+    find_path(SPDLOG_INCLUDE_DIRS spdlog/spdlog.h)
+    find_library(SPDLOG_LIBRARIES NAMES spdlog)
+    if(NOT SPDLOG_INCLUDE_DIRS OR NOT SPDLOG_LIBRARIES)
+        message(FATAL_ERROR "spdlog not found. Install libspdlog-dev or equivalent.")
     endif()
 endif()
 
@@ -151,3 +165,23 @@ target_compile_definitions(TestDatabase PRIVATE
     QT_NO_KEYWORDS
 )
 add_test(NAME TestDatabase COMMAND TestDatabase)
+
+add_executable(TestLogger
+    tests/core/TestLogger.cpp
+    src/core/logger/Logger.cpp
+)
+target_include_directories(TestLogger PRIVATE
+    ${CMAKE_SOURCE_DIR}/src
+    ${SPDLOG_INCLUDE_DIRS}
+)
+target_link_libraries(TestLogger PRIVATE
+    Qt6::Core
+    Qt6::Test
+    ${SPDLOG_LIBRARIES}
+    fmt
+    pthread
+)
+target_compile_definitions(TestLogger PRIVATE
+    QT_NO_KEYWORDS
+)
+add_test(NAME TestLogger COMMAND TestLogger)
