@@ -23,7 +23,7 @@ A Qt 6 desktop client for NeriPlayer, providing a native cross-platform music pl
 ### Build Instructions
 
 ```bash
-# Configure with local ../qcoro when present, otherwise use installed QCoro
+# Configure with local lib/qcoro when present, otherwise use installed QCoro
 cmake -S . -B build
 
 # Build the project
@@ -35,7 +35,7 @@ cmake --build build
 
 ### QCoro Source Selection
 
-By default, CMake uses a sibling `../qcoro` checkout when it exists and falls back to an installed `QCoro6` package otherwise.
+By default, CMake uses a local `lib/qcoro` checkout when it exists and falls back to an installed `QCoro6` package otherwise.
 
 ```bash
 # Force the installed QCoro package

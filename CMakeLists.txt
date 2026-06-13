@@ -12,7 +12,7 @@ include(GNUInstallDirs)
 find_package(Qt6 REQUIRED COMPONENTS Core Gui Widgets Network WebSockets)
 
 # QCoro
-set(NERIPLAYER_QCORO_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../qcoro" CACHE PATH
+set(NERIPLAYER_QCORO_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/lib/qcoro" CACHE PATH
     "Path to a local QCoro source checkout")
 option(NERIPLAYER_USE_SYSTEM_QCORO "Always use an installed QCoro package" OFF)
 
