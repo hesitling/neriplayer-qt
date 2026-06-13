@@ -215,7 +215,7 @@ QVector<QueryRow> DatabaseManager::execNamed(const QString &sql,
     return rows;
 }
 
-bool DatabaseManager::beginTransaction()
+void DatabaseManager::beginTransaction()
 {
     if (!m_db) {
         throw DatabaseError(std::string("Database not open"));
@@ -226,10 +226,9 @@ bool DatabaseManager::beginTransaction()
         throw DatabaseError(std::string("Begin failed: ") +
                             sqlite3_errmsg(m_db));
     }
-    return true;
 }
 
-bool DatabaseManager::commitTransaction()
+void DatabaseManager::commitTransaction()
 {
     if (!m_db) {
         throw DatabaseError(std::string("Database not open"));
@@ -239,10 +238,9 @@ bool DatabaseManager::commitTransaction()
         throw DatabaseError(std::string("Commit failed: ") +
                             sqlite3_errmsg(m_db));
     }
-    return true;
 }
 
-bool DatabaseManager::rollbackTransaction()
+void DatabaseManager::rollbackTransaction()
 {
     if (!m_db) {
         throw DatabaseError(std::string("Database not open"));
@@ -252,7 +250,6 @@ bool DatabaseManager::rollbackTransaction()
         throw DatabaseError(std::string("Rollback failed: ") +
                             sqlite3_errmsg(m_db));
     }
-    return true;
 }
 
 void DatabaseManager::ensureSchemaVersionTable()
@@ -288,13 +285,21 @@ void DatabaseManager::runMigrations()
 
     for (const auto &[version, fn] : m_migrations) {
         if (m_currentVersion < version) {
-            if (!fn(m_db)) {
-                throw DatabaseError("Migration to version " +
-                                    std::to_string(version) + " failed");
+            beginTransaction();
+            try {
+                if (!fn(m_db)) {
+                    rollbackTransaction();
+                    throw DatabaseError("Migration to version " +
+                                        std::to_string(version) + " failed");
+                }
+                exec("UPDATE schema_version SET version = ?",
+                     {QVariant(version)});
+                commitTransaction();
+                m_currentVersion = version;
+            } catch (...) {
+                rollbackTransaction();
+                throw;
             }
-            exec("UPDATE schema_version SET version = ?",
-                 {QVariant(version)});
-            m_currentVersion = version;
         }
     }
 }

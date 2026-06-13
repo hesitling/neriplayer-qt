@@ -96,19 +96,19 @@ public:
      * @brief Begin a transaction
      * @throws DatabaseError on failure
      */
-    bool beginTransaction();
+    void beginTransaction();
 
     /**
      * @brief Commit the current transaction
      * @throws DatabaseError on failure
      */
-    bool commitTransaction();
+    void commitTransaction();
 
     /**
      * @brief Rollback the current transaction
      * @throws DatabaseError on failure
      */
-    bool rollbackTransaction();
+    void rollbackTransaction();
 
 private:
     void ensureSchemaVersionTable();

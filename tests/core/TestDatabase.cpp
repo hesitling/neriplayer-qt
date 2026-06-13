@@ -204,12 +204,12 @@ void TestDatabase::transaction_commit()
     DatabaseManager db;
     QVERIFY(db.open(path));
 
-    QVERIFY(db.beginTransaction());
+    db.beginTransaction();
     db.exec("INSERT INTO settings (key, value) VALUES (?, ?)",
             {QString("txn_k1"), QString("txn_v1")});
     db.exec("INSERT INTO settings (key, value) VALUES (?, ?)",
             {QString("txn_k2"), QString("txn_v2")});
-    QVERIFY(db.commitTransaction());
+    db.commitTransaction();
 
     auto rows = db.exec("SELECT key FROM settings WHERE key LIKE 'txn_%'");
     QCOMPARE(rows.size(), 2);
@@ -224,10 +224,10 @@ void TestDatabase::transaction_rollback()
     DatabaseManager db;
     QVERIFY(db.open(path));
 
-    QVERIFY(db.beginTransaction());
+    db.beginTransaction();
     db.exec("INSERT INTO settings (key, value) VALUES (?, ?)",
             {QString("rollback_k"), QString("rollback_v")});
-    QVERIFY(db.rollbackTransaction());
+    db.rollbackTransaction();
 
     auto rows = db.exec("SELECT key FROM settings WHERE key = 'rollback_k'");
     QCOMPARE(rows.size(), 0);
