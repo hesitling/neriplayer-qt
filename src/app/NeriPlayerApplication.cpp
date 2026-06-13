@@ -11,8 +11,6 @@
 #include "core/network/NetworkManager.h"
 #include "mainwindow.h"
 
-#include <QDir>
-
 namespace NeriPlayerQt {
 
 NeriPlayerApplication::NeriPlayerApplication(int &argc, char **argv)
