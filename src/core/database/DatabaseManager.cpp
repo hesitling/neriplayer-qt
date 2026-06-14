@@ -31,8 +31,12 @@ bool DatabaseManager::open(const QString &path)
     }
 
     // Enable WAL mode for better concurrent read performance
-    sqlite3_exec(m_db, "PRAGMA journal_mode=WAL;", nullptr, nullptr, nullptr);
-    sqlite3_exec(m_db, "PRAGMA foreign_keys=ON;", nullptr, nullptr, nullptr);
+    if (sqlite3_exec(m_db, "PRAGMA journal_mode=WAL;", nullptr, nullptr, nullptr) != SQLITE_OK) {
+        qWarning() << "DatabaseManager: PRAGMA journal_mode=WAL failed:" << sqlite3_errmsg(m_db);
+    }
+    if (sqlite3_exec(m_db, "PRAGMA foreign_keys=ON;", nullptr, nullptr, nullptr) != SQLITE_OK) {
+        qWarning() << "DatabaseManager: PRAGMA foreign_keys=ON failed:" << sqlite3_errmsg(m_db);
+    }
 
     ensureSchemaVersionTable();
     runMigrations();
