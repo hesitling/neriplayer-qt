@@ -25,10 +25,20 @@ struct SongIdentity {
     /**
      * @brief Generate a stable key string for hashing/comparison
      */
-    QString stableKey() const;
+    QString stableKey() const
+    {
+        return id + QStringLiteral("|") + album + QStringLiteral("|") + mediaUri;
+    }
 
-    bool operator==(const SongIdentity &other) const;
-    bool operator!=(const SongIdentity &other) const;
+    bool operator==(const SongIdentity &other) const
+    {
+        return id == other.id && album == other.album && mediaUri == other.mediaUri;
+    }
+
+    bool operator!=(const SongIdentity &other) const
+    {
+        return !(*this == other);
+    }
 };
 
 struct Song;
@@ -36,7 +46,20 @@ struct Song;
 /**
  * @brief Extract identity from a Song
  */
-SongIdentity songIdentityFromSong(const Song &song);
+inline SongIdentity songIdentityFromSong(const Song &song);
+
+} // namespace NeriPlayerQt
+
+// Include Song.h here (after the declaration) for songIdentityFromSong implementation.
+// This avoids circular dependency since Song.h does not include SongIdentity.h.
+#include "domain/Song.h"
+
+namespace NeriPlayerQt {
+
+inline SongIdentity songIdentityFromSong(const Song &song)
+{
+    return SongIdentity { song.id, song.album, song.mediaUri.toString() };
+}
 
 } // namespace NeriPlayerQt
 
