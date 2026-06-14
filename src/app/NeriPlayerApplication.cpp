@@ -64,7 +64,15 @@ void NeriPlayerApplication::initializeCoreServices()
     logConfig.logDir = AppPaths::cacheDir() + QStringLiteral("/logs");
     logConfig.level = LogLevel::Info;
     logConfig.enableConsole = true;
-    Logger::initialize(logConfig);
+
+    try {
+        Logger::initialize(logConfig);
+    } catch (...) {
+        // File sink failed — retry with console only
+        logConfig.enableConsole = true;
+        logConfig.logDir.clear();
+        Logger::initialize(logConfig);
+    }
 
     auto log = Logger::get("app");
     log->info("NeriPlayer Qt starting up");
