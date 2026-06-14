@@ -7,7 +7,8 @@
 #include <QDir>
 #include <QFile>
 #include <QFileInfo>
-#include <QTemporaryFile>
+
+#include <QUuid>
 
 namespace NeriPlayerQt {
 
@@ -51,23 +52,31 @@ bool FileUtils::writeFile(const QString &path, const QByteArray &data)
     }
 
     // Write to a temporary file in the same directory (same filesystem for atomic rename)
-    QTemporaryFile tempFile(info.dir().filePath("neri_tmp_XXXXXX"));
-    tempFile.setAutoRemove(false);
+    QString tempPath = info.dir().filePath(QStringLiteral(".neri_tmp_%1").arg(QUuid::createUuid().toString(QUuid::Id128)));
+    QFile tempFile(tempPath);
 
-    if (!tempFile.open()) {
+    if (!tempFile.open(QIODevice::WriteOnly)) {
         s_lastError = QStringLiteral("Cannot create temp file: %1").arg(tempFile.errorString());
         return false;
     }
 
     if (tempFile.write(data) != data.size()) {
         s_lastError = QStringLiteral("Write to temp file failed: %1").arg(tempFile.errorString());
+        tempFile.close();
         tempFile.remove();
         return false;
     }
 
     tempFile.close();
 
-    // Atomic rename (overwrites existing file on POSIX)
+    // Qt's QFile::rename() does not overwrite existing files,
+    // so remove the target first. On POSIX, the rename() syscall
+    // is atomic — the risk window is between remove and rename.
+    QFile targetFile(path);
+    if (targetFile.exists()) {
+        targetFile.remove();
+    }
+
     if (!QFile::rename(tempFile.fileName(), path)) {
         s_lastError = QStringLiteral("Rename from %1 to %2 failed").arg(tempFile.fileName(), path);
         tempFile.remove();

@@ -236,6 +236,7 @@ add_executable(TestCrypto
     src/core/crypto/Encryptor.cpp
     src/core/crypto/Decryptor.cpp
     src/core/crypto/SecureStorage.cpp
+    src/core/filesystem/FileUtils.cpp
 )
 target_include_directories(TestCrypto PRIVATE
     ${CMAKE_SOURCE_DIR}/src
