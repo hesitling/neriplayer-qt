@@ -70,7 +70,8 @@ void NeriPlayerApplication::initializeCoreServices()
     try {
         Logger::initialize(logConfig);
     } catch (const std::exception &ex) {
-        qWarning() << "Logger file sink init failed:" << ex.what() << "— falling back to console";
+        // Logger::get() returns a console-only fallback before initialize()
+        Logger::get("app")->warn("Logger file sink init failed: {} — falling back to console", ex.what());
         logConfig.logDir.clear();
         Logger::initialize(logConfig);
     }
