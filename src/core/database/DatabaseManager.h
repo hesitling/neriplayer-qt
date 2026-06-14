@@ -69,6 +69,10 @@ public:
 
     /**
      * @brief Register a migration function for a given version
+     *
+     * Migrations run inside open(). Register all migrations before calling open().
+     * Migrations registered after open() will not be applied until the next open().
+     *
      * @param version Target version number
      * @param fn Function that receives sqlite3* and returns true on success
      */
