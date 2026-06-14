@@ -19,6 +19,13 @@
 - [x] 1.17 Define `PlaylistSummary`, `AlbumSummary`, and `BiliPlaylist` lightweight models
 - [x] 1.18 Define `PersistedPlayerState` struct for player state persistence
 - [x] 1.19 Register all types with Q_DECLARE_METATYPE for QVariant interop
+- [x] 1.20 Define `ListenTogetherTrack` wire-format struct (stableKey, channelId, audioId, subAudioId, playlistContextId, mediaUri, streamUrl, name, artist, album, durationMs, coverUrl)
+- [x] 1.21 Define `ListenTogetherRoomState`, `ListenTogetherMember`, `ListenTogetherPlaybackState`, `ListenTogetherRoomSettings`
+- [x] 1.22 Define `ListenTogetherEvent` for control events (SET_TRACK, PLAY, PAUSE, SEEK, HEARTBEAT, etc.)
+- [x] 1.23 Define `ListenTogetherConnectionState` enum and `ListenTogetherSessionState`
+- [x] 1.24 Define `ListenTogetherCause` and `ListenTogetherChannels`/`ListenTogetherRoomStatuses` constants
+- [x] 1.25 Implement `songToTrack()` and `trackToSong()` conversion helpers matching Android's mapper logic
+- [x] 1.26 Implement `buildStableTrackKey()`, `resolvedChannelId()`, `resolvedAudioId()` matching Android's logic
 
 ## 2. Database Module
 

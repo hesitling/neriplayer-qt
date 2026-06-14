@@ -151,3 +151,41 @@ The system SHALL provide an enum `AudioQuality` with values: `Low`, `Standard`, 
 #### Scenario: Quality ordering
 - **WHEN** AudioQuality values are compared
 - **THEN** `Lossless` SHALL be greater than `High`, `High` greater than `Standard`, and `Standard` greater than `Low`
+
+### Requirement: Listen Together domain models
+The system SHALL provide Listen Together domain types aligned with Android NeriPlayer's `listentogether/` package:
+
+- `ListenTogetherTrack` (wire format): `stableKey`, `channelId`, `audioId`, `subAudioId`, `playlistContextId`, `mediaUri`, `streamUrl`, `name`, `artist`, `album`, `durationMs`, `coverUrl`
+- `ListenTogetherRoomState`: `roomId`, `version`, `schemaVersion`, `controllerUserUuid`, `settings`, `members`, `queue`, `currentIndex`, `track`, `playback`, `roomStatus`, etc.
+- `ListenTogetherMember`: `userUuid`, `nickname`, `userId`, `role`, `joinedAt`
+- `ListenTogetherPlaybackState`: `state`, `basePositionMs`, `baseTimestampMs`, `playbackRate`
+- `ListenTogetherRoomSettings`: `allowMemberControl`, `autoPauseOnMemberChange`, `shareAudioLinks`
+- `ListenTogetherEvent`: `type`, `eventId`, `clientTimeMs`, `positionMs`, `currentIndex`, `track`, `queue`, `roomSettings`, `shouldPlay`, `state`, `requestTrackStableKey`
+- `ListenTogetherConnectionState` enum: `Disconnected`, `Connecting`, `Connected`
+- `ListenTogetherSessionState`: client-side session with `baseUrl`, `roomId`, `userUuid`, `nickname`, `role`, `token`, `wsUrl`, `connectionState`, `lastError`, `expectedPositionMs`, `roomNotice`
+- `ListenTogetherCause`: `userUuid`, `userId`, `nickname`, `eventId`, `type`
+
+Constants namespace `ListenTogetherChannels`: `NETEASE`, `BILIBILI`, `YOUTUBE_MUSIC`, `LOCAL`
+Constants namespace `ListenTogetherRoomStatuses`: `ACTIVE`, `CONTROLLER_OFFLINE`, `CLOSED`
+
+Conversion helpers: `songToSong()`, `trackToSong()`, `buildStableTrackKey()`, `resolvedChannelId()`, `resolvedAudioId()`
+
+#### Scenario: Stable key for NetEase track
+- **WHEN** `buildStableTrackKey("netease", "12345")` is called
+- **THEN** the result SHALL be "netease:12345"
+
+#### Scenario: Stable key for Bilibili track with subAudioId
+- **WHEN** `buildStableTrackKey("bilibili", "67890", "p1")` is called
+- **THEN** the result SHALL be "bilibili:67890:p1"
+
+#### Scenario: Song to track conversion
+- **WHEN** a Song with channelId="netease", audioId="42" is converted via `songToTrack()`
+- **THEN** the resulting ListenTogetherTrack SHALL have channelId="netease", audioId="42", stableKey="netease:42"
+
+#### Scenario: Track to song conversion
+- **WHEN** a ListenTogetherTrack with name="Converted", artist="Artist" is converted via `trackToSong()`
+- **THEN** the resulting Song SHALL have name="Converted" and artist="Artist"
+
+#### Scenario: Round-trip conversion
+- **WHEN** a Song is converted to a ListenTogetherTrack and back to a Song
+- **THEN** name, artist, album, durationMs, channelId, and audioId SHALL match the original
