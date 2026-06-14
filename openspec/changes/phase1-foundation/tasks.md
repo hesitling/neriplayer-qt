@@ -6,13 +6,19 @@
 - [x] 1.4 Define `PlaybackState` enum with Stopped, Playing, Paused, Loading, Error values
 - [x] 1.5 Define `RepeatMode` enum with Off, One, All values
 - [x] 1.6 Define `AudioQuality` enum with Low, Standard, High, Lossless values
-- [x] 1.7 Define `Song` struct with all fields and default values
-- [x] 1.8 Define `Album` struct with all fields
-- [x] 1.9 Define `Artist` struct with all fields
-- [x] 1.10 Define `Playlist` struct with embedded songs vector
-- [x] 1.11 Define `LyricLine` and `Lyrics` structs
-- [x] 1.12 Define `SearchResult` struct
-- [x] 1.13 Register all types with Q_DECLARE_METATYPE for QVariant interop
+- [x] 1.7 Define `PlaybackAudioSource` enum with Local, NetEase, Bilibili, YouTube values
+- [x] 1.8 Define `BiliPlaylistKind` enum with CreatedFavorite, CollectedFavorite, Collection values
+- [x] 1.9 Define `Song` struct with all fields aligned with Android SongItem (name, durationMs, mediaUri, lyric matching, customizations, local file, platform identifiers)
+- [x] 1.10 Define `Album` struct with fields aligned with Android AlbumSummary (name, size)
+- [x] 1.11 Define `Artist` struct with all fields
+- [x] 1.12 Define `Playlist` struct with embedded songs vector, modifiedAt, customCoverUrl
+- [x] 1.13 Define `LyricWord`, `LyricLine`, and `Lyrics` structs with word-level timing
+- [x] 1.14 Define `SearchResult` struct
+- [x] 1.15 Define `SongIdentity` struct with stableKey() for cross-platform deduplication
+- [x] 1.16 Define `SongUrlResult` and `AudioInfo` structs for URL resolution
+- [x] 1.17 Define `PlaylistSummary`, `AlbumSummary`, and `BiliPlaylist` lightweight models
+- [x] 1.18 Define `PersistedPlayerState` struct for player state persistence
+- [x] 1.19 Register all types with Q_DECLARE_METATYPE for QVariant interop
 
 ## 2. Database Module
 
