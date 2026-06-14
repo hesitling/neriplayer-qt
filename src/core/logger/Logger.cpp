@@ -123,6 +123,15 @@ std::shared_ptr<NamedLogger> Logger::get(const QString &name)
 {
     std::lock_guard<std::mutex> lock(s_mutex);
 
+    if (!s_initialized) {
+        // Return a console-only fallback logger before initialize() is called
+        auto fallback = std::make_shared<spdlog::logger>(name.toStdString(),
+            std::make_shared<spdlog::sinks::stdout_color_sink_mt>());
+        fallback->set_level(spdlog::level::debug);
+        fallback->set_pattern("[%Y-%m-%d %H:%M:%S.%e] [%l] [%n] %v");
+        return std::make_shared<NamedLogger>(fallback);
+    }
+
     std::string key = name.toStdString();
     auto it = s_loggers.find(key);
     if (it != s_loggers.end()) {
