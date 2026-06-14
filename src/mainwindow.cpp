@@ -1,4 +1,5 @@
 #include "mainwindow.h"
+#include <QCoreApplication>
 #include <QLabel>
 #include <QMenuBar>
 #include <QMessageBox>
@@ -42,7 +43,9 @@ void MainWindow::setupMenuBar()
     // About action
     QAction *aboutAction = helpMenu->addAction(tr("&About"));
     connect(aboutAction, &QAction::triggered, this, [this]() {
-        QMessageBox::about(this, tr("About NeriPlayer Qt"), tr("NeriPlayer Qt Desktop Client\nVersion 0.1.0"));
+        QString version = QCoreApplication::applicationVersion();
+        QMessageBox::about(this, tr("About NeriPlayer Qt"),
+                           tr("NeriPlayer Qt Desktop Client\nVersion %1").arg(version));
     });
 }
 
@@ -79,7 +82,8 @@ void MainWindow::setupCentralWidget()
     welcomeLabel->setAlignment(Qt::AlignCenter);
     welcomeLabel->setStyleSheet("font-size: 24px; font-weight: bold; color: #333;");
 
-    QLabel *versionLabel = new QLabel(tr("Version 0.1.0 - Under Development"), centralWidget);
+    QLabel *versionLabel = new QLabel(tr("Version %1 - Under Development")
+                                           .arg(QCoreApplication::applicationVersion()), centralWidget);
     versionLabel->setAlignment(Qt::AlignCenter);
     versionLabel->setStyleSheet("font-size: 14px; color: #666;");
 
