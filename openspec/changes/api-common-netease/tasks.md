@@ -17,9 +17,8 @@
 - [ ] 2.2 Define `NeteaseCrypto` class with static encrypt/decrypt method signatures
 - [ ] 2.3 Implement WeAPI AES-128-CBC encryption with hardcoded key and random IV
 - [ ] 2.4 Implement WeAPI RSA encryption for the AES key
-- [ ] 2.5 Implement `weapiEncrypt()` combining AES + RSA per the NetEase web protocol
-- [ ] 2.6 Implement `weapiDecrypt()` for response decryption
-- [ ] 2.7 Write unit tests for encryption/decryption round-trips
+- [ ] 2.5 Implement `weapiEncrypt()` combining AES + RSA per the NetEase web protocol (one-way client→server encryption)
+- [ ] 2.6 Write unit tests verifying `weapiEncrypt` output against known test vectors (with fixed IV for determinism)
 - [ ] 2.8 Update `CMakeLists.txt` to include NeteaseCrypto source files and link OpenSSL
 
 ## 3. NeteaseParser
