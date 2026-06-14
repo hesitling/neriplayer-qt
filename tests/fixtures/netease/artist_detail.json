@@ -1,0 +1,10 @@
+{
+  "artist": {
+    "id": 700,
+    "name": "Test Artist",
+    "picUrl": "https://example.com/artist.jpg",
+    "briefDesc": "A test artist for unit testing"
+  },
+  "hotSongs": [],
+  "code": 200
+}

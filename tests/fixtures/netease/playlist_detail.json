@@ -1,0 +1,42 @@
+{
+  "playlist": {
+    "id": 800,
+    "name": "Test Playlist",
+    "description": "A test playlist",
+    "coverImgUrl": "https://example.com/playlist.jpg",
+    "trackCount": 2,
+    "creator": {
+      "nickname": "TestUser"
+    },
+    "updateTime": 1700000000000,
+    "tracks": [
+      {
+        "id": 80001,
+        "name": "Playlist Song 1",
+        "ar": [
+          { "id": 901, "name": "Singer A" }
+        ],
+        "al": {
+          "id": 1001,
+          "name": "Playlist Album 1",
+          "picUrl": "https://example.com/pl_al1.jpg"
+        },
+        "dt": 195000
+      },
+      {
+        "id": 80002,
+        "name": "Playlist Song 2",
+        "ar": [
+          { "id": 902, "name": "Singer B" }
+        ],
+        "al": {
+          "id": 1002,
+          "name": "Playlist Album 2",
+          "picUrl": "https://example.com/pl_al2.jpg"
+        },
+        "dt": 230000
+      }
+    ]
+  },
+  "code": 200
+}

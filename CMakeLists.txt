@@ -84,6 +84,10 @@ set(SOURCES
     src/core/network/NetworkManager.cpp
     src/core/network/NetworkMonitor.cpp
     src/mainwindow.cpp
+    src/api/common/ApiError.cpp
+    src/api/netease/NeteaseCrypto.cpp
+    src/api/netease/NeteaseParser.cpp
+    src/api/netease/NeteaseClient.cpp
 )
 
 # 头文件
@@ -115,6 +119,16 @@ set(HEADERS
     src/domain/SearchResult.h
     src/domain/SongIdentity.h
     src/domain/SongUrlResult.h
+    src/api/common/ApiError.h
+    src/api/common/ApiResult.h
+    src/api/common/VoidResult.h
+    src/api/common/LoginResult.h
+    src/api/common/QrCodeData.h
+    src/api/common/PlayHistory.h
+    src/api/common/IMusicPlatformPlugin.h
+    src/api/netease/NeteaseCrypto.h
+    src/api/netease/NeteaseParser.h
+    src/api/netease/NeteaseClient.h
     src/mainwindow.h
 )
 
@@ -251,3 +265,81 @@ target_compile_definitions(TestCrypto PRIVATE
     QT_NO_KEYWORDS
 )
 add_test(NAME TestCrypto COMMAND TestCrypto)
+
+add_executable(TestNeteaseCrypto
+    tests/api/TestNeteaseCrypto.cpp
+    src/api/netease/NeteaseCrypto.cpp
+)
+target_include_directories(TestNeteaseCrypto PRIVATE
+    ${CMAKE_SOURCE_DIR}/src
+)
+target_link_libraries(TestNeteaseCrypto PRIVATE
+    Qt6::Core
+    Qt6::Test
+    OpenSSL::Crypto
+)
+target_compile_definitions(TestNeteaseCrypto PRIVATE
+    QT_NO_KEYWORDS
+)
+add_test(NAME TestNeteaseCrypto COMMAND TestNeteaseCrypto)
+
+add_executable(TestNeteaseParser
+    tests/api/TestNeteaseParser.cpp
+    src/api/netease/NeteaseParser.cpp
+    src/core/logger/Logger.cpp
+)
+target_include_directories(TestNeteaseParser PRIVATE
+    ${CMAKE_SOURCE_DIR}/src
+    ${SPDLOG_INCLUDE_DIRS}
+)
+target_link_libraries(TestNeteaseParser PRIVATE
+    Qt6::Core
+    Qt6::Test
+    ${SPDLOG_LIBRARIES}
+)
+target_compile_definitions(TestNeteaseParser PRIVATE
+    QT_NO_KEYWORDS
+    FIXTURES_DIR="${CMAKE_SOURCE_DIR}/tests/fixtures/netease"
+)
+if(UNIX)
+    target_link_libraries(TestNeteaseParser PRIVATE pthread)
+endif()
+add_test(NAME TestNeteaseParser COMMAND TestNeteaseParser)
+
+add_executable(TestNeteaseE2E
+    tests/api/TestNeteaseE2E.cpp
+    src/api/netease/NeteaseClient.cpp
+    src/api/netease/NeteaseCrypto.cpp
+    src/api/netease/NeteaseParser.cpp
+    src/api/common/ApiError.cpp
+    src/core/network/HttpClient.cpp
+    src/core/network/NetworkManager.cpp
+    src/core/network/NetworkMonitor.cpp
+    src/core/network/WebSocketClient.cpp
+    src/core/crypto/CryptoUtils.cpp
+    src/core/crypto/Encryptor.cpp
+    src/core/crypto/Decryptor.cpp
+    src/core/crypto/SecureStorage.cpp
+    src/core/filesystem/AppPaths.cpp
+    src/core/filesystem/FileUtils.cpp
+    src/core/filesystem/FileWatcher.cpp
+    src/core/database/DatabaseManager.cpp
+    src/core/logger/Logger.cpp
+)
+target_include_directories(TestNeteaseE2E PRIVATE
+    ${CMAKE_SOURCE_DIR}/src
+    ${SQLITE3_INCLUDE_DIRS}
+    ${SPDLOG_INCLUDE_DIRS}
+)
+target_link_libraries(TestNeteaseE2E PRIVATE
+    Qt6::Core
+    Qt6::Network
+    Qt6::WebSockets
+    Qt6::Test
+    ${NERIPLAYER_QCORO_LIBRARIES}
+    ${SQLITE3_LIBRARIES}
+    ${SPDLOG_LIBRARIES}
+    OpenSSL::Crypto
+)
+# Not added to ctest — requires credentials
+# Run manually: ./TestNeteaseE2E --phone=xxx --password=xxx

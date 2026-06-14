@@ -1,0 +1,18 @@
+{
+  "songs": [
+    {
+      "id": 12345,
+      "name": "Test Song",
+      "ar": [
+        { "id": 100, "name": "Test Artist" }
+      ],
+      "al": {
+        "id": 200,
+        "name": "Test Album",
+        "picUrl": "https://example.com/cover.jpg"
+      },
+      "dt": 240000
+    }
+  ],
+  "code": 200
+}

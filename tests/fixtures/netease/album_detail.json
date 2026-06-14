@@ -1,0 +1,41 @@
+{
+  "album": {
+    "id": 500,
+    "name": "Test Album Full",
+    "artist": {
+      "id": 600,
+      "name": "Album Artist"
+    },
+    "picUrl": "https://example.com/album_cover.jpg",
+    "size": 10
+  },
+  "songs": [
+    {
+      "id": 50001,
+      "name": "Album Track 1",
+      "ar": [
+        { "id": 600, "name": "Album Artist" }
+      ],
+      "al": {
+        "id": 500,
+        "name": "Test Album Full",
+        "picUrl": "https://example.com/album_cover.jpg"
+      },
+      "dt": 200000
+    },
+    {
+      "id": 50002,
+      "name": "Album Track 2",
+      "ar": [
+        { "id": 600, "name": "Album Artist" }
+      ],
+      "al": {
+        "id": 500,
+        "name": "Test Album Full",
+        "picUrl": "https://example.com/album_cover.jpg"
+      },
+      "dt": 220000
+    }
+  ],
+  "code": 200
+}

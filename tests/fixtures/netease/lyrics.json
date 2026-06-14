@@ -1,0 +1,9 @@
+{
+  "lrc": {
+    "lyric": "[00:00.00]Test Song - Test Artist\n[00:05.00]First line of lyrics\n[00:10.50]Second line of lyrics\n[00:15.00]Third line\n[00:20.00]Fourth line\n"
+  },
+  "tlyric": {
+    "lyric": "[00:05.00]Translated first line\n[00:10.50]Translated second line\n"
+  },
+  "code": 200
+}

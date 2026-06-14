@@ -1,0 +1,12 @@
+{
+  "code": 200,
+  "account": {
+    "id": 12345678
+  },
+  "profile": {
+    "userId": 12345678,
+    "nickname": "TestUser",
+    "avatarUrl": "https://example.com/avatar.jpg"
+  },
+  "token": "fake_token_for_testing"
+}
