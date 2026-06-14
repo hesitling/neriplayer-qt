@@ -34,7 +34,7 @@ private Q_SLOTS:
     void readFile_existingFile();
     void readFile_nonExistent();
     void writeFile_createsFile();
-    void writeFile_atomicWrite();
+    void writeFile_overwrite();
 
     // FileWatcher
     void fileWatcher_emitsSignalOnChange();
@@ -165,17 +165,17 @@ void TestFileSystem::writeFile_createsFile()
     QCOMPARE(file.readAll(), QByteArray("test content"));
 }
 
-void TestFileSystem::writeFile_atomicWrite()
+void TestFileSystem::writeFile_overwrite()
 {
     QTemporaryDir tempDir;
     QVERIFY(tempDir.isValid());
 
-    QString filePath = tempDir.filePath("atomic.txt");
+    QString filePath = tempDir.filePath("overwrite.txt");
 
     // Write initial content
     QVERIFY(FileUtils::writeFile(filePath, "original"));
 
-    // Overwrite — should be atomic
+    // Overwrite
     QVERIFY(FileUtils::writeFile(filePath, "updated"));
 
     QFile file(filePath);
