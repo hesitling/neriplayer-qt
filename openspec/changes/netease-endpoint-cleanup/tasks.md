@@ -83,3 +83,29 @@
 - [x] 8.1 Verify build compiles without errors
 - [x] 8.2 Run all existing tests to verify no regressions
 - [ ] 8.3 Run E2E tests with valid credentials to verify new endpoints work
+
+## 9. Add Missing Kotlin APIs
+
+- [ ] 9.1 Add `getDjRadioDetail(radioId)` — `/api/v6/playlist/detail` (same as playlist detail)
+- [ ] 9.2 Add `getRelatedPlaylists(playlistId)` — HTML scrape from `/playlist?id=xxx`
+- [ ] 9.3 Add `getUserCreatedPlaylists(userId)` — wrapper around `getUserPlaylists` filtering by creator
+- [ ] 9.4 Add `getUserStaredAlbums(userId)` — wrapper around `getUserAlbums` filtering subscribed
+- [ ] 9.5 Add `getUserSubscribedPlaylists(userId)` — wrapper around `getUserPlaylists` filtering subscribed
+- [ ] 9.6 Add `getLikedPlaylistId(userId)` — wrapper around `getUserPlaylists` finding specialType=5
+- [ ] 9.7 Add `getCurrentUserId()` — helper using `getCurrentUserAccount()`
+- [ ] 9.8 Add `loginByCaptcha(phone, captcha, ctcode)` — EAPI `/w/login/cellphone` with captcha
+- [ ] 9.9 Add `sendCaptcha(phone, ctcode)` — `/weapi/sms/captcha/sent`
+- [ ] 9.10 Add `verifyCaptcha(phone, captcha, ctcode)` — `/weapi/sms/captcha/verify`
+
+## 10. Fix Parameter Differences
+
+- [ ] 10.1 Update `getLyrics()` params to match Kotlin: lv=0, add rv=0, yv=1, ytv=1, yrv=0
+- [ ] 10.2 Add 301 retry logic to `getLyrics()` like Kotlin `getLyricNew()`
+
+## 11. Remove Qt-Only Methods (Not in Kotlin)
+
+- [ ] 11.1 Remove `searchPlaylists()` — Kotlin only has `searchSongs(type=1)`
+- [ ] 11.2 Remove `searchAlbums()` — Kotlin only has `searchSongs(type=1)`
+- [ ] 11.3 Remove `searchArtists()` — Kotlin only has `searchSongs(type=1)`
+- [ ] 11.4 Decide on `loginByEmail()` — keep or remove?
+- [ ] 11.5 Decide on `unlikeSong()` — keep as convenience or remove?
