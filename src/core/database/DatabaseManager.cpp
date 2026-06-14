@@ -235,11 +235,17 @@ void DatabaseManager::rollbackTransaction()
 
 void DatabaseManager::ensureSchemaVersionTable()
 {
-    sqlite3_exec(m_db,
+    char *errMsg = nullptr;
+    int rc = sqlite3_exec(m_db,
                  "CREATE TABLE IF NOT EXISTS schema_version ("
                  "  version INTEGER NOT NULL"
                  ");",
-                 nullptr, nullptr, nullptr);
+                 nullptr, nullptr, &errMsg);
+    if (rc != SQLITE_OK) {
+        std::string err = errMsg ? errMsg : "unknown error";
+        sqlite3_free(errMsg);
+        throw DatabaseError("Failed to create schema_version table: " + err);
+    }
 
     auto rows = exec("SELECT version FROM schema_version");
     if (rows.isEmpty()) {
