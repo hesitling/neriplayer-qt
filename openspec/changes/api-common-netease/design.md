@@ -73,6 +73,31 @@ This change introduces the API layer: a shared interface and common types (`api/
 
 **Alternative considered:** A fat interface with all operations, throwing "not supported" for some platforms. Rejected — violates ISP, leads to runtime surprises.
 
+### D7: ApiError — dual code classification (HTTP + NetEase body)
+
+**Decision:** `ApiError` SHALL classify errors using both HTTP status codes and NetEase-specific JSON body codes. The body code takes precedence when the response is parseable. Mapping:
+
+| Method | HTTP codes | NetEase body codes |
+|--------|-----------|--------------------|
+| `isNetworkError()` | Connection failure (-1) | — |
+| `isAuthError()` | 401, 403 | -10 (auth expired), -460 (cheating detection) |
+| `isRateLimitError()` | 429 | -429 |
+| `isNotFoundError()` | 404 | — |
+
+**Rationale:** NetEase uses custom error codes in the JSON body (e.g., `-10` for expired session, `-460` for anti-cheat). Relying only on HTTP status codes would miss these. Storing the body code as primary makes classification accurate.
+
+### D8: Logger convention for `api/` layer
+
+**Decision:** Use `Logger::get("api")` for logging in the `api/` module (not `qWarning()`).
+
+**Rationale:** `qWarning()` is reserved for `core/` modules that should not depend on the Logger abstraction. The `api/` layer is a higher-level module and should use the application logger for consistency and configurability.
+
+### D9: `isAuthenticated()` — synchronous by design
+
+**Decision:** `IMusicPlatformPlugin::isAuthenticated()` returns `bool` synchronously.
+
+**Rationale:** For NetEase, auth state is an in-memory cookie check (no network call). For platforms with token expiry, the concrete class can cache the state and refresh asynchronously in the background. Making the interface async would force all callers to `co_await` a simple boolean check. If a platform truly needs async auth verification, it can provide a separate `refreshAuth()` method on the concrete class.
+
 ## Risks / Trade-offs
 
 **[Risk] NetEase API changes or breaks.** The NetEase Cloud Music API is undocumented and subject to change without notice.
