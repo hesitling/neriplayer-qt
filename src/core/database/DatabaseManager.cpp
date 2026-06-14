@@ -280,14 +280,13 @@ void DatabaseManager::runMigrations()
             beginTransaction();
             try {
                 if (!fn(m_db)) {
-                    rollbackTransaction();
                     throw DatabaseError("Migration to version " + std::to_string(version) + " failed");
                 }
                 exec("UPDATE schema_version SET version = ?", { QVariant(version) });
                 commitTransaction();
                 m_currentVersion = version;
             } catch (...) {
-                rollbackTransaction();
+                try { rollbackTransaction(); } catch (...) {}
                 throw;
             }
         }
