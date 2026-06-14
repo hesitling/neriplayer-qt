@@ -9,7 +9,7 @@ This change introduces the API layer: a shared interface and common types (`api/
 **Goals:**
 
 - Define `IMusicPlatformPlugin` as the abstract contract all platform clients implement.
-- Define shared API types (`ApiError`, `ApiResult<T>`, `PlaybackUrl`, `LoginResult`, etc.) used by every client.
+- Define shared API types (`ApiError`, `ApiResult<T>`, `VoidResult`, `LoginResult`, etc.) used by every client.
 - Implement a complete NetEase Cloud Music client covering auth, search, song/playlist/album/artist operations, lyrics, and playback URL resolution.
 - Prove the plugin architecture end-to-end: client → service locator → coroutines.
 - Provide unit tests for crypto (encryption round-trips) and parser (JSON → domain models).
