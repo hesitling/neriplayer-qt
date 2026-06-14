@@ -7,6 +7,7 @@
 #include "core/crypto/Decryptor.h"
 #include "core/crypto/Encryptor.h"
 
+#include <QDebug>
 #include <QFile>
 #include <QFileDevice>
 #include <QJsonArray>
@@ -45,7 +46,8 @@ QString SecureStorage::get(const QString &key) const
     try {
         QByteArray decrypted = Decryptor::decrypt(it.value(), m_masterKey);
         return QString::fromUtf8(decrypted);
-    } catch (const CryptoError &) {
+    } catch (const CryptoError &ex) {
+        qWarning() << "SecureStorage: decrypt failed for key" << key << ":" << ex.what();
         return { };
     }
 }

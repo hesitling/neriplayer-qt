@@ -6,6 +6,7 @@
 
 #include <sqlite3.h>
 
+#include <QDebug>
 #include <algorithm>
 
 namespace NeriPlayerQt {
@@ -267,7 +268,9 @@ void DatabaseManager::runMigrations()
             commitTransaction();
             m_currentVersion = 1;
         } catch (...) {
-            try { rollbackTransaction(); } catch (...) {}
+            try { rollbackTransaction(); } catch (const std::exception &rbEx) {
+                qWarning() << "DatabaseManager: initial schema rollback failed:" << rbEx.what();
+            }
             throw;
         }
     }
@@ -286,7 +289,9 @@ void DatabaseManager::runMigrations()
                 commitTransaction();
                 m_currentVersion = version;
             } catch (...) {
-                try { rollbackTransaction(); } catch (...) {}
+                try { rollbackTransaction(); } catch (const std::exception &rbEx) {
+                    qWarning() << "DatabaseManager: migration rollback failed:" << rbEx.what();
+                }
                 throw;
             }
         }

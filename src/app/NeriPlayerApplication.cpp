@@ -11,6 +11,8 @@
 #include "core/network/NetworkManager.h"
 #include "mainwindow.h"
 
+#include <QDebug>
+
 namespace NeriPlayerQt {
 
 NeriPlayerApplication::NeriPlayerApplication(int &argc, char **argv)
@@ -67,9 +69,8 @@ void NeriPlayerApplication::initializeCoreServices()
 
     try {
         Logger::initialize(logConfig);
-    } catch (...) {
-        // File sink failed — retry with console only
-        logConfig.enableConsole = true;
+    } catch (const std::exception &ex) {
+        qWarning() << "Logger file sink init failed:" << ex.what() << "— falling back to console";
         logConfig.logDir.clear();
         Logger::initialize(logConfig);
     }
