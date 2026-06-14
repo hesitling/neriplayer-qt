@@ -35,11 +35,13 @@ This change introduces the API layer: a shared interface and common types (`api/
 
 ### D2: WeAPI encryption — OpenSSL-based implementation
 
-**Decision:** Implement WeAPI encryption directly using OpenSSL (already linked). AES-128-CBC + RSA with hardcoded keys matching the known NetEase web client crypto.
+**Decision:** Implement WeAPI encryption directly using OpenSSL (already linked). AES-128-CBC + RSA with hardcoded keys matching the known NetEase web client crypto. WeAPI encryption is one-way (client → server) — there is no client-side decryption.
 
-**Rationale:** OpenSSL is already a dependency. The WeAPI encryption is well-documented and stable. No need for an additional library.
+**Rationale:** OpenSSL is already a dependency. The WeAPI encryption is well-documented and stable. No need for an additional library. Responses arrive over standard HTTPS and require no client-side crypto.
 
 **Alternative considered:** Wrapping a third-party NeteaseCloudMusicApi crypto library. Rejected — adds dependency for ~200 lines of code we can own.
+
+**Test strategy:** Verify `weapiEncrypt` output against known test vectors (with fixed IV for determinism) rather than round-trip encrypt/decrypt.
 
 ### D3: Cookie/session persistence — SecureStorage
 
