@@ -5,7 +5,7 @@
 #ifndef NERIPLAYERQT_LOGGER_H
 #define NERIPLAYERQT_LOGGER_H
 
-#include <spdlog/sinks/rotating_file_sink.h>
+#include <spdlog/sinks/daily_file_sink.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
 #include <spdlog/spdlog.h>
 
@@ -28,8 +28,7 @@ struct LoggerConfig {
     QString logDir; ///< Directory for log files
     LogLevel level = LogLevel::Info;
     bool enableConsole = true;
-    int maxFileSize = 10 * 1024 * 1024; ///< 10 MB per file
-    int maxFiles = 7;                   ///< Keep 7 rotated files
+    int maxDays = 7; ///< Keep 7 days of log files
 };
 
 /**
@@ -126,7 +125,7 @@ private:
     static std::mutex s_mutex;
     static bool s_initialized;
     static LoggerConfig s_config;
-    static std::shared_ptr<spdlog::sinks::rotating_file_sink_mt> s_fileSink;
+    static std::shared_ptr<spdlog::sinks::daily_file_sink_mt> s_fileSink;
     static std::shared_ptr<spdlog::sinks::stdout_color_sink_mt> s_consoleSink;
     static std::unordered_map<std::string, std::shared_ptr<NamedLogger>> s_loggers;
 };
