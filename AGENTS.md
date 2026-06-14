@@ -87,8 +87,8 @@ QCoro::Task<SearchResult> search(const QString &query) {
 ### Qt Types
 
 - Use `QString` for all user-facing text and internal strings (not `std::string`).
-- Use `QUrl` for URLs, not `QString`.
-- Use `qint64` for durations (milliseconds), timestamps (epoch ms), and file sizes.
+- `QUrl` handles all URLs (not `QString`).
+- Durations (milliseconds), timestamps (epoch ms), and file sizes go in `qint64`.
 - All domain types passed through QVariant must use `Q_DECLARE_METATYPE`.
 - Domain structs are plain value types — no `QObject`, no `Q_GADGET`.
 
