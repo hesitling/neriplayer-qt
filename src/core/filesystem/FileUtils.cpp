@@ -67,12 +67,7 @@ bool FileUtils::writeFile(const QString &path, const QByteArray &data)
 
     tempFile.close();
 
-    // Atomic rename
-    QFile targetFile(path);
-    if (targetFile.exists()) {
-        targetFile.remove();
-    }
-
+    // Atomic rename (overwrites existing file on POSIX)
     if (!QFile::rename(tempFile.fileName(), path)) {
         s_lastError = QStringLiteral("Rename from %1 to %2 failed").arg(tempFile.fileName(), path);
         tempFile.remove();
