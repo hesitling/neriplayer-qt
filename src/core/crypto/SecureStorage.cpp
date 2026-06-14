@@ -102,7 +102,7 @@ void SecureStorage::save() const
     QJsonDocument doc(root);
     QFile file(m_filePath);
     if (!file.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
-        return;
+        throw CryptoError("Failed to save secure storage: " + file.errorString().toStdString());
     }
     file.write(doc.toJson(QJsonDocument::Compact));
     file.close();
