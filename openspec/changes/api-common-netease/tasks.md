@@ -4,12 +4,11 @@
 - [ ] 1.2 Define `ApiError` class with code, message, details, and classification methods (`isNetworkError`, `isAuthError`, `isRateLimitError`, `isNotFoundError`, `userMessage`)
 - [ ] 1.3 Define `ApiResult<T>` template with `isSuccess()`, `isError()`, `data()`, `error()`, and implicit bool conversion
 - [ ] 1.4 Define `VoidResult` type alias for no-payload operations
-- [ ] 1.5 Define `PlaybackUrl` struct (url, quality, format, bitrate, fileSize, canExpire)
-- [ ] 1.6 Define `LoginResult` struct (userId, nickname, avatarUrl, cookie)
+- [ ] 1.5 Define `LoginResult` struct (userId, nickname, avatarUrl, cookie) — cookie is semicolon-delimited key=value string
 - [ ] 1.7 Define `QrCodeData` struct (key, qrUrl, expiresInSeconds)
 - [ ] 1.8 Define `PlayHistory` struct (song, playedAt, playCount)
-- [ ] 1.9 Define `IMusicPlatformPlugin` abstract interface with search, getSongDetail, getSongUrl, getLyrics, isAuthenticated, platformName
-- [ ] 1.10 Register all API common types with `Q_DECLARE_METATYPE`
+- [ ] 1.9 Define `IMusicPlatformPlugin` abstract interface with search, getSongDetail, getSongUrl (returns `SongUrlResult`), getLyrics, isAuthenticated, platformName
+- [ ] 1.10 Register all API common types with `Q_DECLARE_METATYPE` (SongUrlResult/AudioInfo already registered in domain)
 - [ ] 1.11 Update `CMakeLists.txt` to include new API common source/header files
 
 ## 2. NeteaseCrypto
@@ -34,7 +33,7 @@
 - [ ] 3.7 Implement `parseLyrics()` — JSON to `Lyrics` with timed lines
 - [ ] 3.8 Implement `parseSearchResult()` — JSON to `SearchResult` dispatching by search type
 - [ ] 3.9 Implement `parseLoginResult()` — JSON to `LoginResult`
-- [ ] 3.10 Implement `parsePlaybackUrl()` — JSON to `PlaybackUrl`
+- [ ] 3.10 Implement `parseSongUrl()` — JSON to `SongUrlResult` (existing domain type)
 - [ ] 3.11 Implement `parseHotSearches()` — JSON to `QStringList`
 - [ ] 3.12 Implement `parsePlayHistory()` — JSON to `QVector<PlayHistory>`
 - [ ] 3.13 Add logging for malformed JSON with `qWarning()` in each parser method
@@ -73,7 +72,7 @@
 ## 7. NeteaseClient — Songs
 
 - [ ] 7.1 Implement `getSongDetail(songId)` — call `/song/detail`, parse to `Song`
-- [ ] 7.2 Implement `getSongUrl(songId, quality)` — call `/song/url`, parse to `PlaybackUrl`
+- [ ] 7.2 Implement `getSongUrl(songId, quality)` — call `/song/url`, parse to `SongUrlResult`
 - [ ] 7.3 Implement `getLyrics(songId)` — call `/lyric`, parse to `Lyrics`
 - [ ] 7.4 Implement `getSimilarSongs(songId)` — call `/simi/song`, parse to `QVector<Song>`
 
