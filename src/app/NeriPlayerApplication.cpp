@@ -23,8 +23,8 @@ NeriPlayerApplication::NeriPlayerApplication(int &argc, char **argv)
 
 NeriPlayerApplication::~NeriPlayerApplication()
 {
-    // Shutdown order: reverse of initialization
-    // Services are cleaned up by ServiceLocator's unique_ptr
+    // Services are cleaned up by ServiceLocator's unique_ptr.
+    // Destruction order is unspecified (unordered_map).
     m_services.clear();
 }
 
