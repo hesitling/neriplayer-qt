@@ -3,7 +3,7 @@
 - [ ] 1.1 Create `src/api/common/` directory structure
 - [ ] 1.2 Define `ApiError` class with code, message, details, and classification methods (`isNetworkError`, `isAuthError`, `isRateLimitError`, `isNotFoundError`, `userMessage`)
 - [ ] 1.3 Define `ApiResult<T>` template with `isSuccess()`, `isError()`, `data()`, `error()`, and implicit bool conversion
-- [ ] 1.4 Define `VoidResult` type alias for no-payload operations
+- [ ] 1.4 Define `VoidResult` as empty struct (`struct VoidResult {};`) for no-payload operations
 - [ ] 1.5 Define `LoginResult` struct (userId, nickname, avatarUrl, cookie) — cookie is semicolon-delimited key=value string
 - [ ] 1.7 Define `QrCodeData` struct (key, qrUrl, expiresInSeconds)
 - [ ] 1.8 Define `PlayHistory` struct (song, playedAt, playCount)
