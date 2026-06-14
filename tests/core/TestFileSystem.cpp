@@ -51,6 +51,10 @@ void TestFileSystem::dataDir_returnsValidPath()
 void TestFileSystem::dataDir_autoCreates()
 {
     QString path = AppPaths::dataDir();
+    QVERIFY(QDir(path).removeRecursively());
+    QVERIFY(!QDir(path).exists());
+    path = AppPaths::dataDir();
+    QVERIFY(!path.isEmpty());
     QVERIFY(QDir(path).exists());
 }
 
@@ -64,6 +68,10 @@ void TestFileSystem::configDir_returnsValidPath()
 void TestFileSystem::configDir_autoCreates()
 {
     QString path = AppPaths::configDir();
+    QVERIFY(QDir(path).removeRecursively());
+    QVERIFY(!QDir(path).exists());
+    path = AppPaths::configDir();
+    QVERIFY(!path.isEmpty());
     QVERIFY(QDir(path).exists());
 }
 
@@ -77,6 +85,10 @@ void TestFileSystem::cacheDir_returnsValidPath()
 void TestFileSystem::cacheDir_autoCreates()
 {
     QString path = AppPaths::cacheDir();
+    QVERIFY(QDir(path).removeRecursively());
+    QVERIFY(!QDir(path).exists());
+    path = AppPaths::cacheDir();
+    QVERIFY(!path.isEmpty());
     QVERIFY(QDir(path).exists());
 }
 
@@ -90,6 +102,10 @@ void TestFileSystem::tempDir_returnsValidPath()
 void TestFileSystem::tempDir_autoCreates()
 {
     QString path = AppPaths::tempDir();
+    QVERIFY(QDir(path).removeRecursively());
+    QVERIFY(!QDir(path).exists());
+    path = AppPaths::tempDir();
+    QVERIFY(!path.isEmpty());
     QVERIFY(QDir(path).exists());
 }
 
