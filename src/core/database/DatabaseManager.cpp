@@ -57,6 +57,11 @@ bool DatabaseManager::isOpen() const
     return m_db != nullptr;
 }
 
+int DatabaseManager::affectedRows() const
+{
+    return m_affectedRows;
+}
+
 int DatabaseManager::schemaVersion() const
 {
     return m_currentVersion;
@@ -140,6 +145,8 @@ QVector<QueryRow> DatabaseManager::exec(const QString &sql, const QVariantList &
         bindVariant(stmt, i + 1, params[i]);
     }
 
+    m_affectedRows = 0;
+
     // Execute and collect results
     QVector<QueryRow> rows;
     while ((rc = sqlite3_step(stmt)) == SQLITE_ROW) {
@@ -158,6 +165,7 @@ QVector<QueryRow> DatabaseManager::exec(const QString &sql, const QVariantList &
         throw DatabaseError("Exec failed: " + err);
     }
 
+    m_affectedRows = sqlite3_changes(m_db);
     sqlite3_finalize(stmt);
     return rows;
 }
@@ -183,6 +191,8 @@ QVector<QueryRow> DatabaseManager::execNamed(const QString &sql, const QVariantM
         }
     }
 
+    m_affectedRows = 0;
+
     // Execute and collect results
     QVector<QueryRow> rows;
     while ((rc = sqlite3_step(stmt)) == SQLITE_ROW) {
@@ -201,6 +211,7 @@ QVector<QueryRow> DatabaseManager::execNamed(const QString &sql, const QVariantM
         throw DatabaseError("Exec failed: " + err);
     }
 
+    m_affectedRows = sqlite3_changes(m_db);
     sqlite3_finalize(stmt);
     return rows;
 }

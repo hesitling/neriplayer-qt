@@ -63,6 +63,11 @@ public:
     bool isOpen() const;
 
     /**
+     * @brief Get the number of rows affected by the last INSERT/UPDATE/DELETE
+     */
+    int affectedRows() const;
+
+    /**
      * @brief Get the current schema version
      */
     int schemaVersion() const;
@@ -121,6 +126,7 @@ private:
 
     sqlite3 *m_db = nullptr;
     int m_currentVersion = 0;
+    int m_affectedRows = 0;
     std::vector<std::pair<int, std::function<bool(sqlite3 *)>>> m_migrations;
 };
 
