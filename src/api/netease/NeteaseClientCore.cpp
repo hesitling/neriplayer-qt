@@ -302,7 +302,11 @@ void NeteaseClient::injectCookies(QNetworkRequest &request)
     QString cookie = m_cookie;
     // Add base cookies if not present
     if (!cookie.contains("os=")) {
-        cookie += QStringLiteral("; os=pc; appver=8.10.35");
+        if (cookie.isEmpty()) {
+            cookie = QStringLiteral("os=pc; appver=8.10.35");
+        } else {
+            cookie += QStringLiteral("; os=pc; appver=8.10.35");
+        }
     }
     if (!cookie.isEmpty()) {
         request.setRawHeader("Cookie", cookie.toUtf8());
