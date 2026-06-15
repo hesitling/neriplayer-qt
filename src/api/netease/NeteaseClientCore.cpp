@@ -61,7 +61,8 @@ void NeteaseClient::setBaseUrl(const QUrl &url)
 QCoro::Task<ApiResult<QJsonObject>> NeteaseClient::makeRequest(
     const QString &path,
     const QJsonObject &params,
-    const QString &host)
+    const QString &host,
+    bool retried)
 {
     // Build the encrypted payload
     QJsonObject weapiParams = params;
@@ -137,6 +138,12 @@ QCoro::Task<ApiResult<QJsonObject>> NeteaseClient::makeRequest(
     // Check for API-level errors
     int code = json[QLatin1String("code")].toInt();
     if (code != 200) {
+        // Auto-retry 301 (session expired) once, like Kotlin
+        if (code == 301 && !retried && isAuthenticated()) {
+            Logger::get("api")->info("NeteaseClient: 301 at {}, refreshing session", path.toStdString());
+            co_await ensureWeapiSession();
+            co_return co_await makeRequest(path, params, host, true);
+        }
         QString msg = json[QLatin1String("msg")].toString();
         if (msg.isEmpty()) {
             msg = json[QLatin1String("message")].toString();
@@ -200,7 +207,8 @@ QCoro::Task<ApiResult<QJsonObject>> NeteaseClient::makeEapiRequest(
     const QString &path,
     const QJsonObject &params,
     const QString &host,
-    bool returnRawOnNon200)
+    bool returnRawOnNon200,
+    bool retried)
 {
     // Build JSON payload
     QByteArray payload = QJsonDocument(params).toJson(QJsonDocument::Compact);
@@ -263,6 +271,12 @@ QCoro::Task<ApiResult<QJsonObject>> NeteaseClient::makeEapiRequest(
     if (code != 200) {
         if (returnRawOnNon200) {
             co_return ApiResult<QJsonObject>(json);
+        }
+        // Auto-retry 301 (session expired) once, like Kotlin
+        if (code == 301 && !retried && isAuthenticated()) {
+            Logger::get("api")->info("NeteaseClient: 301 at {}, refreshing session", path.toStdString());
+            co_await ensureWeapiSession();
+            co_return co_await makeEapiRequest(path, params, host, returnRawOnNon200, true);
         }
         QString msg = json[QLatin1String("msg")].toString();
         if (msg.isEmpty()) {

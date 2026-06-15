@@ -100,31 +100,9 @@ QCoro::Task<ApiResult<Lyrics>> NeteaseClient::getLyrics(const QString &songId)
     params[QLatin1String("ytv")] = 1;
     params[QLatin1String("yrv")] = 0;
 
-    auto result = co_await makeEapiRequest(
-        QStringLiteral("/song/lyric/v1"), params,
-        QStringLiteral("https://interface.music.163.com"), true);
+    auto result = co_await makeEapiRequest(QStringLiteral("/song/lyric/v1"), params);
     if (result.isError()) {
         co_return ApiResult<Lyrics>(result.error());
-    }
-
-    int code = result.data()[QLatin1String("code")].toInt();
-    if (code == 301 && isAuthenticated()) {
-        co_await ensureWeapiSession();
-        result = co_await makeEapiRequest(
-            QStringLiteral("/song/lyric/v1"), params,
-            QStringLiteral("https://interface.music.163.com"), true);
-        if (result.isError()) {
-            co_return ApiResult<Lyrics>(result.error());
-        }
-        code = result.data()[QLatin1String("code")].toInt();
-    }
-
-    if (code != 200) {
-        QString msg = result.data()[QLatin1String("msg")].toString();
-        if (msg.isEmpty()) {
-            msg = result.data()[QLatin1String("message")].toString();
-        }
-        co_return ApiResult<Lyrics>(ApiError(code, msg));
     }
 
     co_return ApiResult<Lyrics>(NeteaseParser::parseLyrics(result.data()));

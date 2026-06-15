@@ -184,13 +184,15 @@ private:
     QCoro::Task<ApiResult<QJsonObject>> makeRequest(
         const QString &path,
         const QJsonObject &params = {},
-        const QString &host = {});
+        const QString &host = {},
+        bool retried = false);
 
     QCoro::Task<ApiResult<QJsonObject>> makeEapiRequest(
         const QString &path,
         const QJsonObject &params = {},
         const QString &host = QStringLiteral("https://interface.music.163.com"),
-        bool returnRawOnNon200 = false);
+        bool returnRawOnNon200 = false,
+        bool retried = false);
 
     QCoro::Task<ApiResult<QJsonObject>> makeUnencryptedRequest(
         const QString &path,
