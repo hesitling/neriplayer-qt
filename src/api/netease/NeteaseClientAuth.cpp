@@ -32,6 +32,8 @@ QCoro::Task<ApiResult<LoginResult>> NeteaseClient::login(
 
     LoginResult loginResult = NeteaseParser::parseLoginResult(result.data());
     persistCookies(loginResult.cookie);
+    // Ensure cookies from Set-Cookie headers are captured (JSON body may not have them)
+    co_await ensureWeapiSession();
     co_return ApiResult<LoginResult>(loginResult);
 }
 
@@ -51,6 +53,7 @@ QCoro::Task<ApiResult<LoginResult>> NeteaseClient::loginByEmail(
 
     LoginResult loginResult = NeteaseParser::parseLoginResult(result.data());
     persistCookies(loginResult.cookie);
+    co_await ensureWeapiSession();
     co_return ApiResult<LoginResult>(loginResult);
 }
 
@@ -166,6 +169,7 @@ QCoro::Task<ApiResult<LoginResult>> NeteaseClient::loginByCaptcha(
 
     LoginResult loginResult = NeteaseParser::parseLoginResult(result.data());
     persistCookies(loginResult.cookie);
+    co_await ensureWeapiSession();
     co_return ApiResult<LoginResult>(loginResult);
 }
 
