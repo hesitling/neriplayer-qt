@@ -6,6 +6,7 @@
 
 #include "api/common/ApiError.h"
 
+#include <cassert>
 #include <optional>
 
 namespace NeriPlayerQt {
@@ -69,6 +70,7 @@ public:
      */
     const T &data() const
     {
+        assert(m_value.has_value() && "ApiResult::data() called on error result");
         return *m_value;
     }
 
@@ -80,6 +82,7 @@ public:
      */
     const ApiError &error() const
     {
+        assert(!m_value.has_value() && "ApiResult::error() called on success result");
         return m_error;
     }
 
