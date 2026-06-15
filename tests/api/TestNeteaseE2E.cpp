@@ -155,13 +155,6 @@ void TestNeteaseE2E::testGetSongUrl()
     auto result = QCoro::waitFor(
         m_client->getSongUrl(m_firstSongId, AudioQuality::High));
 
-    // Retry on 301 (session expired) like Kotlin does
-    if (result.isError() && result.error().code() == 301) {
-        QCoro::waitFor(m_client->ensureWeapiSession());
-        result = QCoro::waitFor(
-            m_client->getSongUrl(m_firstSongId, AudioQuality::High));
-    }
-
     QVERIFY2(result.isSuccess(),
              qPrintable(result.error().message()));
 
@@ -231,12 +224,6 @@ void TestNeteaseE2E::testLikeSong()
 
     auto result = QCoro::waitFor(m_client->likeSong(m_firstSongId));
 
-    // Retry on 301 (session expired) like Kotlin does
-    if (result.isError() && result.error().code() == 301) {
-        QCoro::waitFor(m_client->ensureWeapiSession());
-        result = QCoro::waitFor(m_client->likeSong(m_firstSongId));
-    }
-
     QVERIFY2(result.isSuccess(),
              qPrintable(QStringLiteral("likeSong failed (code=%1): %2").arg(result.error().code()).arg(result.error().message())));
 }
@@ -248,12 +235,6 @@ void TestNeteaseE2E::testUnlikeSong()
     }
 
     auto result = QCoro::waitFor(m_client->unlikeSong(m_firstSongId));
-
-    // Retry on 301 (session expired) like Kotlin does
-    if (result.isError() && result.error().code() == 301) {
-        QCoro::waitFor(m_client->ensureWeapiSession());
-        result = QCoro::waitFor(m_client->unlikeSong(m_firstSongId));
-    }
 
     QVERIFY2(result.isSuccess(),
              qPrintable(QStringLiteral("unlikeSong failed (code=%1): %2").arg(result.error().code()).arg(result.error().message())));
@@ -270,12 +251,6 @@ void TestNeteaseE2E::testGetLikedSongIds()
     QString userId = QString::number(profile[QLatin1String("userId")].toVariant().toLongLong());
 
     auto result = QCoro::waitFor(m_client->getLikedSongIds(userId));
-
-    // Retry on 301 (session expired) like Kotlin does
-    if (result.isError() && result.error().code() == 301) {
-        QCoro::waitFor(m_client->ensureWeapiSession());
-        result = QCoro::waitFor(m_client->getLikedSongIds(userId));
-    }
 
     QVERIFY2(result.isSuccess(),
              qPrintable(QStringLiteral("getLikedSongIds failed (code=%1): %2").arg(result.error().code()).arg(result.error().message())));
