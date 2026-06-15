@@ -17,6 +17,7 @@ struct HttpResponse {
     int statusCode = 0;
     QByteArray body;
     QString errorString;
+    QList<QNetworkReply::RawHeaderPair> headers;
 
     bool isSuccess() const;
 };

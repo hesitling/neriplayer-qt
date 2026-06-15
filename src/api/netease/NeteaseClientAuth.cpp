@@ -82,7 +82,41 @@ QCoro::Task<void> NeteaseClient::ensureWeapiSession()
                          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36");
     injectCookies(request);
 
-    co_await m_httpClient->get(request);
+    auto response = co_await m_httpClient->get(request);
+
+    // Extract Set-Cookie headers and merge into current cookie string
+    QStringList newCookies;
+    for (const auto &header : response.headers) {
+        if (QString::fromUtf8(header.first).compare(QStringLiteral("Set-Cookie"), Qt::CaseInsensitive) == 0) {
+            // Extract name=value from "name=value; Path=/; ..."
+            QString nameValue = QString::fromUtf8(header.second).split(QLatin1Char(';')).first().trimmed();
+            newCookies.append(nameValue);
+        }
+    }
+    if (!newCookies.isEmpty()) {
+        // Merge with existing cookies by rebuilding the cookie map
+        QHash<QString, QString> cookieMap;
+        // Parse existing cookies
+        for (const QString &part : m_cookie.split(QStringLiteral("; "))) {
+            QString name = part.section(QLatin1Char('='), 0, 0);
+            QString value = part.section(QLatin1Char('='), 1);
+            if (!name.isEmpty()) {
+                cookieMap.insert(name, value);
+            }
+        }
+        // Override with new cookies
+        for (const QString &cookie : newCookies) {
+            QString name = cookie.section(QLatin1Char('='), 0, 0);
+            QString value = cookie.section(QLatin1Char('='), 1);
+            cookieMap.insert(name, value);
+        }
+        // Rebuild cookie string
+        QStringList parts;
+        for (auto it = cookieMap.constBegin(); it != cookieMap.constEnd(); ++it) {
+            parts.append(it.key() + QLatin1Char('=') + it.value());
+        }
+        persistCookies(parts.join(QStringLiteral("; ")));
+    }
 }
 
 // ─── Account ────────────────────────────────────────────────────────────────

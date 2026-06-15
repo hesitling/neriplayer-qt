@@ -45,6 +45,7 @@ QCoro::Task<HttpResponse> HttpClient::send(QNetworkReply *reply)
     HttpResponse response;
     response.statusCode = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
     response.body = reply->readAll();
+    response.headers = reply->rawHeaderPairs();
     if (reply->error() != QNetworkReply::NoError) {
         response.errorString = reply->errorString();
     }
