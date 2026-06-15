@@ -86,8 +86,8 @@
 
 ## 9. Add Missing Kotlin APIs
 
-- [ ] 9.1 Add `getDjRadioDetail(radioId)` — `/api/v6/playlist/detail` (same as playlist detail)
-- [ ] 9.2 Add `getRelatedPlaylists(playlistId)` — HTML scrape from `/playlist?id=xxx`
+- [x] 9.1 Add `getDjRadioDetail(radioId)` — `/api/v6/playlist/detail` (same as playlist detail)
+- [x] 9.2 Add `getRelatedPlaylists(playlistId)` — HTML scrape from `/playlist?id=xxx`
 - [ ] 9.3 Add `getUserCreatedPlaylists(userId)` — wrapper around `getUserPlaylists` filtering by creator
 - [ ] 9.4 Add `getUserStaredAlbums(userId)` — wrapper around `getUserAlbums` filtering subscribed
 - [ ] 9.5 Add `getUserSubscribedPlaylists(userId)` — wrapper around `getUserPlaylists` filtering subscribed
@@ -104,8 +104,8 @@
 
 ## 11. Remove Qt-Only Methods (Not in Kotlin)
 
-- [ ] 11.1 Remove `searchPlaylists()` — Kotlin only has `searchSongs(type=1)`
-- [ ] 11.2 Remove `searchAlbums()` — Kotlin only has `searchSongs(type=1)`
-- [ ] 11.3 Remove `searchArtists()` — Kotlin only has `searchSongs(type=1)`
+- [x] 11.1 Remove `searchPlaylists()` — Kotlin only has `searchSongs(type=1)`
+- [x] 11.2 Remove `searchAlbums()` — Kotlin only has `searchSongs(type=1)`
+- [x] 11.3 Remove `searchArtists()` — Kotlin only has `searchSongs(type=1)`
 - [ ] 11.4 Decide on `loginByEmail()` — keep or remove?
 - [ ] 11.5 Decide on `unlikeSong()` — keep as convenience or remove?

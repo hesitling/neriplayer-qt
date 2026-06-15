@@ -26,6 +26,7 @@
 #include <QVector>
 
 #include <QNetworkRequest>
+#include <QRegularExpression>
 
 namespace NeriPlayerQt {
 
@@ -105,12 +106,6 @@ public:
 
     QCoro::Task<ApiResult<SearchResult>> searchSongs(
         const QString &keyword, int limit = 30, int offset = 0);
-    QCoro::Task<ApiResult<SearchResult>> searchPlaylists(
-        const QString &keyword, int limit = 30, int offset = 0);
-    QCoro::Task<ApiResult<SearchResult>> searchAlbums(
-        const QString &keyword, int limit = 30, int offset = 0);
-    QCoro::Task<ApiResult<SearchResult>> searchArtists(
-        const QString &keyword, int limit = 30, int offset = 0);
 
     // ─── Playlists ────────────────────────────────────────────────────────
 
@@ -131,6 +126,23 @@ public:
     QCoro::Task<ApiResult<QStringList>> getLikedSongIds(const QString &userId);
     QCoro::Task<ApiResult<QJsonObject>> getCurrentUserAccount();
 
+    /**
+     * @brief Get the current logged-in user's userId
+     * @return userId as long long, or -1 if not logged in
+     */
+    QCoro::Task<ApiResult<long long>> getCurrentUserId();
+
+    // ─── Captcha Auth ─────────────────────────────────────────────────────
+
+    QCoro::Task<ApiResult<LoginResult>> loginByCaptcha(const QString &phone,
+                                                       const QString &captcha,
+                                                       int ctcode = 86);
+    QCoro::Task<ApiResult<VoidResult>> sendCaptcha(const QString &phone,
+                                                    int ctcode = 86);
+    QCoro::Task<ApiResult<VoidResult>> verifyCaptcha(const QString &phone,
+                                                      const QString &captcha,
+                                                      int ctcode = 86);
+
     // ─── Download ─────────────────────────────────────────────────────────
 
     QCoro::Task<ApiResult<QJsonObject>> getSongDownloadUrl(
@@ -140,12 +152,31 @@ public:
 
     QCoro::Task<ApiResult<QStringList>> getHighQualityTags();
 
+    // ─── DJ Radio ────────────────────────────────────────────────────────
+
+    QCoro::Task<ApiResult<QJsonObject>> getDjRadioDetail(
+        const QString &radioId, int n = 100000, int s = 8);
+
+    // ─── Related Playlists ────────────────────────────────────────────────
+
+    QCoro::Task<ApiResult<QJsonObject>> getRelatedPlaylists(
+        const QString &playlistId);
+
     // ─── User Collections ─────────────────────────────────────────────────
 
     QCoro::Task<ApiResult<QJsonObject>> getUserAlbums(
         const QString &userId, int limit = 30, int offset = 0);
     QCoro::Task<ApiResult<QJsonObject>> getUserDjRadios(
         const QString &userId, int limit = 30, int offset = 0);
+
+    // ─── User Playlist Wrappers ───────────────────────────────────────────
+
+    QCoro::Task<ApiResult<QJsonObject>> getUserCreatedPlaylists(
+        const QString &userId, int limit = 1000, int offset = 0);
+    QCoro::Task<ApiResult<QJsonObject>> getUserSubscribedPlaylists(
+        const QString &userId, int limit = 1000, int offset = 0);
+    QCoro::Task<ApiResult<QString>> getLikedPlaylistId(
+        const QString &userId);
 
 private:
     // Request helpers
@@ -155,7 +186,9 @@ private:
 
     QCoro::Task<ApiResult<QJsonObject>> makeEapiRequest(
         const QString &path,
-        const QJsonObject &params = {});
+        const QJsonObject &params = {},
+        const QString &host = QStringLiteral("https://interface.music.163.com"),
+        bool returnRawOnNon200 = false);
 
     QCoro::Task<ApiResult<QJsonObject>> makeUnencryptedRequest(
         const QString &path,

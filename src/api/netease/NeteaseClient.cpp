@@ -198,7 +198,9 @@ QCoro::Task<ApiResult<QJsonObject>> NeteaseClient::makeUnencryptedRequest(
 
 QCoro::Task<ApiResult<QJsonObject>> NeteaseClient::makeEapiRequest(
     const QString &path,
-    const QJsonObject &params)
+    const QJsonObject &params,
+    const QString &host,
+    bool returnRawOnNon200)
 {
     // Build JSON payload
     QByteArray payload = QJsonDocument(params).toJson(QJsonDocument::Compact);
@@ -212,8 +214,8 @@ QCoro::Task<ApiResult<QJsonObject>> NeteaseClient::makeEapiRequest(
     formBody.addQueryItem(QStringLiteral("params"), encryptedParams);
     QByteArray postData = formBody.toString(QUrl::FullyEncoded).toUtf8();
 
-    // Build URL - eapi uses interface.music.163.com
-    QUrl url(QStringLiteral("https://interface.music.163.com") + eapiPath);
+    // Build URL using the specified host
+    QUrl url(host + eapiPath);
 
     // Build request
     QNetworkRequest request(url);
@@ -259,6 +261,9 @@ QCoro::Task<ApiResult<QJsonObject>> NeteaseClient::makeEapiRequest(
     // Check for API-level errors
     int code = json[QLatin1String("code")].toInt();
     if (code != 200) {
+        if (returnRawOnNon200) {
+            co_return ApiResult<QJsonObject>(json);
+        }
         QString msg = json[QLatin1String("msg")].toString();
         if (msg.isEmpty()) {
             msg = json[QLatin1String("message")].toString();
@@ -493,24 +498,6 @@ QCoro::Task<ApiResult<SearchResult>> NeteaseClient::searchSongs(
     co_return co_await search(keyword, SearchType::Song, limit, offset);
 }
 
-QCoro::Task<ApiResult<SearchResult>> NeteaseClient::searchPlaylists(
-    const QString &keyword, int limit, int offset)
-{
-    co_return co_await search(keyword, SearchType::Playlist, limit, offset);
-}
-
-QCoro::Task<ApiResult<SearchResult>> NeteaseClient::searchAlbums(
-    const QString &keyword, int limit, int offset)
-{
-    co_return co_await search(keyword, SearchType::Album, limit, offset);
-}
-
-QCoro::Task<ApiResult<SearchResult>> NeteaseClient::searchArtists(
-    const QString &keyword, int limit, int offset)
-{
-    co_return co_await search(keyword, SearchType::Artist, limit, offset);
-}
-
 // ─── Playlists ─────────────────────────────────────────────────────────────
 
 QCoro::Task<ApiResult<Playlist>> NeteaseClient::getPlaylistDetail(const QString &playlistId)
@@ -726,7 +713,9 @@ QCoro::Task<ApiResult<QJsonObject>> NeteaseClient::getUserAlbums(
     params[QLatin1String("isVistor")] = QStringLiteral("false");
     params[QLatin1String("includeStarPodcast")] = QStringLiteral("true");
 
-    auto result = co_await makeEapiRequest(QStringLiteral("/mine/rn/resource/list"), params);
+    auto result = co_await makeEapiRequest(
+        QStringLiteral("/mine/rn/resource/list"), params,
+        QStringLiteral("https://interface3.music.163.com"));
     if (result.isError()) {
         co_return ApiResult<QJsonObject>(result.error());
     }
@@ -748,6 +737,91 @@ QCoro::Task<ApiResult<QJsonObject>> NeteaseClient::getUserDjRadios(
     }
 
     co_return ApiResult<QJsonObject>(result.data());
+}
+
+QCoro::Task<ApiResult<QJsonObject>> NeteaseClient::getDjRadioDetail(
+    const QString &radioId, int n, int s)
+{
+    QJsonObject params;
+    params[QLatin1String("id")] = radioId;
+    params[QLatin1String("n")] = n;
+    params[QLatin1String("s")] = s;
+
+    auto result = co_await makeUnencryptedRequest(
+        QStringLiteral("/api/v6/playlist/detail"), params);
+    if (result.isError()) {
+        co_return ApiResult<QJsonObject>(result.error());
+    }
+
+    co_return ApiResult<QJsonObject>(result.data());
+}
+
+QCoro::Task<ApiResult<QJsonObject>> NeteaseClient::getRelatedPlaylists(
+    const QString &playlistId)
+{
+    // Scrape related playlists from the playlist HTML page (matches Kotlin)
+    QUrl url(QStringLiteral("https://music.163.com/playlist"));
+    QUrlQuery query;
+    query.addQueryItem(QStringLiteral("id"), playlistId);
+    url.setQuery(query);
+
+    QNetworkRequest request(url);
+    request.setRawHeader("Referer", "https://music.163.com");
+    request.setRawHeader("User-Agent",
+                         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
+                         "(KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36");
+    injectCookies(request);
+
+    auto response = co_await m_httpClient->get(request);
+    if (!response.isSuccess()) {
+        co_return ApiResult<QJsonObject>(ApiError(
+            response.statusCode, response.errorString));
+    }
+
+    const QString html = QString::fromUtf8(response.body);
+
+    // Parse related playlists from HTML (matches Kotlin regex)
+    static const QRegularExpression regex(
+        QStringLiteral(
+            "<div class=\"cver u-cover u-cover-3\">[\\s\\S]*?"
+            "<img src=\"([^\"]+)\">[\\s\\S]*?"
+            "<a class=\"sname f-fs1 s-fc0\" href=\"([^\"]+)\"[^>]*>([^<]+?)</a>[\\s\\S]*?"
+            "<a class=\"nm nm f-thide s-fc3\" href=\"([^\"]+)\"[^>]*>([^<]+?)</a>"),
+        QRegularExpression::DotMatchesEverythingOption |
+            QRegularExpression::CaseInsensitiveOption);
+
+    QJsonArray playlists;
+    QRegularExpressionMatchIterator it = regex.globalMatch(html);
+    while (it.hasNext()) {
+        QRegularExpressionMatch match = it.next();
+
+        QString cover = match.captured(1);
+        cover.replace(QRegularExpression(QStringLiteral("\\?param=\\d+y\\d+$")), QString());
+
+        QString idStr = match.captured(2);
+        idStr.remove(QStringLiteral("/playlist?id="));
+        QString playlistName = match.captured(3);
+        QString userIdStr = match.captured(4);
+        userIdStr.remove(QStringLiteral("/user/home?id="));
+        QString nickname = match.captured(5);
+
+        QJsonObject creator;
+        creator[QLatin1String("userId")] = userIdStr;
+        creator[QLatin1String("nickname")] = nickname;
+
+        QJsonObject item;
+        item[QLatin1String("creator")] = creator;
+        item[QLatin1String("coverImgUrl")] = cover;
+        item[QLatin1String("name")] = playlistName;
+        item[QLatin1String("id")] = idStr;
+
+        playlists.append(item);
+    }
+
+    QJsonObject result;
+    result[QLatin1String("code")] = 200;
+    result[QLatin1String("playlists")] = playlists;
+    co_return ApiResult<QJsonObject>(result);
 }
 
 } // namespace NeriPlayerQt
