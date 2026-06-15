@@ -93,9 +93,9 @@
 - [x] 9.5 Add `getUserSubscribedPlaylists(userId)` — wrapper around `getUserPlaylists` filtering subscribed
 - [x] 9.6 Add `getLikedPlaylistId(userId)` — wrapper around `getUserPlaylists` finding specialType=5
 - [x] 9.7 Add `getCurrentUserId()` — helper using `getCurrentUserAccount()`
-- [ ] 9.8 Add `loginByCaptcha(phone, captcha, ctcode)` — EAPI `/w/login/cellphone` with captcha
-- [ ] 9.9 Add `sendCaptcha(phone, ctcode)` — `/weapi/sms/captcha/sent`
-- [ ] 9.10 Add `verifyCaptcha(phone, captcha, ctcode)` — `/weapi/sms/captcha/verify`
+- [x] 9.8 Add `loginByCaptcha(phone, captcha, ctcode)` — EAPI `/w/login/cellphone` with captcha
+- [x] 9.9 Add `sendCaptcha(phone, ctcode)` — `/weapi/sms/captcha/sent`
+- [x] 9.10 Add `verifyCaptcha(phone, captcha, ctcode)` — `/weapi/sms/captcha/verify`
 
 ## 10. Fix Parameter Differences
 

@@ -840,6 +840,57 @@ QCoro::Task<ApiResult<long long>> NeteaseClient::getCurrentUserId()
     co_return ApiResult<long long>(userId);
 }
 
+QCoro::Task<ApiResult<LoginResult>> NeteaseClient::loginByCaptcha(
+    const QString &phone, const QString &captcha, int ctcode)
+{
+    QJsonObject params;
+    params[QLatin1String("phone")] = phone;
+    params[QLatin1String("countrycode")] = QString::number(ctcode);
+    params[QLatin1String("rememberLogin")] = QStringLiteral("true");
+    params[QLatin1String("type")] = QStringLiteral("1");
+    params[QLatin1String("captcha")] = captcha;
+
+    auto result = co_await makeEapiRequest(QStringLiteral("/w/login/cellphone"), params);
+    if (result.isError()) {
+        co_return ApiResult<LoginResult>(result.error());
+    }
+
+    LoginResult loginResult = NeteaseParser::parseLoginResult(result.data());
+    persistCookies(loginResult.cookie);
+    co_return ApiResult<LoginResult>(loginResult);
+}
+
+QCoro::Task<ApiResult<VoidResult>> NeteaseClient::sendCaptcha(
+    const QString &phone, int ctcode)
+{
+    QJsonObject params;
+    params[QLatin1String("cellphone")] = phone;
+    params[QLatin1String("ctcode")] = QString::number(ctcode);
+
+    auto result = co_await makeRequest(QStringLiteral("/weapi/sms/captcha/sent"), params);
+    if (result.isError()) {
+        co_return ApiResult<VoidResult>(result.error());
+    }
+
+    co_return ApiResult<VoidResult>(VoidResult{});
+}
+
+QCoro::Task<ApiResult<VoidResult>> NeteaseClient::verifyCaptcha(
+    const QString &phone, const QString &captcha, int ctcode)
+{
+    QJsonObject params;
+    params[QLatin1String("cellphone")] = phone;
+    params[QLatin1String("captcha")] = captcha;
+    params[QLatin1String("ctcode")] = QString::number(ctcode);
+
+    auto result = co_await makeRequest(QStringLiteral("/weapi/sms/captcha/verify"), params);
+    if (result.isError()) {
+        co_return ApiResult<VoidResult>(result.error());
+    }
+
+    co_return ApiResult<VoidResult>(VoidResult{});
+}
+
 QCoro::Task<ApiResult<QJsonObject>> NeteaseClient::getUserCreatedPlaylists(
     const QString &userId, int limit, int offset)
 {
