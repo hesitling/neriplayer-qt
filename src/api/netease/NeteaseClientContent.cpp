@@ -234,16 +234,13 @@ QCoro::Task<ApiResult<QVector<Playlist>>> NeteaseClient::getHighQualityPlaylists
 
 QCoro::Task<ApiResult<QVector<Song>>> NeteaseClient::getAlbumDetail(const QString &albumId)
 {
-    QJsonObject params;
-    params[QLatin1String("id")] = albumId;
-
-    // Album detail uses interface.music.163.com
     QJsonObject albumParams;
     albumParams[QLatin1String("n")] = 100000;
     albumParams[QLatin1String("s")] = 8;
+
     auto result = co_await makeRequest(
-        QStringLiteral("https://interface.music.163.com/weapi/v1/album/") + albumId,
-        albumParams);
+        QStringLiteral("/weapi/v1/album/") + albumId, albumParams,
+        QStringLiteral("https://interface.music.163.com"));
     if (result.isError()) {
         co_return ApiResult<QVector<Song>>(result.error());
     }

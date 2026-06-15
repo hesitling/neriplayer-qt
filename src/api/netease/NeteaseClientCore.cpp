@@ -60,7 +60,8 @@ void NeteaseClient::setBaseUrl(const QUrl &url)
 
 QCoro::Task<ApiResult<QJsonObject>> NeteaseClient::makeRequest(
     const QString &path,
-    const QJsonObject &params)
+    const QJsonObject &params,
+    const QString &host)
 {
     // Build the encrypted payload
     QJsonObject weapiParams = params;
@@ -79,8 +80,10 @@ QCoro::Task<ApiResult<QJsonObject>> NeteaseClient::makeRequest(
     postData += "&encSecKey=";
     postData += QUrl::toPercentEncoding(encrypted.encSecKey);
 
-    // Build URL with csrf_token as query parameter (matching Android behavior)
-    QUrl url = m_baseUrl.resolved(QUrl(path));
+    // Build URL — use explicit host if provided, otherwise resolve against base
+    QUrl url = host.isEmpty()
+        ? m_baseUrl.resolved(QUrl(path))
+        : QUrl(host + path);
     if (!m_csrfToken.isEmpty()) {
         QUrlQuery query(url.query());
         query.addQueryItem(QStringLiteral("csrf_token"), m_csrfToken);

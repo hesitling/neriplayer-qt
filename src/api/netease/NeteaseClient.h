@@ -183,7 +183,8 @@ private:
     // Request helpers
     QCoro::Task<ApiResult<QJsonObject>> makeRequest(
         const QString &path,
-        const QJsonObject &params = {});
+        const QJsonObject &params = {},
+        const QString &host = {});
 
     QCoro::Task<ApiResult<QJsonObject>> makeEapiRequest(
         const QString &path,
