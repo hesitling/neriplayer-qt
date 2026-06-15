@@ -87,7 +87,10 @@ set(SOURCES
     src/api/common/ApiError.cpp
     src/api/netease/NeteaseCrypto.cpp
     src/api/netease/NeteaseParser.cpp
-    src/api/netease/NeteaseClient.cpp
+    src/api/netease/NeteaseClientCore.cpp
+    src/api/netease/NeteaseClientAuth.cpp
+    src/api/netease/NeteaseClientContent.cpp
+    src/api/netease/NeteaseClientUser.cpp
 )
 
 # 头文件
@@ -308,7 +311,11 @@ add_test(NAME TestNeteaseParser COMMAND TestNeteaseParser)
 
 add_executable(TestNeteaseE2E
     tests/api/TestNeteaseE2E.cpp
-    src/api/netease/NeteaseClient.cpp
+    src/api/netease/NeteaseClient.h
+    src/api/netease/NeteaseClientCore.cpp
+    src/api/netease/NeteaseClientAuth.cpp
+    src/api/netease/NeteaseClientContent.cpp
+    src/api/netease/NeteaseClientUser.cpp
     src/api/netease/NeteaseCrypto.cpp
     src/api/netease/NeteaseParser.cpp
     src/api/common/ApiError.cpp
@@ -346,7 +353,11 @@ target_link_libraries(TestNeteaseE2E PRIVATE
 
 add_executable(NeteaseCaptchaLogin
     tests/api/NeteaseCaptchaLogin.cpp
-    src/api/netease/NeteaseClient.cpp
+    src/api/netease/NeteaseClient.h
+    src/api/netease/NeteaseClientCore.cpp
+    src/api/netease/NeteaseClientAuth.cpp
+    src/api/netease/NeteaseClientContent.cpp
+    src/api/netease/NeteaseClientUser.cpp
     src/api/netease/NeteaseCrypto.cpp
     src/api/netease/NeteaseParser.cpp
     src/api/common/ApiError.cpp

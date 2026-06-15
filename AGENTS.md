@@ -172,7 +172,7 @@ docs: update architecture documentation
 
 Use `///` for brief comments, `/** */` for detailed documentation. Key conventions:
 
-- **File header:** `/// @file`, `/// @brief`, `/// @date`
+- **File header:** `/// @file`, `/// @brief`
 - **Classes:** `@brief`, `@code` example, `@see` cross-references
 - **Functions:** `@brief`, `@param`, `@return`, `@throws`
 - **Enums/Members:** `///< inline brief` after each value
