@@ -99,11 +99,34 @@ QByteArray NeteaseCrypto::rsaEncrypt(const QByteArray &data)
     BIGNUM *result = BN_new();
     BN_CTX *ctx = BN_CTX_new();
 
-    // Convert reversed bytes to BIGNUM (big-endian)
-    BN_bin2bn(reinterpret_cast<const unsigned char *>(reversed.constData()),
-              reversed.size(), dataBn);
+    if (!dataBn || !result || !ctx) {
+        BN_free(dataBn);
+        BN_free(result);
+        BN_CTX_free(ctx);
+        BN_free(modulus);
+        BN_free(exponent);
+        throw std::runtime_error("Failed to allocate BIGNUM/CTX for RSA");
+    }
 
-    BN_mod_exp(result, dataBn, exponent, modulus, ctx);
+    // Convert reversed bytes to BIGNUM (big-endian)
+    if (!BN_bin2bn(reinterpret_cast<const unsigned char *>(reversed.constData()),
+                   reversed.size(), dataBn)) {
+        BN_free(dataBn);
+        BN_free(result);
+        BN_CTX_free(ctx);
+        BN_free(modulus);
+        BN_free(exponent);
+        throw std::runtime_error("BN_bin2bn failed");
+    }
+
+    if (BN_mod_exp(result, dataBn, exponent, modulus, ctx) != 1) {
+        BN_free(dataBn);
+        BN_free(result);
+        BN_CTX_free(ctx);
+        BN_free(modulus);
+        BN_free(exponent);
+        throw std::runtime_error("BN_mod_exp failed");
+    }
 
     // Convert result to fixed-size byte array (256 bytes, big-endian)
     QByteArray output(RSA_BLOCK_SIZE, '\0');
