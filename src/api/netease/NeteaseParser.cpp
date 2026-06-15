@@ -26,9 +26,8 @@ Song NeteaseParser::parseSong(const QJsonObject &json)
     // - /song/detail: { songs: [{...}] }
     // - /cloudsearch/pc: result.songs[{...}]
     // - Direct song object when already unwrapped
-    const QJsonObject &songJson = json.contains(QStringLiteral("songs"))
-                                      ? json[QLatin1String("songs")].toArray().first().toObject()
-                                      : json;
+    const QJsonArray songsArr = json.value(QLatin1String("songs")).toArray();
+    const QJsonObject &songJson = (!songsArr.isEmpty()) ? songsArr.first().toObject() : json;
 
     song.id = QString::number(songJson[QLatin1String("id")].toInteger());
     song.name = songJson[QLatin1String("name")].toString();
