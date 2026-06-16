@@ -412,11 +412,11 @@ void TestNeteaseE2E::testGetUserStaredAlbums()
     QJsonObject profile = accountResult.data()[QLatin1String("profile")].toObject();
     QString userId = QString::number(profile[QLatin1String("userId")].toVariant().toLongLong());
 
-    auto result = QCoro::waitFor(m_client->getUserStaredAlbums(userId, 10));
+    auto result = QCoro::waitFor(m_client->getUserStarredAlbums(userId, 10));
 
     // May fail if user has no starred albums or API structure differs
     if (result.isError()) {
-        QSKIP(qPrintable(QStringLiteral("getUserStaredAlbums failed: %1").arg(result.error().message())));
+        QSKIP(qPrintable(QStringLiteral("getUserStarredAlbums failed: %1").arg(result.error().message())));
     }
 
     QCOMPARE(result.data()[QLatin1String("code")].toInt(), 200);

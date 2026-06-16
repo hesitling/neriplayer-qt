@@ -296,7 +296,7 @@ QCoro::Task<ApiResult<QVector<Playlist>>> NeteaseClient::getUserSubscribedPlayli
     co_return ApiResult<QVector<Playlist>>(playlists);
 }
 
-QCoro::Task<ApiResult<QJsonObject>> NeteaseClient::getUserStaredAlbums(
+QCoro::Task<ApiResult<QJsonObject>> NeteaseClient::getUserStarredAlbums(
     const QString &userId, int limit, int offset)
 {
     auto raw = co_await getUserAlbums(userId, limit, offset);

@@ -175,7 +175,7 @@ public:
         const QString &userId, int limit = 1000, int offset = 0);
     QCoro::Task<ApiResult<QVector<Playlist>>> getUserSubscribedPlaylists(
         const QString &userId, int limit = 1000, int offset = 0);
-    QCoro::Task<ApiResult<QJsonObject>> getUserStaredAlbums(
+    QCoro::Task<ApiResult<QJsonObject>> getUserStarredAlbums(
         const QString &userId, int limit = 1000, int offset = 0);
     QCoro::Task<ApiResult<QString>> getLikedPlaylistId(
         const QString &userId);
