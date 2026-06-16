@@ -1,0 +1,14 @@
+{
+  "code": 200,
+  "data": [
+    {
+      "id": 12345,
+      "url": "https://m10.music.126.net/20240101120000/fake_audio.mp3",
+      "br": 320000,
+      "type": "mp3",
+      "size": 9600000,
+      "time": 240000,
+      "md5": "abc123def456"
+    }
+  ]
+}

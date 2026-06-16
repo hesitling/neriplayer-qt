@@ -1,6 +1,5 @@
 /// @file Enums.h
 /// @brief Domain enumerations shared across all layers
-/// @date 2024-01-15
 
 #ifndef NERIPLAYERQT_ENUMS_H
 #define NERIPLAYERQT_ENUMS_H
@@ -41,23 +40,14 @@ enum class AudioQuality : std::uint8_t { Low = 0, Standard = 1, High = 2, Lossle
  *
  * Aligned with Android NeriPlayer's PlaybackAudioSource.
  */
-enum class PlaybackAudioSource : std::uint8_t {
-    Local = 0,
-    NetEase = 1,
-    Bilibili = 2,
-    YouTube = 3
-};
+enum class PlaybackAudioSource : std::uint8_t { Local = 0, NetEase = 1, Bilibili = 2, YouTube = 3 };
 
 /**
  * @brief Bilibili playlist kind
  *
  * Aligned with Android NeriPlayer's BiliPlaylistKind.
  */
-enum class BiliPlaylistKind : std::uint8_t {
-    CreatedFavorite = 0,
-    CollectedFavorite = 1,
-    Collection = 2
-};
+enum class BiliPlaylistKind : std::uint8_t { CreatedFavorite = 0, CollectedFavorite = 1, Collection = 2 };
 
 } // namespace NeriPlayerQt
 

@@ -1,9 +1,9 @@
 /// @file NeriPlayerApplication.cpp
 /// @brief Application entry point with service registration
-/// @date 2024-01-15
 
 #include "app/NeriPlayerApplication.h"
 
+#include "api/netease/NeteaseClient.h"
 #include "core/crypto/SecureStorage.h"
 #include "core/database/DatabaseManager.h"
 #include "core/filesystem/AppPaths.h"
@@ -95,6 +95,12 @@ void NeriPlayerApplication::initializeCoreServices()
 
     // 4. Network
     m_services.registerService<NetworkManager>(std::make_unique<NetworkManager>());
+
+    // 5. NeteaseClient
+    auto *netMgr = m_services.service<NetworkManager>();
+    auto *secStorage = m_services.service<SecureStorage>();
+    m_services.registerService<NeteaseClient>(std::make_unique<NeteaseClient>(netMgr->httpClient(), secStorage));
+    log->info("NeteaseClient registered");
 
     log->info("Core services initialized");
 }

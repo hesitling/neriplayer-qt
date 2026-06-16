@@ -1,6 +1,5 @@
 /// @file DatabaseManager.cpp
 /// @brief SQLite database wrapper implementation
-/// @date 2024-01-15
 
 #include "core/database/DatabaseManager.h"
 
@@ -257,10 +256,10 @@ void DatabaseManager::ensureSchemaVersionTable()
 {
     char *errMsg = nullptr;
     int rc = sqlite3_exec(m_db,
-                 "CREATE TABLE IF NOT EXISTS schema_version ("
-                 "  version INTEGER NOT NULL PRIMARY KEY"
-                 ");",
-                 nullptr, nullptr, &errMsg);
+                          "CREATE TABLE IF NOT EXISTS schema_version ("
+                          "  version INTEGER NOT NULL PRIMARY KEY"
+                          ");",
+                          nullptr, nullptr, &errMsg);
     if (rc != SQLITE_OK) {
         std::string err = errMsg ? errMsg : "unknown error";
         sqlite3_free(errMsg);
@@ -287,7 +286,9 @@ void DatabaseManager::runMigrations()
             commitTransaction();
             m_currentVersion = 1;
         } catch (...) {
-            try { rollbackTransaction(); } catch (const std::exception &rbEx) {
+            try {
+                rollbackTransaction();
+            } catch (const std::exception &rbEx) {
                 qWarning() << "DatabaseManager: initial schema rollback failed:" << rbEx.what();
             }
             throw;
@@ -308,7 +309,9 @@ void DatabaseManager::runMigrations()
                 commitTransaction();
                 m_currentVersion = version;
             } catch (...) {
-                try { rollbackTransaction(); } catch (const std::exception &rbEx) {
+                try {
+                    rollbackTransaction();
+                } catch (const std::exception &rbEx) {
                     qWarning() << "DatabaseManager: migration rollback failed:" << rbEx.what();
                 }
                 throw;

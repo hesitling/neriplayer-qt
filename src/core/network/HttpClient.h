@@ -17,6 +17,7 @@ struct HttpResponse {
     int statusCode = 0;
     QByteArray body;
     QString errorString;
+    QList<QNetworkReply::RawHeaderPair> headers;
 
     bool isSuccess() const;
 };
@@ -28,7 +29,9 @@ public:
     explicit HttpClient(QObject *parent = nullptr);
 
     QCoro::Task<HttpResponse> get(const QUrl &url);
+    QCoro::Task<HttpResponse> get(const QNetworkRequest &request);
     QCoro::Task<HttpResponse> post(const QUrl &url, const QByteArray &body);
+    QCoro::Task<HttpResponse> post(const QNetworkRequest &request, const QByteArray &body);
 
 private:
     QCoro::Task<HttpResponse> send(QNetworkReply *reply);

@@ -1,0 +1,35 @@
+{
+  "result": {
+    "songs": [
+      {
+        "id": 10001,
+        "name": "Search Result Song 1",
+        "ar": [
+          { "id": 301, "name": "Artist A" }
+        ],
+        "al": {
+          "id": 401,
+          "name": "Album X",
+          "picUrl": "https://example.com/album1.jpg"
+        },
+        "dt": 210000
+      },
+      {
+        "id": 10002,
+        "name": "Search Result Song 2",
+        "ar": [
+          { "id": 302, "name": "Artist B" },
+          { "id": 303, "name": "Artist C" }
+        ],
+        "al": {
+          "id": 402,
+          "name": "Album Y",
+          "picUrl": "https://example.com/album2.jpg"
+        },
+        "dt": 185000
+      }
+    ],
+    "songCount": 2
+  },
+  "code": 200
+}

@@ -1,6 +1,5 @@
 /// @file FileUtils.cpp
 /// @brief Safe file I/O utilities implementation
-/// @date 2024-01-15
 
 #include "core/filesystem/FileUtils.h"
 
@@ -52,7 +51,8 @@ bool FileUtils::writeFile(const QString &path, const QByteArray &data)
     }
 
     // Write to a temporary file in the same directory (same filesystem for atomic rename)
-    QString tempPath = info.dir().filePath(QStringLiteral(".neri_tmp_%1").arg(QUuid::createUuid().toString(QUuid::Id128)));
+    QString tempPath
+        = info.dir().filePath(QStringLiteral(".neri_tmp_%1").arg(QUuid::createUuid().toString(QUuid::Id128)));
     QFile tempFile(tempPath);
 
     if (!tempFile.open(QIODevice::WriteOnly)) {

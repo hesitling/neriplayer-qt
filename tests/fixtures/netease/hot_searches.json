@@ -1,0 +1,17 @@
+{
+  "code": 200,
+  "data": [
+    {
+      "searchWord": "周杰伦",
+      "score": 10000
+    },
+    {
+      "searchWord": "林俊杰",
+      "score": 9500
+    },
+    {
+      "searchWord": "薛之谦",
+      "score": 9000
+    }
+  ]
+}
