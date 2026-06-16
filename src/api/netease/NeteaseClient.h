@@ -69,6 +69,10 @@ public:
         const QString &songId,
         AudioQuality quality = AudioQuality::High) override;
     QCoro::Task<ApiResult<Lyrics>> getLyrics(const QString &songId) override;
+
+    /// @brief Check if we have a stored session (cookies + CSRF token)
+    /// @note This is a lazy check — it does not validate the session against the server.
+    ///       Expired cookies will still return true until a request fails with code 301.
     bool isAuthenticated() const override;
     QString platformName() const override;
 
