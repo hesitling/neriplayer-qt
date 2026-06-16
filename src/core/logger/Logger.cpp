@@ -26,13 +26,20 @@ void NamedLogger::setLevel(LogLevel level)
 LogLevel NamedLogger::level() const
 {
     switch (m_logger->level()) {
-        case spdlog::level::trace:    return LogLevel::Trace;
-        case spdlog::level::debug:    return LogLevel::Debug;
-        case spdlog::level::info:     return LogLevel::Info;
-        case spdlog::level::warn:     return LogLevel::Warn;
-        case spdlog::level::err:      return LogLevel::Error;
-        case spdlog::level::critical: return LogLevel::Fatal;
-        default:                      return LogLevel::Info;
+        case spdlog::level::trace:
+            return LogLevel::Trace;
+        case spdlog::level::debug:
+            return LogLevel::Debug;
+        case spdlog::level::info:
+            return LogLevel::Info;
+        case spdlog::level::warn:
+            return LogLevel::Warn;
+        case spdlog::level::err:
+            return LogLevel::Error;
+        case spdlog::level::critical:
+            return LogLevel::Fatal;
+        default:
+            return LogLevel::Info;
     }
 }
 
@@ -88,7 +95,8 @@ void Logger::initialize(const LoggerConfig &config)
             logDir.mkpath(".");
         }
         QString logPath = logDir.filePath("neriplayer-%Y-%m-%d.log");
-        s_fileSink = std::make_shared<spdlog::sinks::daily_file_sink_mt>(logPath.toStdString(), 0, 0, false, config.maxDays);
+        s_fileSink
+            = std::make_shared<spdlog::sinks::daily_file_sink_mt>(logPath.toStdString(), 0, 0, false, config.maxDays);
         sinks.push_back(s_fileSink);
     }
 
@@ -125,7 +133,7 @@ std::shared_ptr<NamedLogger> Logger::get(const QString &name)
     if (!s_initialized) {
         // Return a console-only fallback logger before initialize() is called
         auto fallback = std::make_shared<spdlog::logger>(name.toStdString(),
-            std::make_shared<spdlog::sinks::stdout_color_sink_mt>());
+                                                         std::make_shared<spdlog::sinks::stdout_color_sink_mt>());
         fallback->set_level(spdlog::level::debug);
         fallback->set_pattern("[%Y-%m-%d %H:%M:%S.%e] [%l] [%n] %v");
         return std::make_shared<NamedLogger>(fallback);

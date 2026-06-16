@@ -36,8 +36,7 @@ public:
      * Uses the provided randomKey instead of generating one.
      * Only for unit tests — normal code should use weapiEncrypt().
      */
-    static WeapiResult weapiEncryptWithKey(const QString &plaintext,
-                                           const QByteArray &randomKey);
+    static WeapiResult weapiEncryptWithKey(const QString &plaintext, const QByteArray &randomKey);
 
     /**
      * @brief Encrypt payload using the EAPI protocol
@@ -53,11 +52,8 @@ public:
     static QString md5Hex(const QString &input);
 
 private:
-    static QByteArray aesCbcEncrypt(const QByteArray &data,
-                                    const QByteArray &key,
-                                    const QByteArray &iv);
-    static QByteArray aesEcbEncrypt(const QByteArray &data,
-                                    const QByteArray &key);
+    static QByteArray aesCbcEncrypt(const QByteArray &data, const QByteArray &key, const QByteArray &iv);
+    static QByteArray aesEcbEncrypt(const QByteArray &data, const QByteArray &key);
     static QByteArray rsaEncrypt(const QByteArray &data);
 
     // WeAPI constants

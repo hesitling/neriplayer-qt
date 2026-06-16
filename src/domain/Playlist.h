@@ -27,8 +27,8 @@ struct Playlist {
     int songCount = 0;
     QString owner;
     MusicPlatform platform = MusicPlatform::Unknown;
-    QVector<Song> songs; ///< Optionally populated
-    qint64 modifiedAt = 0; ///< Epoch milliseconds, aligned with Android
+    QVector<Song> songs;    ///< Optionally populated
+    qint64 modifiedAt = 0;  ///< Epoch milliseconds, aligned with Android
     QString customCoverUrl; ///< User override cover
 };
 

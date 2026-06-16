@@ -15,7 +15,7 @@ namespace NeriPlayerQt {
  * or fail (with an ApiError). This is a concrete type (not void or monostate)
  * so it works as a template parameter.
  */
-struct VoidResult {};
+struct VoidResult { };
 
 } // namespace NeriPlayerQt
 

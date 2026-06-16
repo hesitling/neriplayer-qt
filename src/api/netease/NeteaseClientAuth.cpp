@@ -4,9 +4,9 @@
 #include "api/netease/NeteaseClient.h"
 
 #include "api/common/ApiError.h"
-#include "core/network/HttpClient.h"
 #include "api/netease/NeteaseCrypto.h"
 #include "api/netease/NeteaseParser.h"
+#include "core/network/HttpClient.h"
 
 #include <QJsonObject>
 #include <QNetworkRequest>
@@ -15,10 +15,7 @@ namespace NeriPlayerQt {
 
 // ─── Login ──────────────────────────────────────────────────────────────────
 
-QCoro::Task<ApiResult<LoginResult>> NeteaseClient::login(
-    const QString &phone,
-    const QString &password,
-    int ctcode)
+QCoro::Task<ApiResult<LoginResult>> NeteaseClient::login(const QString &phone, const QString &password, int ctcode)
 {
     QJsonObject params;
     params[QLatin1String("phone")] = phone;
@@ -38,9 +35,7 @@ QCoro::Task<ApiResult<LoginResult>> NeteaseClient::login(
     co_return ApiResult<LoginResult>(loginResult);
 }
 
-QCoro::Task<ApiResult<LoginResult>> NeteaseClient::loginByEmail(
-    const QString &email,
-    const QString &password)
+QCoro::Task<ApiResult<LoginResult>> NeteaseClient::loginByEmail(const QString &email, const QString &password)
 {
     QJsonObject params;
     params[QLatin1String("email")] = email;
@@ -66,7 +61,7 @@ QCoro::Task<ApiResult<VoidResult>> NeteaseClient::logout()
     }
 
     clearCookies();
-    co_return ApiResult<VoidResult>(VoidResult{});
+    co_return ApiResult<VoidResult>(VoidResult { });
 }
 
 // ─── Cookie Management ─────────────────────────────────────────────────────
@@ -82,8 +77,8 @@ QCoro::Task<void> NeteaseClient::ensureWeapiSession()
     QUrl url(QStringLiteral("https://music.163.com/"));
     QNetworkRequest request(url);
     request.setRawHeader("Referer", "https://music.163.com");
-    request.setRawHeader("User-Agent",
-                         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36");
+    request.setRawHeader("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like "
+                                       "Gecko) Chrome/120.0.0.0 Safari/537.36");
     injectCookies(request);
 
     auto response = co_await m_httpClient->get(request);
@@ -153,8 +148,8 @@ QCoro::Task<ApiResult<long long>> NeteaseClient::getCurrentUserId()
 
 // ─── Captcha Auth ───────────────────────────────────────────────────────────
 
-QCoro::Task<ApiResult<LoginResult>> NeteaseClient::loginByCaptcha(
-    const QString &phone, const QString &captcha, int ctcode)
+QCoro::Task<ApiResult<LoginResult>> NeteaseClient::loginByCaptcha(const QString &phone, const QString &captcha,
+                                                                  int ctcode)
 {
     QJsonObject params;
     params[QLatin1String("phone")] = phone;
@@ -174,8 +169,7 @@ QCoro::Task<ApiResult<LoginResult>> NeteaseClient::loginByCaptcha(
     co_return ApiResult<LoginResult>(loginResult);
 }
 
-QCoro::Task<ApiResult<VoidResult>> NeteaseClient::sendCaptcha(
-    const QString &phone, int ctcode)
+QCoro::Task<ApiResult<VoidResult>> NeteaseClient::sendCaptcha(const QString &phone, int ctcode)
 {
     QJsonObject params;
     params[QLatin1String("cellphone")] = phone;
@@ -186,11 +180,11 @@ QCoro::Task<ApiResult<VoidResult>> NeteaseClient::sendCaptcha(
         co_return ApiResult<VoidResult>(result.error());
     }
 
-    co_return ApiResult<VoidResult>(VoidResult{});
+    co_return ApiResult<VoidResult>(VoidResult { });
 }
 
-QCoro::Task<ApiResult<VoidResult>> NeteaseClient::verifyCaptcha(
-    const QString &phone, const QString &captcha, int ctcode)
+QCoro::Task<ApiResult<VoidResult>> NeteaseClient::verifyCaptcha(const QString &phone, const QString &captcha,
+                                                                int ctcode)
 {
     QJsonObject params;
     params[QLatin1String("cellphone")] = phone;
@@ -202,7 +196,7 @@ QCoro::Task<ApiResult<VoidResult>> NeteaseClient::verifyCaptcha(
         co_return ApiResult<VoidResult>(result.error());
     }
 
-    co_return ApiResult<VoidResult>(VoidResult{});
+    co_return ApiResult<VoidResult>(VoidResult { });
 }
 
 } // namespace NeriPlayerQt

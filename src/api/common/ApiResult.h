@@ -19,8 +19,7 @@ namespace NeriPlayerQt {
  *
  * @tparam T The success value type
  */
-template <typename T>
-class ApiResult {
+template <typename T> class ApiResult {
 public:
     /**
      * @brief Construct a successful result

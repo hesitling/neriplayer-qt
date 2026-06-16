@@ -10,12 +10,12 @@
 #include "api/netease/NeteaseCrypto.h"
 #include "core/network/HttpClient.h"
 
+#include <QCoreApplication>
 #include <QCoroTask>
 #include <QJsonArray>
 #include <QJsonObject>
-#include <QCoreApplication>
-#include <QThread>
 #include <QTest>
+#include <QThread>
 
 using namespace NeriPlayerQt;
 
@@ -112,11 +112,9 @@ void TestNeteaseE2E::testLogin()
 
 void TestNeteaseE2E::testSearchSongs()
 {
-    auto result = QCoro::waitFor(
-        m_client->searchSongs(QStringLiteral("s62"), 10));
+    auto result = QCoro::waitFor(m_client->searchSongs(QStringLiteral("s62"), 10));
 
-    QVERIFY2(result.isSuccess(),
-             qPrintable(result.error().message()));
+    QVERIFY2(result.isSuccess(), qPrintable(result.error().message()));
 
     const auto &sr = result.data();
     QVERIFY2(!sr.songs.isEmpty(), "Search returned empty songs");
@@ -133,15 +131,12 @@ void TestNeteaseE2E::testGetSongDetail()
 
     auto result = QCoro::waitFor(m_client->getSongDetail(m_firstSongId));
 
-    QVERIFY2(result.isSuccess(),
-             qPrintable(result.error().message()));
+    QVERIFY2(result.isSuccess(), qPrintable(result.error().message()));
 
     const auto &song = result.data();
     QCOMPARE(song.platform, MusicPlatform::NetEase);
-    QVERIFY2(!song.name.isEmpty(),
-             qPrintable(QStringLiteral("Empty name for song %1").arg(m_firstSongId)));
-    QVERIFY2(!song.artist.isEmpty(),
-             qPrintable(QStringLiteral("Empty artist for song %1").arg(m_firstSongId)));
+    QVERIFY2(!song.name.isEmpty(), qPrintable(QStringLiteral("Empty name for song %1").arg(m_firstSongId)));
+    QVERIFY2(!song.artist.isEmpty(), qPrintable(QStringLiteral("Empty artist for song %1").arg(m_firstSongId)));
     QVERIFY2(song.durationMs > 0,
              qPrintable(QStringLiteral("durationMs=%1 for song %2").arg(song.durationMs).arg(m_firstSongId)));
 }
@@ -152,18 +147,19 @@ void TestNeteaseE2E::testGetSongUrl()
         QSKIP("No song ID from search");
     }
 
-    auto result = QCoro::waitFor(
-        m_client->getSongUrl(m_firstSongId, AudioQuality::High));
+    auto result = QCoro::waitFor(m_client->getSongUrl(m_firstSongId, AudioQuality::High));
 
-    QVERIFY2(result.isSuccess(),
-             qPrintable(result.error().message()));
+    QVERIFY2(result.isSuccess(), qPrintable(result.error().message()));
 
     const auto &urlResult = result.data();
     QVERIFY2(urlResult.status == SongUrlResult::Status::Success,
-             qPrintable(QStringLiteral("Song URL status=%1 (expected Success=0, RequiresLogin=2)").arg(static_cast<int>(urlResult.status))));
+             qPrintable(QStringLiteral("Song URL status=%1 (expected Success=0, RequiresLogin=2)")
+                            .arg(static_cast<int>(urlResult.status))));
 
-    QVERIFY2(!urlResult.url.isEmpty(),
-             qPrintable(QStringLiteral("Empty URL for song %1, br=%2").arg(m_firstSongId).arg(urlResult.audioInfo.bitrateKbps)));
+    QVERIFY2(
+        !urlResult.url.isEmpty(),
+        qPrintable(
+            QStringLiteral("Empty URL for song %1, br=%2").arg(m_firstSongId).arg(urlResult.audioInfo.bitrateKbps)));
 }
 
 void TestNeteaseE2E::testGetLyrics()
@@ -174,39 +170,32 @@ void TestNeteaseE2E::testGetLyrics()
 
     auto result = QCoro::waitFor(m_client->getLyrics(m_firstSongId));
 
-    QVERIFY2(result.isSuccess(),
-             qPrintable(result.error().message()));
+    QVERIFY2(result.isSuccess(), qPrintable(result.error().message()));
 }
 
 void TestNeteaseE2E::testGetPlaylistDetail()
 {
-    auto result = QCoro::waitFor(
-        m_client->getPlaylistDetail(QStringLiteral("3778678")));
+    auto result = QCoro::waitFor(m_client->getPlaylistDetail(QStringLiteral("3778678")));
 
-    QVERIFY2(result.isSuccess(),
-             qPrintable(result.error().message()));
+    QVERIFY2(result.isSuccess(), qPrintable(result.error().message()));
 
     const auto &playlist = result.data();
     QVERIFY2(!playlist.name.isEmpty(), "Playlist name is empty");
-    QVERIFY2(!playlist.songs.isEmpty(),
-             qPrintable(QStringLiteral("Playlist %1 has no songs").arg(playlist.name)));
+    QVERIFY2(!playlist.songs.isEmpty(), qPrintable(QStringLiteral("Playlist %1 has no songs").arg(playlist.name)));
     QCOMPARE(playlist.platform, MusicPlatform::NetEase);
 }
 
 void TestNeteaseE2E::testGetAlbumDetail()
 {
-    auto result = QCoro::waitFor(
-        m_client->getAlbumDetail(QStringLiteral("21506")));
+    auto result = QCoro::waitFor(m_client->getAlbumDetail(QStringLiteral("21506")));
 
-    QVERIFY2(result.isSuccess(),
-             qPrintable(result.error().message()));
+    QVERIFY2(result.isSuccess(), qPrintable(result.error().message()));
     QVERIFY2(!result.data().isEmpty(), "Album has no songs");
 }
 
 void TestNeteaseE2E::testGetUserPlaylists()
 {
-    auto result = QCoro::waitFor(
-        m_client->getUserPlaylists(QStringLiteral("1")));
+    auto result = QCoro::waitFor(m_client->getUserPlaylists(QStringLiteral("1")));
 
     if (result.isError()) {
         // May fail due to privacy settings
@@ -224,8 +213,10 @@ void TestNeteaseE2E::testLikeSong()
 
     auto result = QCoro::waitFor(m_client->likeSong(m_firstSongId));
 
-    QVERIFY2(result.isSuccess(),
-             qPrintable(QStringLiteral("likeSong failed (code=%1): %2").arg(result.error().code()).arg(result.error().message())));
+    QVERIFY2(
+        result.isSuccess(),
+        qPrintable(
+            QStringLiteral("likeSong failed (code=%1): %2").arg(result.error().code()).arg(result.error().message())));
 }
 
 void TestNeteaseE2E::testUnlikeSong()
@@ -236,8 +227,9 @@ void TestNeteaseE2E::testUnlikeSong()
 
     auto result = QCoro::waitFor(m_client->unlikeSong(m_firstSongId));
 
-    QVERIFY2(result.isSuccess(),
-             qPrintable(QStringLiteral("unlikeSong failed (code=%1): %2").arg(result.error().code()).arg(result.error().message())));
+    QVERIFY2(result.isSuccess(), qPrintable(QStringLiteral("unlikeSong failed (code=%1): %2")
+                                                .arg(result.error().code())
+                                                .arg(result.error().message())));
 }
 
 void TestNeteaseE2E::testGetLikedSongIds()
@@ -252,31 +244,28 @@ void TestNeteaseE2E::testGetLikedSongIds()
 
     auto result = QCoro::waitFor(m_client->getLikedSongIds(userId));
 
-    QVERIFY2(result.isSuccess(),
-             qPrintable(QStringLiteral("getLikedSongIds failed (code=%1): %2").arg(result.error().code()).arg(result.error().message())));
+    QVERIFY2(result.isSuccess(), qPrintable(QStringLiteral("getLikedSongIds failed (code=%1): %2")
+                                                .arg(result.error().code())
+                                                .arg(result.error().message())));
 }
 
 void TestNeteaseE2E::testGetCurrentUserAccount()
 {
     auto result = QCoro::waitFor(m_client->getCurrentUserAccount());
 
-    QVERIFY2(result.isSuccess(),
-             qPrintable(result.error().message()));
+    QVERIFY2(result.isSuccess(), qPrintable(result.error().message()));
 
     QJsonObject profile = result.data()[QLatin1String("profile")].toObject();
-    QVERIFY2(!profile[QLatin1String("userId")].isUndefined(),
-             "Missing userId in profile");
+    QVERIFY2(!profile[QLatin1String("userId")].isUndefined(), "Missing userId in profile");
 }
 
 void TestNeteaseE2E::testGetCurrentUserId()
 {
     auto result = QCoro::waitFor(m_client->getCurrentUserId());
 
-    QVERIFY2(result.isSuccess(),
-             qPrintable(result.error().message()));
+    QVERIFY2(result.isSuccess(), qPrintable(result.error().message()));
 
-    QVERIFY2(result.data() > 0,
-             qPrintable(QStringLiteral("Invalid userId: %1").arg(result.data())));
+    QVERIFY2(result.data() > 0, qPrintable(QStringLiteral("Invalid userId: %1").arg(result.data())));
 }
 
 void TestNeteaseE2E::testGetSongDownloadUrl()
@@ -285,15 +274,12 @@ void TestNeteaseE2E::testGetSongDownloadUrl()
         QSKIP("No song ID from search");
     }
 
-    auto result = QCoro::waitFor(
-        m_client->getSongDownloadUrl(m_firstSongId, QStringLiteral("standard")));
+    auto result = QCoro::waitFor(m_client->getSongDownloadUrl(m_firstSongId, QStringLiteral("standard")));
 
-    QVERIFY2(result.isSuccess(),
-             qPrintable(result.error().message()));
+    QVERIFY2(result.isSuccess(), qPrintable(result.error().message()));
 
     QJsonArray dataArray = result.data()[QLatin1String("data")].toArray();
-    QVERIFY2(!dataArray.isEmpty(),
-             qPrintable(QStringLiteral("No download URL for song %1").arg(m_firstSongId)));
+    QVERIFY2(!dataArray.isEmpty(), qPrintable(QStringLiteral("No download URL for song %1").arg(m_firstSongId)));
 }
 
 void TestNeteaseE2E::testGetHighQualityTags()
@@ -326,25 +312,20 @@ void TestNeteaseE2E::testGetHighQualityPlaylists()
 void TestNeteaseE2E::testGetDjRadioDetail()
 {
     // Use a known DJ radio ID (same endpoint as playlist detail)
-    auto result = QCoro::waitFor(
-        m_client->getDjRadioDetail(QStringLiteral("3778678")));
+    auto result = QCoro::waitFor(m_client->getDjRadioDetail(QStringLiteral("3778678")));
 
-    QVERIFY2(result.isSuccess(),
-             qPrintable(result.error().message()));
+    QVERIFY2(result.isSuccess(), qPrintable(result.error().message()));
 
     QJsonObject playlist = result.data()[QLatin1String("playlist")].toObject();
-    QVERIFY2(!playlist[QLatin1String("name")].toString().isEmpty(),
-             "DJ radio detail missing name");
+    QVERIFY2(!playlist[QLatin1String("name")].toString().isEmpty(), "DJ radio detail missing name");
 }
 
 void TestNeteaseE2E::testGetRelatedPlaylists()
 {
     // Use the hot playlist 3778678
-    auto result = QCoro::waitFor(
-        m_client->getRelatedPlaylists(QStringLiteral("3778678")));
+    auto result = QCoro::waitFor(m_client->getRelatedPlaylists(QStringLiteral("3778678")));
 
-    QVERIFY2(result.isSuccess(),
-             qPrintable(result.error().message()));
+    QVERIFY2(result.isSuccess(), qPrintable(result.error().message()));
 
     QJsonArray playlists = result.data()[QLatin1String("playlists")].toArray();
     // Related playlists may be empty for some playlists, so just check code
@@ -363,8 +344,7 @@ void TestNeteaseE2E::testGetUserCreatedPlaylists()
 
     auto result = QCoro::waitFor(m_client->getUserCreatedPlaylists(userId, 10));
 
-    QVERIFY2(result.isSuccess(),
-             qPrintable(result.error().message()));
+    QVERIFY2(result.isSuccess(), qPrintable(result.error().message()));
 }
 
 void TestNeteaseE2E::testGetUserSubscribedPlaylists()
@@ -379,8 +359,7 @@ void TestNeteaseE2E::testGetUserSubscribedPlaylists()
 
     auto result = QCoro::waitFor(m_client->getUserSubscribedPlaylists(userId, 10));
 
-    QVERIFY2(result.isSuccess(),
-             qPrintable(result.error().message()));
+    QVERIFY2(result.isSuccess(), qPrintable(result.error().message()));
 }
 
 void TestNeteaseE2E::testGetLikedPlaylistId()
@@ -395,11 +374,9 @@ void TestNeteaseE2E::testGetLikedPlaylistId()
 
     auto result = QCoro::waitFor(m_client->getLikedPlaylistId(userId));
 
-    QVERIFY2(result.isSuccess(),
-             qPrintable(result.error().message()));
+    QVERIFY2(result.isSuccess(), qPrintable(result.error().message()));
 
-    QVERIFY2(!result.data().isEmpty(),
-             "Liked playlist ID is empty");
+    QVERIFY2(!result.data().isEmpty(), "Liked playlist ID is empty");
 }
 
 void TestNeteaseE2E::testGetUserStaredAlbums()
@@ -426,8 +403,7 @@ void TestNeteaseE2E::testLogout()
 {
     auto result = QCoro::waitFor(m_client->logout());
 
-    QVERIFY2(result.isSuccess(),
-             qPrintable(result.error().message()));
+    QVERIFY2(result.isSuccess(), qPrintable(result.error().message()));
     QVERIFY(!m_client->isAuthenticated());
 }
 

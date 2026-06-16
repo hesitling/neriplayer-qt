@@ -137,11 +137,7 @@ struct ListenTogetherCause {
  *
  * Aligned with Android NeriPlayer's ListenTogetherConnectionState.
  */
-enum class ListenTogetherConnectionState : std::uint8_t {
-    Disconnected = 0,
-    Connecting = 1,
-    Connected = 2
-};
+enum class ListenTogetherConnectionState : std::uint8_t { Disconnected = 0, Connecting = 1, Connected = 2 };
 
 /**
  * @brief Client-side session state
@@ -188,19 +184,19 @@ struct ListenTogetherEvent {
  *
  * Matches Android NeriPlayer's buildStableTrackKey() logic.
  */
-inline QString buildStableTrackKey(const QString &channelId,
-                                   const QString &audioId,
-                                   const QString &subAudioId = {},
-                                   const QString &playlistContextId = {})
+inline QString buildStableTrackKey(const QString &channelId, const QString &audioId, const QString &subAudioId = { },
+                                   const QString &playlistContextId = { })
 {
     if (channelId == QString::fromLatin1(ListenTogetherChannels::BILIBILI)) {
         QStringList parts { channelId, audioId };
-        if (!subAudioId.isEmpty()) parts.append(subAudioId);
+        if (!subAudioId.isEmpty())
+            parts.append(subAudioId);
         return parts.join(QStringLiteral(":"));
     }
     if (channelId == QString::fromLatin1(ListenTogetherChannels::YOUTUBE_MUSIC)) {
         QStringList parts { channelId, audioId };
-        if (!playlistContextId.isEmpty()) parts.append(playlistContextId);
+        if (!playlistContextId.isEmpty())
+            parts.append(playlistContextId);
         return parts.join(QStringLiteral(":"));
     }
     return channelId + QStringLiteral(":") + audioId;
@@ -213,12 +209,13 @@ inline QString buildStableTrackKey(const QString &channelId,
  */
 inline QString resolvedChannelId(const Song &song)
 {
-    if (!song.channelId.isEmpty()) return song.channelId;
+    if (!song.channelId.isEmpty())
+        return song.channelId;
     // Fallback heuristics — same as Android
     if (!song.localFilePath.isEmpty())
         return QString::fromLatin1(ListenTogetherChannels::LOCAL);
-    if (song.mediaUri.toString().contains(QStringLiteral("youtube.com")) ||
-        song.mediaUri.toString().contains(QStringLiteral("youtu.be")))
+    if (song.mediaUri.toString().contains(QStringLiteral("youtube.com"))
+        || song.mediaUri.toString().contains(QStringLiteral("youtu.be")))
         return QString::fromLatin1(ListenTogetherChannels::YOUTUBE_MUSIC);
     return QString::fromLatin1(ListenTogetherChannels::NETEASE);
 }
@@ -230,7 +227,8 @@ inline QString resolvedChannelId(const Song &song)
  */
 inline QString resolvedAudioId(const Song &song)
 {
-    if (!song.audioId.isEmpty()) return song.audioId;
+    if (!song.audioId.isEmpty())
+        return song.audioId;
     return song.id;
 }
 
@@ -248,20 +246,18 @@ inline ListenTogetherTrack songToTrack(const Song &song)
     const QString playlistContext = song.playlistContextId;
     const QString stableKey = buildStableTrackKey(channel, audio, subAudio, playlistContext);
 
-    return ListenTogetherTrack {
-        stableKey,
-        channel,
-        audio,
-        subAudio,
-        playlistContext,
-        song.mediaUri.toString(),
-        song.streamUrl,
-        song.customName.isEmpty() ? song.name : song.customName,
-        song.customArtist.isEmpty() ? song.artist : song.customArtist,
-        song.album,
-        song.durationMs,
-        song.customCoverUrl.isEmpty() ? song.coverUrl.toString() : song.customCoverUrl
-    };
+    return ListenTogetherTrack { stableKey,
+                                 channel,
+                                 audio,
+                                 subAudio,
+                                 playlistContext,
+                                 song.mediaUri.toString(),
+                                 song.streamUrl,
+                                 song.customName.isEmpty() ? song.name : song.customName,
+                                 song.customArtist.isEmpty() ? song.artist : song.customArtist,
+                                 song.album,
+                                 song.durationMs,
+                                 song.customCoverUrl.isEmpty() ? song.coverUrl.toString() : song.customCoverUrl };
 }
 
 /**
@@ -287,8 +283,7 @@ inline Song trackToSong(const ListenTogetherTrack &track)
     // Compute a synthetic ID from audioId
     bool ok = false;
     qint64 numericId = track.audioId.toLongLong(&ok);
-    song.id = ok ? QString::number(numericId)
-                 : QString::number(qHash(track.stableKey));
+    song.id = ok ? QString::number(numericId) : QString::number(qHash(track.stableKey));
 
     return song;
 }

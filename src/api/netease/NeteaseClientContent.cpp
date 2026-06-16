@@ -13,20 +13,27 @@ namespace NeriPlayerQt {
 
 // ─── IMusicPlatformPlugin ───────────────────────────────────────────────────
 
-QCoro::Task<ApiResult<SearchResult>> NeteaseClient::search(
-    const QString &keyword,
-    SearchType type,
-    int limit,
-    int offset)
+QCoro::Task<ApiResult<SearchResult>> NeteaseClient::search(const QString &keyword, SearchType type, int limit,
+                                                           int offset)
 {
     // NetEase search type values (not 1-indexed!)
     int neteaseType;
     switch (type) {
-    case SearchType::Song:     neteaseType = 1;    break;
-    case SearchType::Album:    neteaseType = 10;   break;
-    case SearchType::Artist:   neteaseType = 100;  break;
-    case SearchType::Playlist: neteaseType = 1000; break;
-    default:                   neteaseType = 1;    break;
+        case SearchType::Song:
+            neteaseType = 1;
+            break;
+        case SearchType::Album:
+            neteaseType = 10;
+            break;
+        case SearchType::Artist:
+            neteaseType = 100;
+            break;
+        case SearchType::Playlist:
+            neteaseType = 1000;
+            break;
+        default:
+            neteaseType = 1;
+            break;
     }
 
     QJsonObject params;
@@ -41,8 +48,7 @@ QCoro::Task<ApiResult<SearchResult>> NeteaseClient::search(
         co_return ApiResult<SearchResult>(result.error());
     }
 
-    co_return ApiResult<SearchResult>(
-        NeteaseParser::parseSearchResult(result.data(), type));
+    co_return ApiResult<SearchResult>(NeteaseParser::parseSearchResult(result.data(), type));
 }
 
 QCoro::Task<ApiResult<Song>> NeteaseClient::getSongDetail(const QString &songId)
@@ -63,17 +69,23 @@ QCoro::Task<ApiResult<Song>> NeteaseClient::getSongDetail(const QString &songId)
     co_return ApiResult<Song>(NeteaseParser::parseSong(result.data()));
 }
 
-QCoro::Task<ApiResult<SongUrlResult>> NeteaseClient::getSongUrl(
-    const QString &songId,
-    AudioQuality quality)
+QCoro::Task<ApiResult<SongUrlResult>> NeteaseClient::getSongUrl(const QString &songId, AudioQuality quality)
 {
     // Map AudioQuality to NetEase bitrate
     int br;
     switch (quality) {
-    case AudioQuality::Low: br = 128000; break;
-    case AudioQuality::Standard: br = 192000; break;
-    case AudioQuality::High: br = 320000; break;
-    case AudioQuality::Lossless: br = 999000; break;
+        case AudioQuality::Low:
+            br = 128000;
+            break;
+        case AudioQuality::Standard:
+            br = 192000;
+            break;
+        case AudioQuality::High:
+            br = 320000;
+            break;
+        case AudioQuality::Lossless:
+            br = 999000;
+            break;
     }
 
     QJsonObject params;
@@ -120,8 +132,7 @@ QString NeteaseClient::platformName() const
 
 // ─── Search ────────────────────────────────────────────────────────────────
 
-QCoro::Task<ApiResult<SearchResult>> NeteaseClient::searchSongs(
-    const QString &keyword, int limit, int offset)
+QCoro::Task<ApiResult<SearchResult>> NeteaseClient::searchSongs(const QString &keyword, int limit, int offset)
 {
     co_return co_await search(keyword, SearchType::Song, limit, offset);
 }
@@ -184,8 +195,7 @@ QCoro::Task<ApiResult<QVector<Playlist>>> NeteaseClient::getRecommendedPlaylists
     co_return ApiResult<QVector<Playlist>>(playlists);
 }
 
-QCoro::Task<ApiResult<QVector<Playlist>>> NeteaseClient::getHighQualityPlaylists(
-    const QString &category, int limit)
+QCoro::Task<ApiResult<QVector<Playlist>>> NeteaseClient::getHighQualityPlaylists(const QString &category, int limit)
 {
     QJsonObject params;
     params[QLatin1String("cat")] = category;
@@ -216,9 +226,8 @@ QCoro::Task<ApiResult<QVector<Song>>> NeteaseClient::getAlbumDetail(const QStrin
     albumParams[QLatin1String("n")] = 100000;
     albumParams[QLatin1String("s")] = 8;
 
-    auto result = co_await makeRequest(
-        QStringLiteral("/weapi/v1/album/") + albumId, albumParams,
-        QStringLiteral("https://interface.music.163.com"));
+    auto result = co_await makeRequest(QStringLiteral("/weapi/v1/album/") + albumId, albumParams,
+                                       QStringLiteral("https://interface.music.163.com"));
     if (result.isError()) {
         co_return ApiResult<QVector<Song>>(result.error());
     }

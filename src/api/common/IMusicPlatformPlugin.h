@@ -36,11 +36,8 @@ public:
      * @param offset Pagination offset
      * @return Search results or error
      */
-    virtual QCoro::Task<ApiResult<SearchResult>> search(
-        const QString &keyword,
-        SearchType type,
-        int limit,
-        int offset) = 0;
+    virtual QCoro::Task<ApiResult<SearchResult>> search(const QString &keyword, SearchType type, int limit, int offset)
+        = 0;
 
     /**
      * @brief Get detailed information about a song
@@ -55,9 +52,8 @@ public:
      * @param quality Desired audio quality
      * @return Song URL result or error
      */
-    virtual QCoro::Task<ApiResult<SongUrlResult>> getSongUrl(
-        const QString &songId,
-        AudioQuality quality = AudioQuality::High) = 0;
+    virtual QCoro::Task<ApiResult<SongUrlResult>> getSongUrl(const QString &songId,
+                                                             AudioQuality quality = AudioQuality::High) = 0;
 
     /**
      * @brief Get lyrics for a song

@@ -33,12 +33,7 @@ struct AudioInfo {
  * Aligned with Android NeriPlayer's SongUrlResult sealed class.
  */
 struct SongUrlResult {
-    enum class Status : std::uint8_t {
-        Success = 0,
-        WaitingForAuthoritativeStream,
-        RequiresLogin,
-        Failure
-    };
+    enum class Status : std::uint8_t { Success = 0, WaitingForAuthoritativeStream, RequiresLogin, Failure };
 
     Status status = Status::Failure;
     QString url;

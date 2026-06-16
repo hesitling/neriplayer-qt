@@ -10,8 +10,8 @@
 #include "api/netease/NeteaseCrypto.h"
 #include "core/network/HttpClient.h"
 
-#include <QCoroTask>
 #include <QCoreApplication>
+#include <QCoroTask>
 #include <QJsonArray>
 #include <QJsonObject>
 #include <QTimer>
@@ -30,8 +30,8 @@ static void printJson(const QJsonObject &obj, int indent = 0)
             std::cout << qPrintable(prefix) << qPrintable(it.key()) << ":\n";
             printJson(it.value().toObject(), indent + 1);
         } else if (it.value().isArray()) {
-            std::cout << qPrintable(prefix) << qPrintable(it.key()) << ": ["
-                      << it.value().toArray().size() << " items]\n";
+            std::cout << qPrintable(prefix) << qPrintable(it.key()) << ": [" << it.value().toArray().size()
+                      << " items]\n";
         } else {
             std::cout << qPrintable(prefix) << qPrintable(it.key()) << ": "
                       << qPrintable(it.value().toVariant().toString()) << "\n";

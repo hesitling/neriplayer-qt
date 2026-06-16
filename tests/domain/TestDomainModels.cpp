@@ -350,26 +350,23 @@ void TestDomainModels::listenTogether_stableKey_netease()
 void TestDomainModels::listenTogether_stableKey_bilibili()
 {
     // Bilibili with subAudioId: channelId:audioId:subAudioId
-    QString key = buildStableTrackKey(
-        QStringLiteral("bilibili"), QStringLiteral("67890"), QStringLiteral("p1"));
+    QString key = buildStableTrackKey(QStringLiteral("bilibili"), QStringLiteral("67890"), QStringLiteral("p1"));
     QCOMPARE(key, QStringLiteral("bilibili:67890:p1"));
 
     // Bilibili without subAudioId
-    QString key2 = buildStableTrackKey(
-        QStringLiteral("bilibili"), QStringLiteral("67890"));
+    QString key2 = buildStableTrackKey(QStringLiteral("bilibili"), QStringLiteral("67890"));
     QCOMPARE(key2, QStringLiteral("bilibili:67890"));
 }
 
 void TestDomainModels::listenTogether_stableKey_youtube()
 {
     // YouTube with playlistContextId: channelId:audioId:playlistContextId
-    QString key = buildStableTrackKey(
-        QStringLiteral("youtubeMusic"), QStringLiteral("abc"), {}, QStringLiteral("PLxyz"));
+    QString key
+        = buildStableTrackKey(QStringLiteral("youtubeMusic"), QStringLiteral("abc"), { }, QStringLiteral("PLxyz"));
     QCOMPARE(key, QStringLiteral("youtubeMusic:abc:PLxyz"));
 
     // YouTube without playlistContextId
-    QString key2 = buildStableTrackKey(
-        QStringLiteral("youtubeMusic"), QStringLiteral("abc"));
+    QString key2 = buildStableTrackKey(QStringLiteral("youtubeMusic"), QStringLiteral("abc"));
     QCOMPARE(key2, QStringLiteral("youtubeMusic:abc"));
 }
 

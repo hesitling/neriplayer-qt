@@ -12,8 +12,7 @@ namespace NeriPlayerQt {
 
 void NeteaseParser::logMalformed(const QString &method, const QString &detail)
 {
-    Logger::get("api")->warn("NeteaseParser::{}: malformed JSON — {}",
-                             method.toStdString(), detail.toStdString());
+    Logger::get("api")->warn("NeteaseParser::{}: malformed JSON — {}", method.toStdString(), detail.toStdString());
 }
 
 // ─── Song ───────────────────────────────────────────────────────────────────
@@ -40,9 +39,8 @@ Song NeteaseParser::parseSong(const QJsonObject &json)
     song.platform = MusicPlatform::NetEase;
 
     // Artists — "ar" array or "artists" array
-    const QJsonArray artists = songJson.contains(QLatin1String("ar"))
-                                    ? songJson[QLatin1String("ar")].toArray()
-                                    : songJson[QLatin1String("artists")].toArray();
+    const QJsonArray artists = songJson.contains(QLatin1String("ar")) ? songJson[QLatin1String("ar")].toArray()
+                                                                      : songJson[QLatin1String("artists")].toArray();
 
     if (!artists.isEmpty()) {
         QStringList names;
@@ -54,9 +52,8 @@ Song NeteaseParser::parseSong(const QJsonObject &json)
     }
 
     // Album — "al" object or "album" object
-    const QJsonObject albumObj = songJson.contains(QLatin1String("al"))
-                                     ? songJson[QLatin1String("al")].toObject()
-                                     : songJson[QLatin1String("album")].toObject();
+    const QJsonObject albumObj = songJson.contains(QLatin1String("al")) ? songJson[QLatin1String("al")].toObject()
+                                                                        : songJson[QLatin1String("album")].toObject();
 
     song.album = albumObj[QLatin1String("name")].toString();
     song.albumId = QString::number(albumObj[QLatin1String("id")].toInteger());
@@ -92,9 +89,8 @@ Album NeteaseParser::parseAlbum(const QJsonObject &json)
     Album album;
 
     // Unwrap if needed: { album: {...} }
-    const QJsonObject &albumJson = json.contains(QLatin1String("album"))
-                                       ? json[QLatin1String("album")].toObject()
-                                       : json;
+    const QJsonObject &albumJson
+        = json.contains(QLatin1String("album")) ? json[QLatin1String("album")].toObject() : json;
 
     album.id = QString::number(albumJson[QLatin1String("id")].toInteger());
     album.name = albumJson[QLatin1String("name")].toString();
@@ -136,9 +132,8 @@ Artist NeteaseParser::parseArtist(const QJsonObject &json)
     Artist artist;
 
     // Unwrap if needed: { artist: {...} }
-    const QJsonObject &artistJson = json.contains(QLatin1String("artist"))
-                                        ? json[QLatin1String("artist")].toObject()
-                                        : json;
+    const QJsonObject &artistJson
+        = json.contains(QLatin1String("artist")) ? json[QLatin1String("artist")].toObject() : json;
 
     artist.id = QString::number(artistJson[QLatin1String("id")].toInteger());
     artist.name = artistJson[QLatin1String("name")].toString();
@@ -166,9 +161,8 @@ Playlist NeteaseParser::parsePlaylist(const QJsonObject &json)
     Playlist playlist;
 
     // Unwrap if needed: { playlist: {...} }
-    const QJsonObject &plJson = json.contains(QLatin1String("playlist"))
-                                    ? json[QLatin1String("playlist")].toObject()
-                                    : json;
+    const QJsonObject &plJson
+        = json.contains(QLatin1String("playlist")) ? json[QLatin1String("playlist")].toObject() : json;
 
     playlist.id = QString::number(plJson[QLatin1String("id")].toInteger());
     playlist.name = plJson[QLatin1String("name")].toString();
@@ -192,9 +186,8 @@ Playlist NeteaseParser::parsePlaylistDetail(const QJsonObject &json)
 {
     Playlist playlist = parsePlaylist(json);
 
-    const QJsonObject &plJson = json.contains(QLatin1String("playlist"))
-                                    ? json[QLatin1String("playlist")].toObject()
-                                    : json;
+    const QJsonObject &plJson
+        = json.contains(QLatin1String("playlist")) ? json[QLatin1String("playlist")].toObject() : json;
 
     if (plJson.contains(QLatin1String("tracks"))) {
         playlist.songs = parseSongs(plJson[QLatin1String("tracks")].toArray());
@@ -221,8 +214,7 @@ Lyrics NeteaseParser::parseLyrics(const QJsonObject &json)
 
     for (const QString &line : lines) {
         // Match [mm:ss.xx] or [mm:ss.xxx]
-        thread_local const QRegularExpression timeRegex(
-            QStringLiteral(R"(\[(\d{2}):(\d{2})\.(\d{2,3})\](.*))"));
+        thread_local const QRegularExpression timeRegex(QStringLiteral(R"(\[(\d{2}):(\d{2})\.(\d{2,3})\](.*))"));
         QRegularExpressionMatch match = timeRegex.match(line);
 
         if (match.hasMatch()) {
@@ -247,9 +239,7 @@ Lyrics NeteaseParser::parseLyrics(const QJsonObject &json)
 
     // Sort by start time
     std::sort(lyrics.lines.begin(), lyrics.lines.end(),
-              [](const LyricLine &a, const LyricLine &b) {
-                  return a.startTimeMs < b.startTimeMs;
-              });
+              [](const LyricLine &a, const LyricLine &b) { return a.startTimeMs < b.startTimeMs; });
 
     // Set end times (each line ends when the next starts, or +5s for last)
     for (int i = 0; i < lyrics.lines.size(); ++i) {
@@ -269,76 +259,75 @@ SearchResult NeteaseParser::parseSearchResult(const QJsonObject &json, SearchTyp
 {
     SearchResult result;
 
-    const QJsonObject &resultJson = json.contains(QLatin1String("result"))
-                                        ? json[QLatin1String("result")].toObject()
-                                        : json;
+    const QJsonObject &resultJson
+        = json.contains(QLatin1String("result")) ? json[QLatin1String("result")].toObject() : json;
 
     result.totalCount = resultJson[QLatin1String("songCount")].toInt();
 
     switch (type) {
-    case SearchType::Song:
-        if (resultJson.contains(QLatin1String("songs"))) {
-            result.songs = parseSongs(resultJson[QLatin1String("songs")].toArray());
-            result.totalCount = resultJson[QLatin1String("songCount")].toInt();
-        }
-        break;
-    case SearchType::Playlist:
-        if (resultJson.contains(QLatin1String("playlists"))) {
-            const QJsonArray arr = resultJson[QLatin1String("playlists")].toArray();
-            result.playlists.reserve(arr.size());
-            for (const auto &item : arr) {
-                result.playlists.append(parsePlaylist(item.toObject()));
+        case SearchType::Song:
+            if (resultJson.contains(QLatin1String("songs"))) {
+                result.songs = parseSongs(resultJson[QLatin1String("songs")].toArray());
+                result.totalCount = resultJson[QLatin1String("songCount")].toInt();
             }
-            result.totalCount = resultJson[QLatin1String("playlistCount")].toInt();
-        }
-        break;
-    case SearchType::Album:
-        if (resultJson.contains(QLatin1String("albums"))) {
-            const QJsonArray arr = resultJson[QLatin1String("albums")].toArray();
-            result.albums.reserve(arr.size());
-            for (const auto &item : arr) {
-                result.albums.append(parseAlbum(item.toObject()));
+            break;
+        case SearchType::Playlist:
+            if (resultJson.contains(QLatin1String("playlists"))) {
+                const QJsonArray arr = resultJson[QLatin1String("playlists")].toArray();
+                result.playlists.reserve(arr.size());
+                for (const auto &item : arr) {
+                    result.playlists.append(parsePlaylist(item.toObject()));
+                }
+                result.totalCount = resultJson[QLatin1String("playlistCount")].toInt();
             }
-            result.totalCount = resultJson[QLatin1String("albumCount")].toInt();
-        }
-        break;
-    case SearchType::Artist:
-        if (resultJson.contains(QLatin1String("artists"))) {
-            const QJsonArray arr = resultJson[QLatin1String("artists")].toArray();
-            result.artists.reserve(arr.size());
-            for (const auto &item : arr) {
-                result.artists.append(parseArtist(item.toObject()));
+            break;
+        case SearchType::Album:
+            if (resultJson.contains(QLatin1String("albums"))) {
+                const QJsonArray arr = resultJson[QLatin1String("albums")].toArray();
+                result.albums.reserve(arr.size());
+                for (const auto &item : arr) {
+                    result.albums.append(parseAlbum(item.toObject()));
+                }
+                result.totalCount = resultJson[QLatin1String("albumCount")].toInt();
             }
-            result.totalCount = resultJson[QLatin1String("artistCount")].toInt();
-        }
-        break;
-    case SearchType::All:
-        // Parse all types
-        if (resultJson.contains(QLatin1String("songs"))) {
-            result.songs = parseSongs(resultJson[QLatin1String("songs")].toArray());
-        }
-        if (resultJson.contains(QLatin1String("playlists"))) {
-            const QJsonArray arr = resultJson[QLatin1String("playlists")].toArray();
-            result.playlists.reserve(arr.size());
-            for (const auto &item : arr) {
-                result.playlists.append(parsePlaylist(item.toObject()));
+            break;
+        case SearchType::Artist:
+            if (resultJson.contains(QLatin1String("artists"))) {
+                const QJsonArray arr = resultJson[QLatin1String("artists")].toArray();
+                result.artists.reserve(arr.size());
+                for (const auto &item : arr) {
+                    result.artists.append(parseArtist(item.toObject()));
+                }
+                result.totalCount = resultJson[QLatin1String("artistCount")].toInt();
             }
-        }
-        if (resultJson.contains(QLatin1String("albums"))) {
-            const QJsonArray arr = resultJson[QLatin1String("albums")].toArray();
-            result.albums.reserve(arr.size());
-            for (const auto &item : arr) {
-                result.albums.append(parseAlbum(item.toObject()));
+            break;
+        case SearchType::All:
+            // Parse all types
+            if (resultJson.contains(QLatin1String("songs"))) {
+                result.songs = parseSongs(resultJson[QLatin1String("songs")].toArray());
             }
-        }
-        if (resultJson.contains(QLatin1String("artists"))) {
-            const QJsonArray arr = resultJson[QLatin1String("artists")].toArray();
-            result.artists.reserve(arr.size());
-            for (const auto &item : arr) {
-                result.artists.append(parseArtist(item.toObject()));
+            if (resultJson.contains(QLatin1String("playlists"))) {
+                const QJsonArray arr = resultJson[QLatin1String("playlists")].toArray();
+                result.playlists.reserve(arr.size());
+                for (const auto &item : arr) {
+                    result.playlists.append(parsePlaylist(item.toObject()));
+                }
             }
-        }
-        break;
+            if (resultJson.contains(QLatin1String("albums"))) {
+                const QJsonArray arr = resultJson[QLatin1String("albums")].toArray();
+                result.albums.reserve(arr.size());
+                for (const auto &item : arr) {
+                    result.albums.append(parseAlbum(item.toObject()));
+                }
+            }
+            if (resultJson.contains(QLatin1String("artists"))) {
+                const QJsonArray arr = resultJson[QLatin1String("artists")].toArray();
+                result.artists.reserve(arr.size());
+                for (const auto &item : arr) {
+                    result.artists.append(parseArtist(item.toObject()));
+                }
+            }
+            break;
     }
 
     return result;
@@ -372,13 +361,11 @@ LoginResult NeteaseParser::parseLoginResult(const QJsonObject &json)
     if (json.contains(QLatin1String("cookie"))) {
         result.cookie = json[QLatin1String("cookie")].toString();
     } else if (json.contains(QLatin1String("token"))) {
-        result.cookie = QStringLiteral("MUSIC_U=") +
-                        json[QLatin1String("token")].toString();
+        result.cookie = QStringLiteral("MUSIC_U=") + json[QLatin1String("token")].toString();
     }
 
     if (result.userId.isEmpty() || result.userId == QLatin1String("0")) {
-        logMalformed(QStringLiteral("parseLoginResult"),
-                     QStringLiteral("missing userId"));
+        logMalformed(QStringLiteral("parseLoginResult"), QStringLiteral("missing userId"));
     }
 
     return result;

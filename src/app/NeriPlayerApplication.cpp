@@ -99,8 +99,7 @@ void NeriPlayerApplication::initializeCoreServices()
     // 5. NeteaseClient
     auto *netMgr = m_services.service<NetworkManager>();
     auto *secStorage = m_services.service<SecureStorage>();
-    m_services.registerService<NeteaseClient>(
-        std::make_unique<NeteaseClient>(netMgr->httpClient(), secStorage));
+    m_services.registerService<NeteaseClient>(std::make_unique<NeteaseClient>(netMgr->httpClient(), secStorage));
     log->info("NeteaseClient registered");
 
     log->info("Core services initialized");
