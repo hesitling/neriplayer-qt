@@ -47,6 +47,8 @@ public:
     static Playlist parsePlaylistDetail(const QJsonObject &json);
 
     // Lyrics parsing
+    /// @note The LRC metadata header at [00:00.00] (e.g. "Song - Artist") is included
+    ///       as the first LyricLine. UI consumers may choose to display it differently.
     static Lyrics parseLyrics(const QJsonObject &json);
 
     // Search result parsing
