@@ -3,6 +3,9 @@
 
 #include "viewmodel/PlaylistViewModel.h"
 
+#include <QJsonArray>
+#include <QJsonObject>
+
 namespace NeriPlayerQt {
 
 PlaylistViewModel::PlaylistViewModel(IPlaylistRepository *playlistRepo, NeteaseClient *neteaseClient, QObject *parent)
@@ -156,9 +159,19 @@ QCoro::Task<void> PlaylistViewModel::loadNeteaseAlbumsImpl()
         co_return;
     }
 
-    // getUserStarredAlbums returns QJsonObject, need to parse
-    // For now, emit empty list — will be implemented when API is ready
-    m_neteaseAlbums.clear();
+    // Parse albums from response
+    QJsonArray playlistArray = result.data().value(QStringLiteral("playlist")).toArray();
+    QVariantList list;
+    for (const QJsonValue &val : playlistArray) {
+        QJsonObject obj = val.toObject();
+        PlaylistSummary summary;
+        summary.id = obj.value(QStringLiteral("id")).toVariant().toString();
+        summary.name = obj.value(QStringLiteral("name")).toString();
+        summary.coverUrl = QUrl(obj.value(QStringLiteral("coverImgUrl")).toString());
+        summary.trackCount = obj.value(QStringLiteral("trackCount")).toInt();
+        list.append(QVariant::fromValue(summary));
+    }
+    m_neteaseAlbums = list;
     Q_EMIT neteaseAlbumsChanged();
 }
 
