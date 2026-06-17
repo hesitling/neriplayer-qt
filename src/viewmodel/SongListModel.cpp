@@ -68,6 +68,7 @@ void SongListModel::setSongs(const QVector<Song> &songs)
 {
     beginResetModel();
     m_songs = songs;
+    m_playingIndex = -1;
     endResetModel();
 
     Q_EMIT countChanged();
