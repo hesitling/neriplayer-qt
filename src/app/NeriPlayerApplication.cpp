@@ -4,6 +4,7 @@
 #include "app/NeriPlayerApplication.h"
 
 #include "api/netease/NeteaseClient.h"
+#include "api/bilibili/BilibiliClient.h"
 #include "core/crypto/SecureStorage.h"
 #include "core/database/DatabaseManager.h"
 #include "core/filesystem/AppPaths.h"
@@ -130,6 +131,10 @@ void NeriPlayerApplication::initializeCoreServices()
     auto *secStorage = m_services.service<SecureStorage>();
     m_services.registerService<NeteaseClient>(std::make_unique<NeteaseClient>(netMgr->httpClient(), secStorage));
     log->info("NeteaseClient registered");
+
+    // 6b. BilibiliClient
+    m_services.registerService<BilibiliClient>(std::make_unique<BilibiliClient>(netMgr->httpClient(), secStorage));
+    log->info("BilibiliClient registered");
 
     // 7. Playback Engine
     if (m_services.hasService<SettingsRepository>() && m_services.hasService<PlayerStateRepository>()) {

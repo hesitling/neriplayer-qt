@@ -1,0 +1,21 @@
+{
+    "code": 0,
+    "data": {
+        "numResults": 100,
+        "page": 1,
+        "numPages": 5,
+        "result": [
+            {
+                "aid": 111,
+                "bvid": "BV1test",
+                "title": "Test &amp; Search",
+                "author": "UP1",
+                "mid": 123,
+                "pic": "//img.example.com/cover.jpg",
+                "duration": "3:45",
+                "play": 5000,
+                "pubdate": 1700000000
+            }
+        ]
+    }
+}

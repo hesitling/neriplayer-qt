@@ -1,0 +1,31 @@
+{
+    "code": 0,
+    "data": {
+        "dash": {
+            "video": [
+                {
+                    "id": 80,
+                    "baseUrl": "https://video.example.com/1080p",
+                    "backupUrl": ["https://backup.example.com/1080p"],
+                    "bandwidth": 2000000,
+                    "mimeType": "video/mp4",
+                    "codecs": "avc1.640032",
+                    "width": 1920,
+                    "height": 1080,
+                    "frameRate": "30",
+                    "codecid": 7
+                }
+            ],
+            "audio": [
+                {
+                    "id": 30280,
+                    "baseUrl": "https://audio.example.com/hires",
+                    "backupUrl": [],
+                    "bandwidth": 320000,
+                    "mimeType": "audio/mp4a-latm",
+                    "codecs": "mp4a.40.2"
+                }
+            ]
+        }
+    }
+}

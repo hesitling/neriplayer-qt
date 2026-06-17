@@ -1,0 +1,17 @@
+{
+    "code": 0,
+    "data": {
+        "list": [
+            {
+                "id": 100,
+                "fid": 200,
+                "mid": 300,
+                "title": "My Favorites",
+                "intro": "desc",
+                "cover": "//img.example.com/fav.jpg",
+                "media_count": 50,
+                "attr": 11
+            }
+        ]
+    }
+}
