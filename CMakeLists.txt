@@ -527,16 +527,19 @@ add_executable(TestPlaybackController
     src/player/backends/QtMultimediaBackend.cpp
     src/player/IPlayerBackend.h
     src/api/common/ApiError.cpp
+    src/core/logger/Logger.cpp
 )
 target_include_directories(TestPlaybackController PRIVATE
     ${CMAKE_SOURCE_DIR}/src
     ${NERIPLAYER_QCORO_INCLUDE_DIRS}
+    ${SPDLOG_INCLUDE_DIRS}
 )
 target_link_libraries(TestPlaybackController PRIVATE
     Qt6::Core
     Qt6::Multimedia
     Qt6::Test
     ${NERIPLAYER_QCORO_LIBRARIES}
+    ${SPDLOG_LIBRARIES}
 )
 target_compile_definitions(TestPlaybackController PRIVATE
     QT_NO_KEYWORDS

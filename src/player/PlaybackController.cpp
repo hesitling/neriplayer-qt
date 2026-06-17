@@ -4,6 +4,7 @@
 #include "player/PlaybackController.h"
 
 #include "domain/SongUrlResult.h"
+#include "core/logger/Logger.h"
 
 #include <QCoroTask>
 #include <QDateTime>
@@ -196,10 +197,11 @@ void PlaybackController::preResolveUrl(const Song &song)
                 self->m_urlCache.insert(s.id, result.data().url);
                 self->m_urlCacheExpiry.insert(s.id, QDateTime::currentMSecsSinceEpoch() + URL_CACHE_TTL_MS);
             } else {
-                qWarning() << "Pre-resolve failed for" << s.name << ":" << result.error().message();
+                Logger::get("player")->warn("Pre-resolve failed for {}: {}", s.name.toStdString(),
+                                             result.error().message().toStdString());
             }
         } catch (const std::exception &ex) {
-            qWarning() << "Pre-resolve exception for" << s.name << ":" << ex.what();
+            Logger::get("player")->warn("Pre-resolve exception for {}: {}", s.name.toStdString(), ex.what());
         }
     }(QPointer<PlaybackController>(this), song);
     Q_UNUSED(task);
@@ -314,7 +316,7 @@ void PlaybackController::restoreState()
                 self->m_backend->seek(savedState->positionMs);
             }
         } catch (const std::exception &ex) {
-            qWarning() << "Failed to restore playback state:" << ex.what();
+            Logger::get("player")->warn("Failed to restore playback state: {}", ex.what());
         }
     }(this);
 }
