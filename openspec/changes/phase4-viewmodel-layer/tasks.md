@@ -22,9 +22,9 @@
 
 ## 4. SearchViewModel
 
-- [ ] 4.1 Create `src/viewmodel/SearchViewModel.h` — Q_PROPERTYs (query, selectedPlatform, results as SongListModel*, isLoading, hasMore, hasError, error, availablePlatforms), Q_INVOKABLEs (search, loadMore, clearResults, clearError), signal requestPlay(Song)
-- [ ] 4.2 Create `src/viewmodel/SearchViewModel.cpp` — implement debounce QTimer (300ms), implement platform dispatch to IMusicPlatformPlugin, implement request versioning (quint64 counter), implement pagination with offset tracking, cache results via ISongRepository, map ApiResult errors to ViewModelError
-- [ ] 4.3 Write `tests/viewmodel/TestSearchViewModel.cpp` — mock IMusicPlatformPlugin with canned ApiResult, test debounce timing, test platform dispatch, test request versioning (stale results discarded), test pagination, test error mapping
+- [x] 4.1 Create `src/viewmodel/SearchViewModel.h` — Q_PROPERTYs (query, selectedPlatform, results as SongListModel*, isLoading, hasMore, hasError, error, availablePlatforms), Q_INVOKABLEs (search, loadMore, clearResults, clearError), signal requestPlay(Song)
+- [x] 4.2 Create `src/viewmodel/SearchViewModel.cpp` — implement debounce QTimer (300ms), implement platform dispatch to IMusicPlatformPlugin, implement request versioning (quint64 counter), implement pagination with offset tracking, cache results via ISongRepository, map ApiResult errors to ViewModelError
+- [x] 4.3 Write `tests/viewmodel/TestSearchViewModel.cpp` — mock IMusicPlatformPlugin with canned ApiResult, test debounce timing, test platform dispatch, test request versioning (stale results discarded), test pagination, test error mapping
 
 ## 5. PlaylistViewModel
 
