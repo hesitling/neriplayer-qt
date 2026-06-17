@@ -93,6 +93,12 @@ void SettingsViewModel::setTheme(const QString &theme)
     if (m_theme == theme) {
         return;
     }
+
+    // Validate supported themes
+    if (theme != QStringLiteral("light") && theme != QStringLiteral("dark")) {
+        return;
+    }
+
     m_theme = theme;
     m_settingsRepo->set(QStringLiteral("theme"), theme);
     Q_EMIT themeChanged();
