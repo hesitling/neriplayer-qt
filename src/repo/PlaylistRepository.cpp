@@ -79,7 +79,7 @@ Playlist PlaylistRepository::create(const QString &name, MusicPlatform platform)
     pl.modifiedAt = QDateTime::currentMSecsSinceEpoch();
 
     m_db->exec("INSERT INTO playlists (id, platform, name, modified_at) VALUES (?, ?, ?, ?)",
-               { pl.id, pl.name, SqlRowMapper::platformToString(platform), pl.modifiedAt });
+               { pl.id, SqlRowMapper::platformToString(platform), pl.name, pl.modifiedAt });
 
     return pl;
 }
@@ -106,22 +106,29 @@ bool PlaylistRepository::addSong(const QString &playlistId, const QString &songI
     if (!existing.isEmpty())
         return false;
 
-    if (position < 0) {
-        // Append at end
-        auto countRows = m_db->exec("SELECT COALESCE(MAX(position), -1) FROM playlist_songs WHERE playlist_id = ?",
-                                    { playlistId });
-        position = countRows[0][0].toInt() + 1;
-    } else {
-        // Shift existing songs at position >= insert position
-        m_db->exec("UPDATE playlist_songs SET position = position + 1 "
-                   "WHERE playlist_id = ? AND position >= ?",
-                   { playlistId, position });
+    m_db->beginTransaction();
+    try {
+        if (position < 0) {
+            // Append at end
+            auto countRows = m_db->exec("SELECT COALESCE(MAX(position), -1) FROM playlist_songs WHERE playlist_id = ?",
+                                        { playlistId });
+            position = countRows[0][0].toInt() + 1;
+        } else {
+            // Shift existing songs at position >= insert position
+            m_db->exec("UPDATE playlist_songs SET position = position + 1 "
+                       "WHERE playlist_id = ? AND position >= ?",
+                       { playlistId, position });
+        }
+
+        m_db->exec("INSERT INTO playlist_songs (playlist_id, song_id, position) VALUES (?, ?, ?)",
+                   { playlistId, songId, position });
+
+        updateSongCount(playlistId);
+        m_db->commitTransaction();
+    } catch (...) {
+        try { m_db->rollbackTransaction(); } catch (...) {}
+        throw;
     }
-
-    m_db->exec("INSERT INTO playlist_songs (playlist_id, song_id, position) VALUES (?, ?, ?)",
-               { playlistId, songId, position });
-
-    updateSongCount(playlistId);
     return true;
 }
 
@@ -136,14 +143,21 @@ void PlaylistRepository::removeSong(const QString &playlistId, const QString &so
 
     int removedPos = posRows[0][0].toInt();
 
-    m_db->exec("DELETE FROM playlist_songs WHERE playlist_id = ? AND song_id = ?", { playlistId, songId });
+    m_db->beginTransaction();
+    try {
+        m_db->exec("DELETE FROM playlist_songs WHERE playlist_id = ? AND song_id = ?", { playlistId, songId });
 
-    // Shift down songs that were after the removed one
-    m_db->exec("UPDATE playlist_songs SET position = position - 1 "
-               "WHERE playlist_id = ? AND position > ?",
-               { playlistId, removedPos });
+        // Shift down songs that were after the removed one
+        m_db->exec("UPDATE playlist_songs SET position = position - 1 "
+                   "WHERE playlist_id = ? AND position > ?",
+                   { playlistId, removedPos });
 
-    updateSongCount(playlistId);
+        updateSongCount(playlistId);
+        m_db->commitTransaction();
+    } catch (...) {
+        try { m_db->rollbackTransaction(); } catch (...) {}
+        throw;
+    }
 }
 
 void PlaylistRepository::reorderSongs(const QString &playlistId, const QStringList &songIds)
@@ -158,7 +172,8 @@ void PlaylistRepository::reorderSongs(const QString &playlistId, const QStringLi
     } catch (...) {
         try {
             m_db->rollbackTransaction();
-        } catch (...) {
+        } catch (const std::exception &rbEx) {
+            qWarning() << "PlaylistRepository: rollback failed:" << rbEx.what();
         }
         throw;
     }
