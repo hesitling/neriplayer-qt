@@ -28,9 +28,9 @@
 
 ## 5. PlaylistViewModel
 
-- [ ] 5.1 Create `src/viewmodel/PlaylistViewModel.h` — Q_PROPERTYs (localPlaylists, neteasePlaylists, neteaseAlbums, isLoading, hasError, error), Q_INVOKABLEs (loadLocalPlaylists, loadNeteasePlaylists, loadNeteaseAlbums, createLocalPlaylist, deleteLocalPlaylist, renameLocalPlaylist, clearError), signals (localPlaylistSelected, neteasePlaylistSelected, neteaseAlbumSelected)
-- [ ] 5.2 Create `src/viewmodel/PlaylistViewModel.cpp` — implement local playlists from IPlaylistRepository::findAll(), implement NetEase playlists from NeteaseClient::getUserPlaylists(), implement NetEase albums from NeteaseClient::getUserStarredAlbums(), implement CRUD delegation, map errors to ViewModelError
-- [ ] 5.3 Write `tests/viewmodel/TestPlaylistViewModel.cpp` — mock IPlaylistRepository and NeteaseClient, test playlist loading, test CRUD operations, test selection signals, test error mapping
+- [x] 5.1 Create `src/viewmodel/PlaylistViewModel.h` — Q_PROPERTYs (localPlaylists, neteasePlaylists, neteaseAlbums, isLoading, hasError, error), Q_INVOKABLEs (loadLocalPlaylists, loadNeteasePlaylists, loadNeteaseAlbums, createLocalPlaylist, deleteLocalPlaylist, renameLocalPlaylist, clearError), signals (localPlaylistSelected, neteasePlaylistSelected, neteaseAlbumSelected)
+- [x] 5.2 Create `src/viewmodel/PlaylistViewModel.cpp` — implement local playlists from IPlaylistRepository::findAll(), implement NetEase playlists from NeteaseClient::getUserPlaylists(), implement NetEase albums from NeteaseClient::getUserStarredAlbums(), implement CRUD delegation, map errors to ViewModelError
+- [x] 5.3 Write `tests/viewmodel/TestPlaylistViewModel.cpp` — mock IPlaylistRepository and NeteaseClient, test playlist loading, test CRUD operations, test selection signals, test error mapping
 
 ## 6. LocalPlaylistDetailViewModel
 

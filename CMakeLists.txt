@@ -579,6 +579,7 @@ set(VIEWMODEL_SOURCES
     src/viewmodel/PlayerViewModel.cpp
     src/viewmodel/SettingsViewModel.cpp
     src/viewmodel/SearchViewModel.cpp
+    src/viewmodel/PlaylistViewModel.cpp
 )
 set(VIEWMODEL_HEADERS
     src/viewmodel/ViewModelError.h
@@ -586,6 +587,7 @@ set(VIEWMODEL_HEADERS
     src/viewmodel/PlayerViewModel.h
     src/viewmodel/SettingsViewModel.h
     src/viewmodel/SearchViewModel.h
+    src/viewmodel/PlaylistViewModel.h
 )
 add_library(neriplayer_viewmodel STATIC ${VIEWMODEL_SOURCES} ${VIEWMODEL_HEADERS})
 target_include_directories(neriplayer_viewmodel PUBLIC
@@ -729,6 +731,53 @@ target_compile_definitions(TestSearchViewModel PRIVATE
     QT_NO_KEYWORDS
 )
 add_test(NAME TestSearchViewModel COMMAND TestSearchViewModel)
+
+add_executable(TestPlaylistViewModel
+    tests/viewmodel/TestPlaylistViewModel.cpp
+    src/viewmodel/PlaylistViewModel.cpp
+    src/viewmodel/ViewModelError.cpp
+    src/api/common/ApiError.cpp
+    src/api/netease/NeteaseClientCore.cpp
+    src/api/netease/NeteaseClientAuth.cpp
+    src/api/netease/NeteaseClientContent.cpp
+    src/api/netease/NeteaseClientUser.cpp
+    src/api/netease/NeteaseCrypto.cpp
+    src/api/netease/NeteaseParser.cpp
+    src/api/netease/NeteaseClient.h
+    src/core/network/HttpClient.cpp
+    src/core/network/HttpClient.h
+    src/core/crypto/CryptoUtils.cpp
+    src/core/crypto/Encryptor.cpp
+    src/core/crypto/Decryptor.cpp
+    src/core/crypto/SecureStorage.cpp
+    src/core/filesystem/AppPaths.cpp
+    src/core/filesystem/FileUtils.cpp
+    src/core/filesystem/FileWatcher.cpp
+    src/core/database/DatabaseManager.cpp
+    src/core/logger/Logger.cpp
+)
+target_include_directories(TestPlaylistViewModel PRIVATE
+    ${CMAKE_SOURCE_DIR}/src
+    ${SQLITE3_INCLUDE_DIRS}
+    ${SPDLOG_INCLUDE_DIRS}
+)
+target_link_libraries(TestPlaylistViewModel PRIVATE
+    Qt6::Core
+    Qt6::Network
+    Qt6::WebSockets
+    Qt6::Test
+    ${NERIPLAYER_QCORO_LIBRARIES}
+    ${SQLITE3_LIBRARIES}
+    ${SPDLOG_LIBRARIES}
+    OpenSSL::Crypto
+)
+if(UNIX)
+    target_link_libraries(TestPlaylistViewModel PRIVATE dl pthread)
+endif()
+add_test(NAME TestPlaylistViewModel COMMAND TestPlaylistViewModel)
+set_tests_properties(TestPlaylistViewModel PROPERTIES
+    ENVIRONMENT "QT_QPA_PLATFORM=offscreen"
+)
 
 # Shared library for Netease API + core infra (used by E2E tests and CLI tools)
 set(NETEASE_E2E_SOURCES
