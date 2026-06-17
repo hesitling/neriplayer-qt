@@ -92,6 +92,9 @@ private Q_SLOTS:
     void setDownloadPath_persistsAndEmits();
     void clearPlayHistory();
     void clearError();
+    void isNeteaseLoggedIn_nullClient();
+    void setTheme_invalidValue();
+    void setTheme_validValues();
 };
 
 void TestSettingsViewModel::initialState()
@@ -239,6 +242,47 @@ void TestSettingsViewModel::clearError()
     QSignalSpy spy(&vm, &SettingsViewModel::errorChanged);
     vm.clearError();
     QCOMPARE(spy.count(), 1); // Still emits
+}
+
+void TestSettingsViewModel::isNeteaseLoggedIn_nullClient()
+{
+    MockSettingsRepo settingsRepo;
+    MockPlayHistoryRepo historyRepo;
+    SettingsViewModel vm(&settingsRepo, nullptr, &historyRepo);
+
+    // Should not crash and return false
+    QVERIFY(!vm.isNeteaseLoggedIn());
+}
+
+void TestSettingsViewModel::setTheme_invalidValue()
+{
+    MockSettingsRepo settingsRepo;
+    MockPlayHistoryRepo historyRepo;
+    SettingsViewModel vm(&settingsRepo, nullptr, &historyRepo);
+
+    QSignalSpy spy(&vm, &SettingsViewModel::themeChanged);
+    vm.setTheme("invalid");
+
+    // Should not change theme or emit signal
+    QCOMPARE(vm.theme(), QStringLiteral("light"));
+    QCOMPARE(spy.count(), 0);
+}
+
+void TestSettingsViewModel::setTheme_validValues()
+{
+    MockSettingsRepo settingsRepo;
+    MockPlayHistoryRepo historyRepo;
+    SettingsViewModel vm(&settingsRepo, nullptr, &historyRepo);
+
+    QSignalSpy spy(&vm, &SettingsViewModel::themeChanged);
+
+    vm.setTheme("dark");
+    QCOMPARE(vm.theme(), QStringLiteral("dark"));
+    QCOMPARE(spy.count(), 1);
+
+    vm.setTheme("light");
+    QCOMPARE(vm.theme(), QStringLiteral("light"));
+    QCOMPARE(spy.count(), 2);
 }
 
 QTEST_MAIN(TestSettingsViewModel)
