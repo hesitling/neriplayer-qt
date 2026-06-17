@@ -27,6 +27,7 @@ private Q_SLOTS:
     void getBool_nonExistent_returnsDefault();
     void getInt_validValue();
     void getInt_nonExistent_returnsDefault();
+    void getBool_invalidValue_returnsDefault();
 };
 
 std::unique_ptr<DatabaseManager> TestSettingsRepository::createDb()
@@ -156,6 +157,16 @@ void TestSettingsRepository::getInt_nonExistent_returnsDefault()
     SettingsRepository repo(db.get());
 
     QCOMPARE(repo.getInt("missing", 99), 99);
+}
+
+void TestSettingsRepository::getBool_invalidValue_returnsDefault()
+{
+    auto db = createDb();
+    SettingsRepository repo(db.get());
+
+    repo.set("shuffle", "maybe");
+    QVERIFY(repo.getBool("shuffle", true));
+    QVERIFY(!repo.getBool("shuffle", false));
 }
 
 QTEST_MAIN(TestSettingsRepository)
