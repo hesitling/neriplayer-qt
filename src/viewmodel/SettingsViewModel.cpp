@@ -60,31 +60,43 @@ ViewModelError SettingsViewModel::error() const
 
 void SettingsViewModel::loadSettings()
 {
-    auto themeVal = m_settingsRepo->get(QStringLiteral("theme"));
-    if (themeVal.has_value()) {
-        m_theme = themeVal.value();
-        Q_EMIT themeChanged();
-    }
-
-    auto qualityVal = m_settingsRepo->get(QStringLiteral("audioQuality"));
-    if (qualityVal.has_value()) {
-        const QString &val = qualityVal.value();
-        if (val == QStringLiteral("Low")) {
-            m_audioQuality = AudioQuality::Low;
-        } else if (val == QStringLiteral("Standard")) {
-            m_audioQuality = AudioQuality::Standard;
-        } else if (val == QStringLiteral("Lossless")) {
-            m_audioQuality = AudioQuality::Lossless;
-        } else {
-            m_audioQuality = AudioQuality::High;
+    try {
+        auto themeVal = m_settingsRepo->get(QStringLiteral("theme"));
+        if (themeVal.has_value()) {
+            m_theme = themeVal.value();
+            Q_EMIT themeChanged();
         }
-        Q_EMIT audioQualityChanged();
+    } catch (const std::exception &ex) {
+        qWarning() << "Failed to load theme setting:" << ex.what();
     }
 
-    auto pathVal = m_settingsRepo->get(QStringLiteral("downloadPath"));
-    if (pathVal.has_value()) {
-        m_downloadPath = pathVal.value();
-        Q_EMIT downloadPathChanged();
+    try {
+        auto qualityVal = m_settingsRepo->get(QStringLiteral("audioQuality"));
+        if (qualityVal.has_value()) {
+            const QString &val = qualityVal.value();
+            if (val == QStringLiteral("Low")) {
+                m_audioQuality = AudioQuality::Low;
+            } else if (val == QStringLiteral("Standard")) {
+                m_audioQuality = AudioQuality::Standard;
+            } else if (val == QStringLiteral("Lossless")) {
+                m_audioQuality = AudioQuality::Lossless;
+            } else {
+                m_audioQuality = AudioQuality::High;
+            }
+            Q_EMIT audioQualityChanged();
+        }
+    } catch (const std::exception &ex) {
+        qWarning() << "Failed to load audioQuality setting:" << ex.what();
+    }
+
+    try {
+        auto pathVal = m_settingsRepo->get(QStringLiteral("downloadPath"));
+        if (pathVal.has_value()) {
+            m_downloadPath = pathVal.value();
+            Q_EMIT downloadPathChanged();
+        }
+    } catch (const std::exception &ex) {
+        qWarning() << "Failed to load downloadPath setting:" << ex.what();
     }
 }
 
@@ -100,7 +112,11 @@ void SettingsViewModel::setTheme(const QString &theme)
     }
 
     m_theme = theme;
-    m_settingsRepo->set(QStringLiteral("theme"), theme);
+    try {
+        m_settingsRepo->set(QStringLiteral("theme"), theme);
+    } catch (const std::exception &ex) {
+        qWarning() << "Failed to save theme setting:" << ex.what();
+    }
     Q_EMIT themeChanged();
 }
 
@@ -126,7 +142,11 @@ void SettingsViewModel::setAudioQuality(AudioQuality quality)
             qualityStr = QStringLiteral("Lossless");
             break;
     }
-    m_settingsRepo->set(QStringLiteral("audioQuality"), qualityStr);
+    try {
+        m_settingsRepo->set(QStringLiteral("audioQuality"), qualityStr);
+    } catch (const std::exception &ex) {
+        qWarning() << "Failed to save audioQuality setting:" << ex.what();
+    }
     Q_EMIT audioQualityChanged();
 }
 
@@ -136,7 +156,11 @@ void SettingsViewModel::setDownloadPath(const QString &path)
         return;
     }
     m_downloadPath = path;
-    m_settingsRepo->set(QStringLiteral("downloadPath"), path);
+    try {
+        m_settingsRepo->set(QStringLiteral("downloadPath"), path);
+    } catch (const std::exception &ex) {
+        qWarning() << "Failed to save downloadPath setting:" << ex.what();
+    }
     Q_EMIT downloadPathChanged();
 }
 
