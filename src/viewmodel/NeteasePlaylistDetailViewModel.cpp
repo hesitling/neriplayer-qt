@@ -155,6 +155,15 @@ QCoro::Task<void> NeteasePlaylistDetailViewModel::loadAlbumImpl(const QString &a
     }
 
     const QVector<Song> &songs = result.data();
+
+    // Extract album metadata from first song if available
+    if (!songs.isEmpty()) {
+        m_headerName = songs.first().album;
+        m_headerCoverUrl = songs.first().coverUrl.toString();
+        Q_EMIT headerNameChanged();
+        Q_EMIT headerCoverUrlChanged();
+    }
+
     m_headerTrackCount = songs.size();
     Q_EMIT headerTrackCountChanged();
 
