@@ -47,14 +47,14 @@
 
 ## 9. Service Wiring
 
-- [ ] 9.1 Update `NeriPlayerApplication.cpp` — register all 5 repositories in ServiceLocator after DatabaseManager
-- [ ] 9.2 Update `CMakeLists.txt` — add all new repo source and header files to SOURCES and HEADERS
+- [x] 9.1 Update `NeriPlayerApplication.cpp` — register all 5 repositories in ServiceLocator after DatabaseManager
+- [x] 9.2 Update `CMakeLists.txt` — add all new repo source and header files to SOURCES and HEADERS
 
 ## 10. Tests
 
-- [ ] 10.1 Create `tests/repo/TestSongRepository.cpp` — test save/load round-trip, findById, findByIds, findByPlatform, search, remove, exists
-- [ ] 10.2 Create `tests/repo/TestSettingsRepository.cpp` — test get, set, remove, getAll, getBool, getInt
-- [ ] 10.3 Create `tests/repo/TestPlayHistoryRepository.cpp` — test record, recent ordering, clear, remove, playCount
-- [ ] 10.4 Create `tests/repo/TestPlaylistRepository.cpp` — test create, findById with songs, addSong, removeSong, reorderSongs, remove
-- [ ] 10.5 Create `tests/repo/TestPlayerStateRepository.cpp` — test save/load round-trip, singleton behavior, clear
-- [ ] 10.6 Add test executables to CMakeLists.txt for all 5 repository tests
+- [x] 10.1 Create `tests/repo/TestSongRepository.cpp` — test save/load round-trip, findById, findByIds, findByPlatform, search, remove, exists
+- [x] 10.2 Create `tests/repo/TestSettingsRepository.cpp` — test get, set, remove, getAll, getBool, getInt
+- [x] 10.3 Create `tests/repo/TestPlayHistoryRepository.cpp` — test record, recent ordering, clear, remove, playCount
+- [x] 10.4 Create `tests/repo/TestPlaylistRepository.cpp` — test create, findById with songs, addSong, removeSong, reorderSongs, remove
+- [x] 10.5 Create `tests/repo/TestPlayerStateRepository.cpp` — test save/load round-trip, singleton behavior, clear
+- [x] 10.6 Add test executables to CMakeLists.txt for all 5 repository tests
