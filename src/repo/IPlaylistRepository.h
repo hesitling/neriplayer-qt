@@ -8,6 +8,7 @@
 #include "domain/PlaylistSummary.h"
 
 #include <QString>
+#include <QStringList>
 #include <QVector>
 
 #include <optional>
