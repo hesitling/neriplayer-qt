@@ -15,9 +15,15 @@ PlayHistoryRepository::PlayHistoryRepository(DatabaseManager *db)
 
 void PlayHistoryRepository::record(const QString &songId)
 {
-    m_db->exec("INSERT INTO play_history (song_id) VALUES (?)", { songId });
-
-    m_db->exec("UPDATE songs_cache SET last_played_at = CURRENT_TIMESTAMP WHERE id = ?", { songId });
+    m_db->beginTransaction();
+    try {
+        m_db->exec("INSERT INTO play_history (song_id) VALUES (?)", { songId });
+        m_db->exec("UPDATE songs_cache SET last_played_at = CURRENT_TIMESTAMP WHERE id = ?", { songId });
+        m_db->commitTransaction();
+    } catch (...) {
+        try { m_db->rollbackTransaction(); } catch (...) {}
+        throw;
+    }
 }
 
 QVector<Song> PlayHistoryRepository::recent(int limit)
