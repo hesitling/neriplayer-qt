@@ -4,8 +4,8 @@
 #include "player/backends/QtMultimediaBackend.h"
 
 #include <QSignalSpy>
-#include <QTest>
 #include <QTemporaryDir>
+#include <QTest>
 
 using namespace NeriPlayerQt;
 

@@ -1,8 +1,8 @@
 /// @file TestPlaybackController.cpp
 /// @brief Unit tests for PlaybackController with mock backend
 
-#include "player/PlaybackController.h"
 #include "player/IPlayerBackend.h"
+#include "player/PlaybackController.h"
 
 #include <QCoroTask>
 #include <QSignalSpy>
@@ -55,17 +55,44 @@ public:
         Q_EMIT positionChanged(positionMs);
     }
 
-    PlaybackState state() const override { return m_currentState; }
-    qint64 positionMs() const override { return m_position; }
-    qint64 durationMs() const override { return m_duration; }
-    bool isSeekable() const override { return true; }
+    PlaybackState state() const override
+    {
+        return m_currentState;
+    }
+    qint64 positionMs() const override
+    {
+        return m_position;
+    }
+    qint64 durationMs() const override
+    {
+        return m_duration;
+    }
+    bool isSeekable() const override
+    {
+        return true;
+    }
 
-    void setVolume(double normalized) override { m_volume = normalized; }
-    double volume() const override { return m_volume; }
-    void setMuted(bool muted) override { m_muted = muted; }
-    bool isMuted() const override { return m_muted; }
+    void setVolume(double normalized) override
+    {
+        m_volume = normalized;
+    }
+    double volume() const override
+    {
+        return m_volume;
+    }
+    void setMuted(bool muted) override
+    {
+        m_muted = muted;
+    }
+    bool isMuted() const override
+    {
+        return m_muted;
+    }
 
-    QString backendName() const override { return QStringLiteral("Mock"); }
+    QString backendName() const override
+    {
+        return QStringLiteral("Mock");
+    }
 
     // Test helpers
     QUrl m_lastLoadedUrl;
@@ -95,11 +122,20 @@ public:
         return std::nullopt;
     }
 
-    void set(const QString &key, const QString &value) override { m_settings[key] = value; }
+    void set(const QString &key, const QString &value) override
+    {
+        m_settings[key] = value;
+    }
 
-    void remove(const QString &key) override { m_settings.remove(key); }
+    void remove(const QString &key) override
+    {
+        m_settings.remove(key);
+    }
 
-    QVariantMap getAll() override { return m_settings; }
+    QVariantMap getAll() override
+    {
+        return m_settings;
+    }
 
     bool getBool(const QString &key, bool defaultValue) override
     {
@@ -129,11 +165,20 @@ public:
  */
 class MockPlayerStateRepository : public IPlayerStateRepository {
 public:
-    void save(const PersistedPlayerState &state) override { m_savedState = state; }
+    void save(const PersistedPlayerState &state) override
+    {
+        m_savedState = state;
+    }
 
-    std::optional<PersistedPlayerState> load() override { return m_savedState; }
+    std::optional<PersistedPlayerState> load() override
+    {
+        return m_savedState;
+    }
 
-    void clear() override { m_savedState.reset(); }
+    void clear() override
+    {
+        m_savedState.reset();
+    }
 
     std::optional<PersistedPlayerState> m_savedState;
 };
@@ -165,11 +210,9 @@ private Q_SLOTS:
         m_backend = new MockBackend();
         m_settingsRepo = new MockSettingsRepository();
         m_playerStateRepo = new MockPlayerStateRepository();
-        m_controller = std::make_unique<PlaybackController>(
-            std::unique_ptr<IPlayerBackend>(m_backend),
-            nullptr, // No platform plugin for basic tests
-            m_playerStateRepo,
-            m_settingsRepo);
+        m_controller = std::make_unique<PlaybackController>(std::unique_ptr<IPlayerBackend>(m_backend),
+                                                            nullptr, // No platform plugin for basic tests
+                                                            m_playerStateRepo, m_settingsRepo);
     }
 
     void cleanup()
@@ -185,9 +228,8 @@ private Q_SLOTS:
 
         // Create a fresh controller to test constructor behavior
         auto *backend = new MockBackend();
-        auto controller = std::make_unique<PlaybackController>(
-            std::unique_ptr<IPlayerBackend>(backend),
-            nullptr, m_playerStateRepo, m_settingsRepo);
+        auto controller = std::make_unique<PlaybackController>(std::unique_ptr<IPlayerBackend>(backend), nullptr,
+                                                               m_playerStateRepo, m_settingsRepo);
 
         QCOMPARE(backend->volume(), 0.75);
     }
@@ -197,9 +239,8 @@ private Q_SLOTS:
         m_settingsRepo->set(QStringLiteral("player/muted"), QStringLiteral("true"));
 
         auto *backend = new MockBackend();
-        auto controller = std::make_unique<PlaybackController>(
-            std::unique_ptr<IPlayerBackend>(backend),
-            nullptr, m_playerStateRepo, m_settingsRepo);
+        auto controller = std::make_unique<PlaybackController>(std::unique_ptr<IPlayerBackend>(backend), nullptr,
+                                                               m_playerStateRepo, m_settingsRepo);
 
         QVERIFY(backend->isMuted());
     }

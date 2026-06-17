@@ -110,18 +110,18 @@ void QtMultimediaBackend::connectSignals()
     connect(m_player.get(), &QMediaPlayer::playbackStateChanged, this, [this](QMediaPlayer::PlaybackState qsState) {
         PlaybackState newState;
         switch (qsState) {
-        case QMediaPlayer::PlayingState:
-            newState = PlaybackState::Playing;
-            break;
-        case QMediaPlayer::PausedState:
-            newState = PlaybackState::Paused;
-            break;
-        case QMediaPlayer::StoppedState:
-            newState = PlaybackState::Stopped;
-            break;
-        default:
-            newState = PlaybackState::Stopped;
-            break;
+            case QMediaPlayer::PlayingState:
+                newState = PlaybackState::Playing;
+                break;
+            case QMediaPlayer::PausedState:
+                newState = PlaybackState::Paused;
+                break;
+            case QMediaPlayer::StoppedState:
+                newState = PlaybackState::Stopped;
+                break;
+            default:
+                newState = PlaybackState::Stopped;
+                break;
         }
         if (m_cachedState != newState) {
             m_cachedState = newState;
@@ -155,16 +155,16 @@ void QtMultimediaBackend::connectSignals()
 void QtMultimediaBackend::updateCachedState()
 {
     switch (m_player->playbackState()) {
-    case QMediaPlayer::PlayingState:
-        m_cachedState = PlaybackState::Playing;
-        break;
-    case QMediaPlayer::PausedState:
-        m_cachedState = PlaybackState::Paused;
-        break;
-    case QMediaPlayer::StoppedState:
-    default:
-        m_cachedState = PlaybackState::Stopped;
-        break;
+        case QMediaPlayer::PlayingState:
+            m_cachedState = PlaybackState::Playing;
+            break;
+        case QMediaPlayer::PausedState:
+            m_cachedState = PlaybackState::Paused;
+            break;
+        case QMediaPlayer::StoppedState:
+        default:
+            m_cachedState = PlaybackState::Stopped;
+            break;
     }
 }
 

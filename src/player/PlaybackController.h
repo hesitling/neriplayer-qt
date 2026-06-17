@@ -41,10 +41,8 @@ public:
      * @param settingsRepo Repository for settings persistence
      * @param parent QObject parent
      */
-    PlaybackController(std::unique_ptr<IPlayerBackend> backend,
-                       IMusicPlatformPlugin *plugin,
-                       IPlayerStateRepository *playerStateRepo,
-                       ISettingsRepository *settingsRepo,
+    PlaybackController(std::unique_ptr<IPlayerBackend> backend, IMusicPlatformPlugin *plugin,
+                       IPlayerStateRepository *playerStateRepo, ISettingsRepository *settingsRepo,
                        QObject *parent = nullptr);
     ~PlaybackController() override;
 

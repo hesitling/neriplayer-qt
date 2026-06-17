@@ -190,8 +190,8 @@ private Q_SLOTS:
         q.setSongs(makeSongs(3));
         q.setRepeatMode(RepeatMode::All);
 
-        q.next(); // 0 -> 1
-        q.next(); // 1 -> 2
+        q.next();             // 0 -> 1
+        q.next();             // 1 -> 2
         auto next = q.next(); // 2 -> 0
         QVERIFY(next.has_value());
         QCOMPARE(next->id, QStringLiteral("0"));
