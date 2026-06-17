@@ -8,6 +8,8 @@
 
 #include <QUuid>
 
+#include <optional>
+
 namespace NeriPlayerQt {
 
 class DatabaseManager;
