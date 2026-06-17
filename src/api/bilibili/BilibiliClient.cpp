@@ -24,13 +24,13 @@ static ApiError extractApiError(const QByteArray &body, int httpStatus)
     QJsonParseError err;
     auto doc = QJsonDocument::fromJson(body, &err);
     if (err.error != QJsonParseError::NoError)
-        return ApiError{httpStatus, QStringLiteral("HTTP %1").arg(httpStatus)};
+        return ApiError {httpStatus, QStringLiteral("HTTP %1").arg(httpStatus)};
     auto root = doc.object();
     int code = root.value("code").toInt(httpStatus);
     QString msg = root.value("message").toString();
     if (msg.isEmpty())
         msg = QStringLiteral("HTTP %1").arg(httpStatus);
-    return ApiError{code, msg};
+    return ApiError {code, msg};
 }
 
 static const QString BASE_API = "https://api.bilibili.com";
@@ -49,22 +49,20 @@ static const QString URL_FAV_RESOURCE = BASE_API + "/x/v3/fav/resource/list";
 static const QString URL_FAV_DEAL = BASE_API + "/x/v3/fav/resource/deal";
 static const QString URL_HOT_SEARCH = BASE_API + "/search/hot";
 
-static const QByteArray DEFAULT_UA =
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
-    "(KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36";
+static const QByteArray DEFAULT_UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
+                                     "(KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36";
 static const QByteArray DEFAULT_REFERER = "https://www.bilibili.com";
 
-static const int MIXIN_INDEX[] = {
-    46, 47, 18,  2, 53,  8, 23, 32, 15, 50, 10, 31, 58,  3, 45, 35,
-    27, 43,  5, 49, 33,  9, 42, 19, 29, 28, 14, 39, 12, 38, 41, 13,
-    37, 48,  7, 16, 24, 55, 40, 61, 26, 17,  0,  1, 60, 51, 30,  4,
-    22, 25, 54, 21, 56, 62,  6, 63, 57, 20, 34, 52, 59, 11, 36, 44
-};
+static const int MIXIN_INDEX[] = {46, 47, 18, 2,  53, 8,  23, 32, 15, 50, 10, 31, 58, 3,  45, 35, 27, 43, 5,  49, 33, 9,
+                                  42, 19, 29, 28, 14, 39, 12, 38, 41, 13, 37, 48, 7,  16, 24, 55, 40, 61, 26, 17, 0,  1,
+                                  60, 51, 30, 4,  22, 25, 54, 21, 56, 62, 6,  63, 57, 20, 34, 52, 59, 11, 36, 44};
 
 // ==================== Constructor ====================
 
 BilibiliClient::BilibiliClient(HttpClient *httpClient, SecureStorage *secureStorage, QObject *parent)
-    : QObject(parent), m_httpClient(httpClient), m_secureStorage(secureStorage)
+    : QObject(parent)
+    , m_httpClient(httpClient)
+    , m_secureStorage(secureStorage)
 {
     loadCookies();
 }
@@ -199,8 +197,7 @@ QCoro::Task<QString> BilibiliClient::signWbiParams(QUrlQuery params)
     QString mixinKey = co_await getMixinKey();
     params.addQueryItem("wts", QString::number(QDateTime::currentSecsSinceEpoch()));
     auto items = params.queryItems(QUrl::FullyDecoded);
-    std::sort(items.begin(), items.end(),
-              [](const auto &a, const auto &b) { return a.first < b.first; });
+    std::sort(items.begin(), items.end(), [](const auto &a, const auto &b) { return a.first < b.first; });
     QString sorted;
     for (int i = 0; i < items.size(); ++i) {
         const QString &key = items[i].first;
@@ -217,8 +214,8 @@ QCoro::Task<QString> BilibiliClient::signWbiParams(QUrlQuery params)
 
 // ==================== IMusicPlatformPlugin ====================
 
-QCoro::Task<ApiResult<SearchResult>> BilibiliClient::search(
-    const QString &keyword, SearchType type, int limit, int offset)
+QCoro::Task<ApiResult<SearchResult>> BilibiliClient::search(const QString &keyword, SearchType type, int limit,
+                                                            int offset)
 {
     int page = (offset / limit) + 1;
     auto result = co_await searchVideos(keyword, page);
@@ -258,15 +255,14 @@ QCoro::Task<ApiResult<Song>> BilibiliClient::getSongDetail(const QString &songId
     co_return ApiResult<Song>(song);
 }
 
-QCoro::Task<ApiResult<SongUrlResult>> BilibiliClient::getSongUrl(
-    const QString &songId, AudioQuality quality)
+QCoro::Task<ApiResult<SongUrlResult>> BilibiliClient::getSongUrl(const QString &songId, AudioQuality quality)
 {
     auto detailResult = co_await getVideoDetail(songId);
     if (detailResult.isError())
         co_return ApiResult<SongUrlResult>(detailResult.error());
     const auto &detail = detailResult.data();
     if (detail.pages.isEmpty())
-        co_return ApiResult<SongUrlResult>(ApiError{404, QStringLiteral("视频无分P")});
+        co_return ApiResult<SongUrlResult>(ApiError {404, QStringLiteral("视频无分P")});
     int cid = detail.pages.first().cid;
     auto streamResult = co_await getAudioStream(songId, cid);
     if (streamResult.isError())
@@ -285,7 +281,7 @@ QCoro::Task<ApiResult<SongUrlResult>> BilibiliClient::getSongUrl(
 
 QCoro::Task<ApiResult<Lyrics>> BilibiliClient::getLyrics(const QString &songId)
 {
-    co_return ApiResult<Lyrics>(ApiError{404, QStringLiteral("Bilibili 不支持歌词")});
+    co_return ApiResult<Lyrics>(ApiError {404, QStringLiteral("Bilibili 不支持歌词")});
 }
 
 bool BilibiliClient::isAuthenticated() const
@@ -304,10 +300,10 @@ QCoro::Task<ApiResult<QrCodeData>> BilibiliClient::generateQrCode()
 {
     auto resp = co_await m_httpClient->get(buildRequest(QUrl(URL_QR_LOGIN)));
     if (!resp.isSuccess())
-        co_return ApiResult<QrCodeData>(ApiError{resp.statusCode, QStringLiteral("获取二维码失败")});
+        co_return ApiResult<QrCodeData>(ApiError {resp.statusCode, QStringLiteral("获取二维码失败")});
     auto qr = BilibiliParser::parseQrCodeData(resp.body);
     if (!qr)
-        co_return ApiResult<QrCodeData>(ApiError{-1, QStringLiteral("解析二维码失败")});
+        co_return ApiResult<QrCodeData>(ApiError {-1, QStringLiteral("解析二维码失败")});
     co_return ApiResult<QrCodeData>(*qr);
 }
 
@@ -319,10 +315,10 @@ QCoro::Task<ApiResult<BiliLoginPollResult>> BilibiliClient::checkQrCodeStatus(co
     url.setQuery(params);
     auto resp = co_await m_httpClient->get(buildRequest(url));
     if (!resp.isSuccess())
-        co_return ApiResult<BiliLoginPollResult>(ApiError{resp.statusCode, QStringLiteral("查询登录状态失败")});
+        co_return ApiResult<BiliLoginPollResult>(ApiError {resp.statusCode, QStringLiteral("查询登录状态失败")});
     auto result = BilibiliParser::parseLoginPollResult(resp.body);
     if (!result)
-        co_return ApiResult<BiliLoginPollResult>(ApiError{-1, QStringLiteral("解析登录结果失败")});
+        co_return ApiResult<BiliLoginPollResult>(ApiError {-1, QStringLiteral("解析登录结果失败")});
     if (result->status == BiliQrCodeStatus::Confirmed) {
         // Extract cookies from Set-Cookie headers
         for (const auto &header : resp.headers) {
@@ -334,8 +330,8 @@ QCoro::Task<ApiResult<BiliLoginPollResult>> BilibiliClient::checkQrCodeStatus(co
                 if (eqIdx > 0) {
                     QString name = nameValue.left(eqIdx).trimmed();
                     QString value = nameValue.mid(eqIdx + 1).trimmed();
-                    if (name == "SESSDATA" || name == "bili_jct" ||
-                        name == "DedeUserID" || name == "DedeUserID__ckMd5") {
+                    if (name == "SESSDATA" || name == "bili_jct" || name == "DedeUserID"
+                        || name == "DedeUserID__ckMd5") {
                         m_cookies[name] = value;
                     }
                 }
@@ -355,17 +351,17 @@ QCoro::Task<ApiResult<VoidResult>> BilibiliClient::logout()
     m_authenticated = false;
     saveCookies(); // Clear persisted cookies
     emit loginStateChanged(false);
-    co_return ApiResult<VoidResult>(VoidResult{});
+    co_return ApiResult<VoidResult>(VoidResult {});
 }
 
 QCoro::Task<ApiResult<BiliUserProfile>> BilibiliClient::getUserProfile()
 {
     auto resp = co_await apiGet(URL_NAV);
     if (!resp.isSuccess())
-        co_return ApiResult<BiliUserProfile>(ApiError{resp.statusCode, QStringLiteral("获取用户信息失败")});
+        co_return ApiResult<BiliUserProfile>(ApiError {resp.statusCode, QStringLiteral("获取用户信息失败")});
     auto profile = BilibiliParser::parseUserProfile(resp.body);
     if (!profile)
-        co_return ApiResult<BiliUserProfile>(ApiError{-1, QStringLiteral("解析用户信息失败")});
+        co_return ApiResult<BiliUserProfile>(ApiError {-1, QStringLiteral("解析用户信息失败")});
     co_return ApiResult<BiliUserProfile>(*profile);
 }
 
@@ -380,10 +376,10 @@ QCoro::Task<ApiResult<BiliSearchVideoPage>> BilibiliClient::searchVideos(const Q
     params.addQueryItem("page", QString::number(page));
     auto resp = co_await apiGet(URL_SEARCH, params, true);
     if (!resp.isSuccess())
-        co_return ApiResult<BiliSearchVideoPage>(ApiError{resp.statusCode, QStringLiteral("搜索失败")});
+        co_return ApiResult<BiliSearchVideoPage>(ApiError {resp.statusCode, QStringLiteral("搜索失败")});
     auto result = BilibiliParser::parseSearchVideoPage(resp.body);
     if (!result)
-        co_return ApiResult<BiliSearchVideoPage>(ApiError{-1, QStringLiteral("解析搜索结果失败")});
+        co_return ApiResult<BiliSearchVideoPage>(ApiError {-1, QStringLiteral("解析搜索结果失败")});
     co_return ApiResult<BiliSearchVideoPage>(*result);
 }
 
@@ -391,10 +387,10 @@ QCoro::Task<ApiResult<QStringList>> BilibiliClient::getHotSearches()
 {
     auto resp = co_await m_httpClient->get(buildRequest(QUrl(URL_HOT_SEARCH)));
     if (!resp.isSuccess())
-        co_return ApiResult<QStringList>(ApiError{resp.statusCode, QStringLiteral("获取热搜失败")});
+        co_return ApiResult<QStringList>(ApiError {resp.statusCode, QStringLiteral("获取热搜失败")});
     auto hot = BilibiliParser::parseHotSearches(resp.body);
     if (!hot)
-        co_return ApiResult<QStringList>(ApiError{-1, QStringLiteral("解析热搜失败")});
+        co_return ApiResult<QStringList>(ApiError {-1, QStringLiteral("解析热搜失败")});
     co_return ApiResult<QStringList>(*hot);
 }
 
@@ -406,10 +402,10 @@ QCoro::Task<ApiResult<BiliVideoDetail>> BilibiliClient::getVideoDetail(const QSt
     params.addQueryItem("bvid", bvid);
     auto resp = co_await apiGet(URL_VIEW, params, true);
     if (!resp.isSuccess())
-        co_return ApiResult<BiliVideoDetail>(ApiError{resp.statusCode, QStringLiteral("获取视频详情失败")});
+        co_return ApiResult<BiliVideoDetail>(ApiError {resp.statusCode, QStringLiteral("获取视频详情失败")});
     auto detail = BilibiliParser::parseVideoDetail(resp.body);
     if (!detail)
-        co_return ApiResult<BiliVideoDetail>(ApiError{-1, QStringLiteral("解析视频详情失败")});
+        co_return ApiResult<BiliVideoDetail>(ApiError {-1, QStringLiteral("解析视频详情失败")});
     co_return ApiResult<BiliVideoDetail>(*detail);
 }
 
@@ -419,10 +415,10 @@ QCoro::Task<ApiResult<BiliVideoDetail>> BilibiliClient::getVideoDetail(int avid)
     params.addQueryItem("aid", QString::number(avid));
     auto resp = co_await apiGet(URL_VIEW, params, true);
     if (!resp.isSuccess())
-        co_return ApiResult<BiliVideoDetail>(ApiError{resp.statusCode, QStringLiteral("获取视频详情失败")});
+        co_return ApiResult<BiliVideoDetail>(ApiError {resp.statusCode, QStringLiteral("获取视频详情失败")});
     auto detail = BilibiliParser::parseVideoDetail(resp.body);
     if (!detail)
-        co_return ApiResult<BiliVideoDetail>(ApiError{-1, QStringLiteral("解析视频详情失败")});
+        co_return ApiResult<BiliVideoDetail>(ApiError {-1, QStringLiteral("解析视频详情失败")});
     co_return ApiResult<BiliVideoDetail>(*detail);
 }
 
@@ -432,15 +428,15 @@ QCoro::Task<ApiResult<QList<BiliVideoPage>>> BilibiliClient::getVideoPages(const
     params.addQueryItem("bvid", bvid);
     auto resp = co_await apiGet(URL_PAGELIST, params);
     if (!resp.isSuccess())
-        co_return ApiResult<QList<BiliVideoPage>>(ApiError{resp.statusCode, QStringLiteral("获取分P列表失败")});
+        co_return ApiResult<QList<BiliVideoPage>>(ApiError {resp.statusCode, QStringLiteral("获取分P列表失败")});
     auto pages = BilibiliParser::parseVideoPages(resp.body);
     if (!pages)
-        co_return ApiResult<QList<BiliVideoPage>>(ApiError{-1, QStringLiteral("解析分P列表失败")});
+        co_return ApiResult<QList<BiliVideoPage>>(ApiError {-1, QStringLiteral("解析分P列表失败")});
     co_return ApiResult<QList<BiliVideoPage>>(*pages);
 }
 
-QCoro::Task<ApiResult<BiliVideoStream>> BilibiliClient::getVideoStream(
-    const QString &bvid, int cid, BiliVideoQuality quality)
+QCoro::Task<ApiResult<BiliVideoStream>> BilibiliClient::getVideoStream(const QString &bvid, int cid,
+                                                                       BiliVideoQuality quality)
 {
     QUrlQuery params;
     params.addQueryItem("bvid", bvid);
@@ -451,10 +447,10 @@ QCoro::Task<ApiResult<BiliVideoStream>> BilibiliClient::getVideoStream(
     params.addQueryItem("otype", "json");
     auto resp = co_await apiGet(URL_PLAYURL, params, true);
     if (!resp.isSuccess())
-        co_return ApiResult<BiliVideoStream>(ApiError{resp.statusCode, QStringLiteral("获取播放地址失败")});
+        co_return ApiResult<BiliVideoStream>(ApiError {resp.statusCode, QStringLiteral("获取播放地址失败")});
     auto stream = BilibiliParser::parseVideoStream(resp.body);
     if (!stream)
-        co_return ApiResult<BiliVideoStream>(ApiError{-1, QStringLiteral("解析播放地址失败")});
+        co_return ApiResult<BiliVideoStream>(ApiError {-1, QStringLiteral("解析播放地址失败")});
     co_return ApiResult<BiliVideoStream>(*stream);
 }
 
@@ -465,7 +461,7 @@ QCoro::Task<ApiResult<BiliAudioStream>> BilibiliClient::getAudioStream(const QSt
         co_return ApiResult<BiliAudioStream>(streamResult.error());
     const auto &stream = streamResult.data();
     if (stream.audios.isEmpty())
-        co_return ApiResult<BiliAudioStream>(ApiError{404, QStringLiteral("无可用音频流")});
+        co_return ApiResult<BiliAudioStream>(ApiError {404, QStringLiteral("无可用音频流")});
     // Sort by quality (highest first), then by bandwidth
     auto audios = stream.audios;
     std::sort(audios.begin(), audios.end(), [](const BiliAudioStream &a, const BiliAudioStream &b) {
@@ -484,10 +480,10 @@ QCoro::Task<ApiResult<QList<BiliFavoriteList>>> BilibiliClient::getUserFavorites
     params.addQueryItem("up_mid", QString::number(mid));
     auto resp = co_await apiGet(URL_FAV_LIST, params);
     if (!resp.isSuccess())
-        co_return ApiResult<QList<BiliFavoriteList>>(ApiError{resp.statusCode, QStringLiteral("获取收藏夹失败")});
+        co_return ApiResult<QList<BiliFavoriteList>>(ApiError {resp.statusCode, QStringLiteral("获取收藏夹失败")});
     auto lists = BilibiliParser::parseFavoriteList(resp.body);
     if (!lists)
-        co_return ApiResult<QList<BiliFavoriteList>>(ApiError{-1, QStringLiteral("解析收藏夹失败")});
+        co_return ApiResult<QList<BiliFavoriteList>>(ApiError {-1, QStringLiteral("解析收藏夹失败")});
     co_return ApiResult<QList<BiliFavoriteList>>(*lists);
 }
 
@@ -510,10 +506,10 @@ QCoro::Task<ApiResult<BiliFavoriteDetail>> BilibiliClient::getFavoriteDetail(int
     params.addQueryItem("order", "mtime");
     auto resp = co_await apiGet(URL_FAV_RESOURCE, params);
     if (!resp.isSuccess())
-        co_return ApiResult<BiliFavoriteDetail>(ApiError{resp.statusCode, QStringLiteral("获取收藏夹内容失败")});
+        co_return ApiResult<BiliFavoriteDetail>(ApiError {resp.statusCode, QStringLiteral("获取收藏夹内容失败")});
     auto detail = BilibiliParser::parseFavoriteDetail(resp.body, folderInfo);
     if (!detail)
-        co_return ApiResult<BiliFavoriteDetail>(ApiError{-1, QStringLiteral("解析收藏夹内容失败")});
+        co_return ApiResult<BiliFavoriteDetail>(ApiError {-1, QStringLiteral("解析收藏夹内容失败")});
     co_return ApiResult<BiliFavoriteDetail>(*detail);
 }
 
@@ -526,11 +522,11 @@ QCoro::Task<ApiResult<VoidResult>> BilibiliClient::addVideoToFavorite(int mediaI
     form.addQueryItem("del_media_ids", "");
     auto resp = co_await apiPost(URL_FAV_DEAL, form);
     if (!resp.isSuccess())
-        co_return ApiResult<VoidResult>(ApiError{resp.statusCode, QStringLiteral("添加收藏失败")});
+        co_return ApiResult<VoidResult>(ApiError {resp.statusCode, QStringLiteral("添加收藏失败")});
     auto root = QJsonDocument::fromJson(resp.body).object();
     if (root.value("code").toInt(-1) != 0)
-        co_return ApiResult<VoidResult>(ApiError{root.value("code").toInt(), root.value("message").toString()});
-    co_return ApiResult<VoidResult>(VoidResult{});
+        co_return ApiResult<VoidResult>(ApiError {root.value("code").toInt(), root.value("message").toString()});
+    co_return ApiResult<VoidResult>(VoidResult {});
 }
 
 QCoro::Task<ApiResult<VoidResult>> BilibiliClient::removeVideoFromFavorite(int mediaId, int avid)
@@ -542,11 +538,11 @@ QCoro::Task<ApiResult<VoidResult>> BilibiliClient::removeVideoFromFavorite(int m
     form.addQueryItem("del_media_ids", QString::number(mediaId));
     auto resp = co_await apiPost(URL_FAV_DEAL, form);
     if (!resp.isSuccess())
-        co_return ApiResult<VoidResult>(ApiError{resp.statusCode, QStringLiteral("取消收藏失败")});
+        co_return ApiResult<VoidResult>(ApiError {resp.statusCode, QStringLiteral("取消收藏失败")});
     auto root = QJsonDocument::fromJson(resp.body).object();
     if (root.value("code").toInt(-1) != 0)
-        co_return ApiResult<VoidResult>(ApiError{root.value("code").toInt(), root.value("message").toString()});
-    co_return ApiResult<VoidResult>(VoidResult{});
+        co_return ApiResult<VoidResult>(ApiError {root.value("code").toInt(), root.value("message").toString()});
+    co_return ApiResult<VoidResult>(VoidResult {});
 }
 
 } // namespace NeriPlayerQt

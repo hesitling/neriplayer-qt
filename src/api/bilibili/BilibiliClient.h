@@ -27,16 +27,13 @@ class BilibiliClient : public QObject, public IMusicPlatformPlugin {
     Q_OBJECT
 
 public:
-    explicit BilibiliClient(HttpClient *httpClient,
-                            SecureStorage *secureStorage = nullptr,
-                            QObject *parent = nullptr);
+    explicit BilibiliClient(HttpClient *httpClient, SecureStorage *secureStorage = nullptr, QObject *parent = nullptr);
 
     // ==================== IMusicPlatformPlugin ====================
-    QCoro::Task<ApiResult<SearchResult>> search(const QString &keyword, SearchType type,
-                                                int limit, int offset) override;
+    QCoro::Task<ApiResult<SearchResult>> search(const QString &keyword, SearchType type, int limit,
+                                                int offset) override;
     QCoro::Task<ApiResult<Song>> getSongDetail(const QString &songId) override;
-    QCoro::Task<ApiResult<SongUrlResult>> getSongUrl(const QString &songId,
-                                                     AudioQuality quality) override;
+    QCoro::Task<ApiResult<SongUrlResult>> getSongUrl(const QString &songId, AudioQuality quality) override;
     QCoro::Task<ApiResult<Lyrics>> getLyrics(const QString &songId) override;
     bool isAuthenticated() const override;
     QString platformName() const override;
@@ -82,11 +79,8 @@ private:
 
     // Request helpers
     QNetworkRequest buildRequest(const QUrl &url) const;
-    QCoro::Task<HttpResponse> apiGet(const QString &baseUrl,
-                                     const QUrlQuery &params = {},
-                                     bool wbiSign = false);
-    QCoro::Task<HttpResponse> apiPost(const QString &baseUrl,
-                                      const QUrlQuery &formData);
+    QCoro::Task<HttpResponse> apiGet(const QString &baseUrl, const QUrlQuery &params = {}, bool wbiSign = false);
+    QCoro::Task<HttpResponse> apiPost(const QString &baseUrl, const QUrlQuery &formData);
 
     // Cookie state
     QMap<QString, QString> m_cookies;

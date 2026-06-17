@@ -15,14 +15,18 @@ static QJsonObject extractData(const QByteArray &json, int *outCode = nullptr, Q
     QJsonParseError err;
     auto doc = QJsonDocument::fromJson(json, &err);
     if (err.error != QJsonParseError::NoError) {
-        if (outCode) *outCode = -1;
-        if (outMessage) *outMessage = QStringLiteral("JSON parse error");
+        if (outCode)
+            *outCode = -1;
+        if (outMessage)
+            *outMessage = QStringLiteral("JSON parse error");
         return {};
     }
     auto root = doc.object();
     int code = root.value("code").toInt(-1);
-    if (outCode) *outCode = code;
-    if (outMessage) *outMessage = root.value("message").toString();
+    if (outCode)
+        *outCode = code;
+    if (outMessage)
+        *outMessage = root.value("message").toString();
     if (code != 0)
         return {};
     return root.value("data").toObject();
@@ -33,13 +37,17 @@ static QJsonObject extractRoot(const QByteArray &json, int *outCode = nullptr, Q
     QJsonParseError err;
     auto doc = QJsonDocument::fromJson(json, &err);
     if (err.error != QJsonParseError::NoError) {
-        if (outCode) *outCode = -1;
-        if (outMessage) *outMessage = QStringLiteral("JSON parse error");
+        if (outCode)
+            *outCode = -1;
+        if (outMessage)
+            *outMessage = QStringLiteral("JSON parse error");
         return {};
     }
     auto root = doc.object();
-    if (outCode) *outCode = root.value("code").toInt(-1);
-    if (outMessage) *outMessage = root.value("message").toString();
+    if (outCode)
+        *outCode = root.value("code").toInt(-1);
+    if (outMessage)
+        *outMessage = root.value("message").toString();
     return root;
 }
 
@@ -220,11 +228,16 @@ std::optional<BiliVideoStream> BilibiliParser::parseVideoStream(const QByteArray
             as.mimeType = aObj.value("mimeType").toString();
             as.codecs = aObj.value("codecs").toString();
             int qid = as.id;
-            if (qid >= 30280)      as.quality = BiliAudioQuality::HiRes;
-            else if (qid >= 30260) as.quality = BiliAudioQuality::Lossless;
-            else if (qid >= 30232) as.quality = BiliAudioQuality::High;
-            else if (qid >= 30216) as.quality = BiliAudioQuality::Medium;
-            else                   as.quality = BiliAudioQuality::Low;
+            if (qid >= 30280)
+                as.quality = BiliAudioQuality::HiRes;
+            else if (qid >= 30260)
+                as.quality = BiliAudioQuality::Lossless;
+            else if (qid >= 30232)
+                as.quality = BiliAudioQuality::High;
+            else if (qid >= 30216)
+                as.quality = BiliAudioQuality::Medium;
+            else
+                as.quality = BiliAudioQuality::Low;
             stream.audios.append(as);
         }
         auto videoArr = dash.value("video").toArray();
@@ -279,8 +292,8 @@ std::optional<QList<BiliFavoriteList>> BilibiliParser::parseFavoriteList(const Q
     return lists;
 }
 
-std::optional<BiliFavoriteDetail> BilibiliParser::parseFavoriteDetail(
-    const QByteArray &json, const BiliFavoriteList &folderInfo)
+std::optional<BiliFavoriteDetail> BilibiliParser::parseFavoriteDetail(const QByteArray &json,
+                                                                      const BiliFavoriteList &folderInfo)
 {
     auto data = extractData(json);
     if (data.isEmpty())
@@ -350,7 +363,7 @@ std::optional<BilibiliParser::FingerSpi> BilibiliParser::parseFingerSpi(const QB
     auto b4 = data.value("b_4").toString();
     if (b3.isEmpty())
         return std::nullopt;
-    return FingerSpi{b3, b4};
+    return FingerSpi {b3, b4};
 }
 
 } // namespace NeriPlayerQt

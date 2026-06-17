@@ -39,8 +39,8 @@ public:
     static std::optional<QList<BiliFavoriteList>> parseFavoriteList(const QByteArray &json);
 
     /// Parse favorite detail from /x/v3/fav/resource/list
-    static std::optional<BiliFavoriteDetail> parseFavoriteDetail(
-        const QByteArray &json, const BiliFavoriteList &folderInfo);
+    static std::optional<BiliFavoriteDetail> parseFavoriteDetail(const QByteArray &json,
+                                                                 const BiliFavoriteList &folderInfo);
 
     /// Parse hot searches from /search/hot
     static std::optional<QStringList> parseHotSearches(const QByteArray &json);

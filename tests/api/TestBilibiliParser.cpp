@@ -30,7 +30,8 @@ private Q_SLOTS:
 
 void TestBilibiliParser::testParseVideoDetail()
 {
-    QByteArray json = R"({"code":0,"data":{"aid":12345,"bvid":"BV1xx411c7mD","title":"Test Video","desc":"A test video","pic":"//i0.hdslb.com/test.jpg","duration":180,"pubdate":1700000000,"owner":{"name":"TestUP","mid":67890},"stat":{"view":1000,"danmaku":50,"like":100,"coin":30,"favorite":20,"share":10},"pages":[{"cid":111,"page":1,"part":"Part 1","duration":90},{"cid":222,"page":2,"part":"Part 2","duration":90}]}})";
+    QByteArray json
+        = R"({"code":0,"data":{"aid":12345,"bvid":"BV1xx411c7mD","title":"Test Video","desc":"A test video","pic":"//i0.hdslb.com/test.jpg","duration":180,"pubdate":1700000000,"owner":{"name":"TestUP","mid":67890},"stat":{"view":1000,"danmaku":50,"like":100,"coin":30,"favorite":20,"share":10},"pages":[{"cid":111,"page":1,"part":"Part 1","duration":90},{"cid":222,"page":2,"part":"Part 2","duration":90}]}})";
     auto result = BilibiliParser::parseVideoDetail(json);
     QVERIFY(result.has_value());
     QCOMPARE(result->avid, 12345);
@@ -46,7 +47,8 @@ void TestBilibiliParser::testParseVideoDetail()
 
 void TestBilibiliParser::testParseSearchVideoPage()
 {
-    QByteArray json = R"({"code":0,"data":{"numResults":100,"page":1,"numPages":5,"result":[{"aid":111,"bvid":"BV1test","title":"Test &amp; Search","author":"UP1","mid":123,"pic":"//img.example.com/cover.jpg","duration":"3:45","play":5000,"pubdate":1700000000}]}})";
+    QByteArray json
+        = R"({"code":0,"data":{"numResults":100,"page":1,"numPages":5,"result":[{"aid":111,"bvid":"BV1test","title":"Test &amp; Search","author":"UP1","mid":123,"pic":"//img.example.com/cover.jpg","duration":"3:45","play":5000,"pubdate":1700000000}]}})";
     auto result = BilibiliParser::parseSearchVideoPage(json);
     QVERIFY(result.has_value());
     QCOMPARE(result->totalCount, 100);
@@ -61,7 +63,8 @@ void TestBilibiliParser::testParseSearchVideoPage()
 
 // void TestBilibiliParser::testParseVideoStreamDash()
 // {
-//     QByteArray json = R"({"code":0,"data":{"dash":{"video":[{"id":80,"baseUrl":"https://video.example.com/1080p","backupUrl":["https://backup.example.com/1080p"],"bandwidth":2000000,"mimeType":"video/mp4","codecs":"avc1.640032","width":1920,"height":1080,"frameRate":"30","codecid":7}],"audio":[{"id":30280,"baseUrl":"https://audio.example.com/hires","backupUrl":[],"bandwidth":320000,"mimeType":"audio/mp4a-latm","codecs":"mp4a.40.2"}]}}}})";
+//     QByteArray json =
+//     R"({"code":0,"data":{"dash":{"video":[{"id":80,"baseUrl":"https://video.example.com/1080p","backupUrl":["https://backup.example.com/1080p"],"bandwidth":2000000,"mimeType":"video/mp4","codecs":"avc1.640032","width":1920,"height":1080,"frameRate":"30","codecid":7}],"audio":[{"id":30280,"baseUrl":"https://audio.example.com/hires","backupUrl":[],"bandwidth":320000,"mimeType":"audio/mp4a-latm","codecs":"mp4a.40.2"}]}}}})";
 //     auto result = BilibiliParser::parseVideoStream(json);
 //     QVERIFY(result.has_value());
 //     QVERIFY(result->isDash);
@@ -73,7 +76,8 @@ void TestBilibiliParser::testParseSearchVideoPage()
 
 void TestBilibiliParser::testParseFavoriteList()
 {
-    QByteArray json = R"({"code":0,"data":{"list":[{"id":100,"fid":200,"mid":300,"title":"My Favorites","intro":"desc","cover":"//img.example.com/fav.jpg","media_count":50,"attr":11}]}})";
+    QByteArray json
+        = R"({"code":0,"data":{"list":[{"id":100,"fid":200,"mid":300,"title":"My Favorites","intro":"desc","cover":"//img.example.com/fav.jpg","media_count":50,"attr":11}]}})";
     auto result = BilibiliParser::parseFavoriteList(json);
     QVERIFY(result.has_value());
     QCOMPARE(result->size(), 1);
@@ -93,7 +97,8 @@ void TestBilibiliParser::testParseHotSearches()
 
 void TestBilibiliParser::testParseWbiImg()
 {
-    QByteArray json = R"({"code":0,"data":{"wbi_img":{"img_url":"https://i0.hdslb.com/bfs/wbi/7cd084941338484aae1ad9425b84077c.png","sub_url":"https://i0.hdslb.com/bfs/wbi/7cd084941338484aae1ad9425b84077c.png"}}})";
+    QByteArray json
+        = R"({"code":0,"data":{"wbi_img":{"img_url":"https://i0.hdslb.com/bfs/wbi/7cd084941338484aae1ad9425b84077c.png","sub_url":"https://i0.hdslb.com/bfs/wbi/7cd084941338484aae1ad9425b84077c.png"}}})";
     auto result = BilibiliParser::parseWbiImg(json);
     QVERIFY(result.has_value());
     QVERIFY(result->imgUrl.contains("wbi"));
@@ -101,7 +106,8 @@ void TestBilibiliParser::testParseWbiImg()
 
 void TestBilibiliParser::testParseUserProfile()
 {
-    QByteArray json = R"({"code":0,"data":{"isLogin":true,"mid":12345,"uname":"TestUser","face":"https://i0.hdslb.com/avatar.jpg","level_info":{"current_level":5},"vipType":2}})";
+    QByteArray json
+        = R"({"code":0,"data":{"isLogin":true,"mid":12345,"uname":"TestUser","face":"https://i0.hdslb.com/avatar.jpg","level_info":{"current_level":5},"vipType":2}})";
     auto result = BilibiliParser::parseUserProfile(json);
     QVERIFY(result.has_value());
     QCOMPARE(result->mid, "12345");
@@ -112,7 +118,8 @@ void TestBilibiliParser::testParseUserProfile()
 
 void TestBilibiliParser::testParseQrCodeData()
 {
-    QByteArray json = R"({"code":0,"data":{"url":"https://passport.bilibili.com/h5/login?qrcode_key=abc123","qrcode_key":"abc123"}})";
+    QByteArray json
+        = R"({"code":0,"data":{"url":"https://passport.bilibili.com/h5/login?qrcode_key=abc123","qrcode_key":"abc123"}})";
     auto result = BilibiliParser::parseQrCodeData(json);
     QVERIFY(result.has_value());
     QCOMPARE(result->key, "abc123");

@@ -13,32 +13,21 @@ namespace NeriPlayerQt {
 
 /// Bilibili video quality levels
 enum class BiliVideoQuality : int {
-    Q240P   = 6,
-    Q360P   = 16,
-    Q480P   = 32,
-    Q720P   = 64,
+    Q240P = 6,
+    Q360P = 16,
+    Q480P = 32,
+    Q720P = 64,
     Q720P60 = 74,
-    Q1080P  = 80,
+    Q1080P = 80,
     Q1080P60 = 112,
-    Q4K     = 120
+    Q4K = 120
 };
 
 /// Bilibili audio quality levels
-enum class BiliAudioQuality : std::uint8_t {
-    Low      = 0,
-    Medium   = 1,
-    High     = 2,
-    Lossless = 3,
-    HiRes    = 4,
-    Dolby    = 5
-};
+enum class BiliAudioQuality : std::uint8_t { Low = 0, Medium = 1, High = 2, Lossless = 3, HiRes = 4, Dolby = 5 };
 
 /// QR code scan status
-enum class BiliQrCodeStatus : std::uint8_t {
-    Expired = 0,
-    Scanned = 1,
-    Confirmed = 2
-};
+enum class BiliQrCodeStatus : std::uint8_t { Expired = 0, Scanned = 1, Confirmed = 2 };
 
 /// QR code polling result
 struct BiliLoginPollResult {
@@ -114,7 +103,7 @@ struct BiliAudioStream {
 struct BiliVideoStream {
     QList<BiliDashStream> videos;
     QList<BiliAudioStream> audios;
-    QStringList durl;  // Progressive MP4 fallback
+    QStringList durl; // Progressive MP4 fallback
     bool isDash = false;
 };
 
@@ -142,19 +131,19 @@ struct BiliSearchVideoPage {
 
 /// Favorite folder
 struct BiliFavoriteList {
-    int id = 0;         // media_id
+    int id = 0; // media_id
     int fid = 0;
     int mid = 0;
     QString title;
     QString description;
     QString coverUrl;
     int mediaCount = 0;
-    int itemType = 0;   // 11=favorite, 21=collection
+    int itemType = 0; // 11=favorite, 21=collection
 };
 
 /// Favorite resource (video in a folder)
 struct BiliFavoriteResource {
-    int type = 0;       // 2=video, 12=audio
+    int type = 0; // 2=video, 12=audio
     int id = 0;
     QString bvid;
     QString title;

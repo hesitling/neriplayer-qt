@@ -3,8 +3,8 @@
 
 #include "app/NeriPlayerApplication.h"
 
-#include "api/netease/NeteaseClient.h"
 #include "api/bilibili/BilibiliClient.h"
+#include "api/netease/NeteaseClient.h"
 #include "core/crypto/SecureStorage.h"
 #include "core/database/DatabaseManager.h"
 #include "core/filesystem/AppPaths.h"
