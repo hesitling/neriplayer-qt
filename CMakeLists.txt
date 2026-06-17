@@ -9,7 +9,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 include(GNUInstallDirs)
 
 # Qt 6
-find_package(Qt6 REQUIRED COMPONENTS Core Gui Widgets Network WebSockets)
+find_package(Qt6 REQUIRED COMPONENTS Core Gui Widgets Network WebSockets Multimedia)
 
 # QCoro
 set(NERIPLAYER_QCORO_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/lib/qcoro" CACHE PATH
@@ -97,6 +97,7 @@ set(SOURCES
     src/api/netease/NeteaseClientAuth.cpp
     src/api/netease/NeteaseClientContent.cpp
     src/api/netease/NeteaseClientUser.cpp
+    src/player/backends/QtMultimediaBackend.cpp
 )
 
 # 头文件
@@ -149,6 +150,8 @@ set(HEADERS
     src/api/netease/NeteaseCrypto.h
     src/api/netease/NeteaseParser.h
     src/api/netease/NeteaseClient.h
+    src/player/IPlayerBackend.h
+    src/player/backends/QtMultimediaBackend.h
     src/mainwindow.h
 )
 
@@ -165,6 +168,7 @@ target_link_libraries(NeriPlayerQt PRIVATE
     Qt6::Widgets
     Qt6::Network
     Qt6::WebSockets
+    Qt6::Multimedia
     ${NERIPLAYER_QCORO_LIBRARIES}
     ${SQLITE3_LIBRARIES}
     ${SPDLOG_LIBRARIES}

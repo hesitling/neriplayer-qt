@@ -101,7 +101,7 @@ Integrate audio playback with the platform APIs.
 - [ ] **Player Module** (`src/player/`)
   - [ ] `PlayerBackend` — abstract interface for audio backends
   - [ ] `QtMultimediaBackend` — Qt Multimedia implementation
-  - [ ] `VlcBackend` — libVLC implementation (optional, for format support)
+  - [ ] `MpvBackend` — libmpv implementation (optional, for format support)
   - [ ] `PlaybackController` — play/pause/stop/next/prev/seek
   - [ ] `AudioOutput` — volume control, device selection
   - [ ] Gapless playback support

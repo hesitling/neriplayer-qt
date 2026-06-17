@@ -1,23 +1,23 @@
 ## 1. Setup & CMake
 
-- [ ] 1.1 Add `Qt6::Multimedia` to `find_package` and `target_link_libraries` in CMakeLists.txt
-- [ ] 1.2 Create `src/player/` directory structure: `src/player/`, `src/player/backends/`
-- [ ] 1.3 Update docs: replace VLC references with mpv in `docs/architecture/index.md` and `docs/TODO.md`
+- [x] 1.1 Add `Qt6::Multimedia` to `find_package` and `target_link_libraries` in CMakeLists.txt
+- [x] 1.2 Create `src/player/` directory structure: `src/player/`, `src/player/backends/`
+- [x] 1.3 Update docs: replace VLC references with mpv in `docs/architecture/index.md` and `docs/TODO.md`
 
 ## 2. IPlayerBackend Interface
 
-- [ ] 2.1 Create `src/player/IPlayerBackend.h` with abstract interface (load, play, pause, stop, seek, state queries, volume, signals)
-- [ ] 2.2 Register `PlaybackState` signal parameter type with `Q_DECLARE_METATYPE` if not already done
+- [x] 2.1 Create `src/player/IPlayerBackend.h` with abstract interface (load, play, pause, stop, seek, state queries, volume, signals)
+- [x] 2.2 Register `PlaybackState` signal parameter type with `Q_DECLARE_METATYPE` if not already done
 
 ## 3. QtMultimediaBackend
 
-- [ ] 3.1 Create `src/player/backends/QtMultimediaBackend.h` class declaration
-- [ ] 3.2 Implement `QtMultimediaBackend.cpp`: constructor wiring `QMediaPlayer` + `QAudioOutput`
-- [ ] 3.3 Implement `load()` with coroutine awaiting `LoadedMedia` status
-- [ ] 3.4 Implement `play()`, `pause()`, `stop()`, `seek()` delegating to `QMediaPlayer`
-- [ ] 3.5 Implement state mapping from `QMediaPlayer` states to `PlaybackState`
-- [ ] 3.6 Implement signal forwarding: position, duration, mediaFinished, error
-- [ ] 3.7 Implement volume/mute delegation to `QAudioOutput`
+- [x] 3.1 Create `src/player/backends/QtMultimediaBackend.h` class declaration
+- [x] 3.2 Implement `QtMultimediaBackend.cpp`: constructor wiring `QMediaPlayer` + `QAudioOutput`
+- [x] 3.3 Implement `load()` with coroutine awaiting `LoadedMedia` status
+- [x] 3.4 Implement `play()`, `pause()`, `stop()`, `seek()` delegating to `QMediaPlayer`
+- [x] 3.5 Implement state mapping from `QMediaPlayer` states to `PlaybackState`
+- [x] 3.6 Implement signal forwarding: position, duration, mediaFinished, error
+- [x] 3.7 Implement volume/mute delegation to `QAudioOutput`
 
 ## 4. PlayQueue
 
