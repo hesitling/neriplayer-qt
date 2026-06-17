@@ -94,11 +94,12 @@ public:
     void preResolveUrl(const Song &song);
 
     /**
-     * @brief Restore saved playback state from repository
+     * @brief Restore saved playback state from repository (non-blocking)
      *
-     * Called on startup if PersistedPlayerState::shouldResumePlayback is true.
+     * Kicks off an async restore if PersistedPlayerState::shouldResumePlayback is true.
+     * Safe to call from non-coroutine contexts.
      */
-    QCoro::Task<void> restoreState();
+    void restoreState();
 
 Q_SIGNALS:
     void currentSongChanged(const NeriPlayerQt::Song &song);
@@ -131,6 +132,10 @@ private:
 
     // Debounced save for seek operations
     QTimer *m_seekSaveTimer;
+
+    // Running async tasks (prevent premature destruction)
+    QCoro::Task<void> m_restoreState;
+    QCoro::Task<void> m_autoAdvanceTask;
 };
 
 } // namespace NeriPlayerQt

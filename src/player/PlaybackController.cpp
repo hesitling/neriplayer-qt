@@ -8,6 +8,7 @@
 #include <QCoroTask>
 #include <QDateTime>
 #include <QDebug>
+#include <QPointer>
 #include <QTimer>
 
 #include <stdexcept>
@@ -181,10 +182,16 @@ void PlaybackController::preResolveUrl(const Song &song)
         return; // No platform plugin available
     }
 
-    // Fire-and-forget background resolution
-    auto task = [](PlaybackController *self, Song s) -> QCoro::Task<void> {
+    // Background resolution with safe lifetime via QPointer
+    auto task = [](QPointer<PlaybackController> self, Song s) -> QCoro::Task<void> {
+        if (!self || !self->m_plugin) {
+            co_return;
+        }
         try {
             auto result = co_await self->m_plugin->getSongUrl(s.id);
+            if (!self) {
+                co_return;
+            }
             if (result.isSuccess()) {
                 self->m_urlCache.insert(s.id, result.data().url);
                 self->m_urlCacheExpiry.insert(s.id, QDateTime::currentMSecsSinceEpoch() + URL_CACHE_TTL_MS);
@@ -194,7 +201,7 @@ void PlaybackController::preResolveUrl(const Song &song)
         } catch (const std::exception &ex) {
             qWarning() << "Pre-resolve exception for" << s.name << ":" << ex.what();
         }
-    }(this, song);
+    }(QPointer<PlaybackController>(this), song);
     Q_UNUSED(task);
 }
 
@@ -215,11 +222,10 @@ void PlaybackController::connectBackendSignals()
     connect(m_backend.get(), &IPlayerBackend::durationChanged, this, &PlaybackController::durationChanged);
 
     connect(m_backend.get(), &IPlayerBackend::mediaFinished, this, [this]() {
-        // Auto-advance to next song
+        // Auto-advance to next song (stored to prevent premature destruction)
         auto nextSong = m_queue->next();
         if (nextSong.has_value()) {
-            auto task = play(nextSong.value());
-            Q_UNUSED(task);
+            m_autoAdvanceTask = play(nextSong.value());
         } else {
             m_state = PlaybackState::Stopped;
             Q_EMIT playbackStateChanged(PlaybackState::Stopped);
@@ -268,47 +274,49 @@ void PlaybackController::persistState()
     m_playerStateRepo->save(state);
 }
 
-QCoro::Task<void> PlaybackController::restoreState()
+void PlaybackController::restoreState()
 {
-    if (!m_playerStateRepo) {
-        co_return;
-    }
+    m_restoreState = [](PlaybackController *self) -> QCoro::Task<void> {
+        if (!self->m_playerStateRepo) {
+            co_return;
+        }
 
-    auto savedState = m_playerStateRepo->load();
-    if (!savedState.has_value() || !savedState->shouldResumePlayback) {
-        co_return;
-    }
+        auto savedState = self->m_playerStateRepo->load();
+        if (!savedState.has_value() || !savedState->shouldResumePlayback) {
+            co_return;
+        }
 
-    if (savedState->playlist.isEmpty()) {
-        co_return;
-    }
+        if (savedState->playlist.isEmpty()) {
+            co_return;
+        }
 
-    m_queue->loadFromState(savedState.value());
+        self->m_queue->loadFromState(savedState.value());
 
-    auto currentSongOpt = m_queue->currentSong();
-    if (!currentSongOpt.has_value()) {
-        co_return;
-    }
+        auto currentSongOpt = self->m_queue->currentSong();
+        if (!currentSongOpt.has_value()) {
+            co_return;
+        }
 
-    m_currentSong = currentSongOpt.value();
-    Q_EMIT currentSongChanged(m_currentSong);
+        self->m_currentSong = currentSongOpt.value();
+        Q_EMIT self->currentSongChanged(self->m_currentSong);
 
-    // Restore playback position
-    try {
-        if (m_currentSong.mediaUri.isValid()) {
-            co_await m_backend->load(m_currentSong.mediaUri);
-        } else {
-            QString url = co_await resolveUrl(m_currentSong);
-            if (!url.isEmpty()) {
-                co_await m_backend->load(QUrl(url));
+        // Restore playback position
+        try {
+            if (self->m_currentSong.mediaUri.isValid()) {
+                co_await self->m_backend->load(self->m_currentSong.mediaUri);
+            } else {
+                QString url = co_await self->resolveUrl(self->m_currentSong);
+                if (!url.isEmpty()) {
+                    co_await self->m_backend->load(QUrl(url));
+                }
             }
+            if (savedState->positionMs > 0) {
+                self->m_backend->seek(savedState->positionMs);
+            }
+        } catch (const std::exception &ex) {
+            qWarning() << "Failed to restore playback state:" << ex.what();
         }
-        if (savedState->positionMs > 0) {
-            m_backend->seek(savedState->positionMs);
-        }
-    } catch (const std::exception &ex) {
-        qWarning() << "Failed to restore playback state:" << ex.what();
-    }
+    }(this);
 }
 
 QCoro::Task<QString> PlaybackController::resolveUrl(const Song &song)

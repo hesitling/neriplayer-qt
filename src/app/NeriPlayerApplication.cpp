@@ -136,15 +136,27 @@ void NeriPlayerApplication::initializeCoreServices()
         auto *settingsRepo = m_services.service<SettingsRepository>();
         auto *playerStateRepo = m_services.service<PlayerStateRepository>();
 
-        // Read backend preference from settings
+        // Read backend preference from settings, with safe fallback
         auto backendType = settingsRepo->get(QStringLiteral("player/backend")).value_or(QStringLiteral("auto"));
-        auto backend = BackendFactory::createBackend(backendType);
+        std::unique_ptr<IPlayerBackend> backend;
+        try {
+            backend = BackendFactory::createBackend(backendType);
+        } catch (const std::exception &ex) {
+            log->warn("Backend '{}' unavailable ({}), falling back to Qt Multimedia", backendType.toStdString(),
+                      ex.what());
+            backend = BackendFactory::createBackend(QStringLiteral("qt"));
+        }
         log->info("Audio backend: {}", backend->backendName().toStdString());
 
         auto *neteaseClient = m_services.service<NeteaseClient>();
         auto playbackCtrl
             = std::make_unique<PlaybackController>(std::move(backend), neteaseClient, playerStateRepo, settingsRepo);
+
         m_services.registerService<PlaybackController>(std::move(playbackCtrl));
+
+        // Restore persisted playback state (non-blocking)
+        auto *ctrl = m_services.service<PlaybackController>();
+        ctrl->restoreState();
         log->info("PlaybackController registered");
     }
 
