@@ -189,9 +189,9 @@ class TestPlaybackController : public QObject {
     Q_OBJECT
 
 private:
-    MockBackend *m_backend = nullptr;
-    MockSettingsRepository *m_settingsRepo = nullptr;
-    MockPlayerStateRepository *m_playerStateRepo = nullptr;
+    MockBackend *m_backend = nullptr; // Owned by m_controller via unique_ptr<IPlayerBackend>
+    std::unique_ptr<MockSettingsRepository> m_settingsRepo;
+    std::unique_ptr<MockPlayerStateRepository> m_playerStateRepo;
     std::unique_ptr<PlaybackController> m_controller;
 
     static Song makeSong(const QString &id, const QUrl &mediaUri = {})
@@ -208,16 +208,17 @@ private Q_SLOTS:
     void init()
     {
         m_backend = new MockBackend();
-        m_settingsRepo = new MockSettingsRepository();
-        m_playerStateRepo = new MockPlayerStateRepository();
-        m_controller = std::make_unique<PlaybackController>(std::unique_ptr<IPlayerBackend>(m_backend),
-                                                            nullptr, // No platform plugin for basic tests
-                                                            m_playerStateRepo, m_settingsRepo);
+        m_settingsRepo = std::make_unique<MockSettingsRepository>();
+        m_playerStateRepo = std::make_unique<MockPlayerStateRepository>();
+        m_controller = std::make_unique<PlaybackController>(
+            std::unique_ptr<IPlayerBackend>(m_backend), nullptr, m_playerStateRepo.get(), m_settingsRepo.get());
     }
 
     void cleanup()
     {
-        m_controller.reset();
+        m_controller.reset(); // Also deletes m_backend via unique_ptr<IPlayerBackend>
+        m_playerStateRepo.reset();
+        m_settingsRepo.reset();
     }
 
     // --- Construction ---
@@ -227,22 +228,24 @@ private Q_SLOTS:
         m_settingsRepo->set(QStringLiteral("player/volume"), QStringLiteral("0.75"));
 
         // Create a fresh controller to test constructor behavior
-        auto *backend = new MockBackend();
-        auto controller = std::make_unique<PlaybackController>(std::unique_ptr<IPlayerBackend>(backend), nullptr,
-                                                               m_playerStateRepo, m_settingsRepo);
+        auto backend = std::make_unique<MockBackend>();
+        auto *backendPtr = backend.get();
+        auto controller = std::make_unique<PlaybackController>(std::move(backend), nullptr,
+                                                               m_playerStateRepo.get(), m_settingsRepo.get());
 
-        QCOMPARE(backend->volume(), 0.75);
+        QCOMPARE(backendPtr->volume(), 0.75);
     }
 
     void constructor_restoresMutedFromSettings()
     {
         m_settingsRepo->set(QStringLiteral("player/muted"), QStringLiteral("true"));
 
-        auto *backend = new MockBackend();
-        auto controller = std::make_unique<PlaybackController>(std::unique_ptr<IPlayerBackend>(backend), nullptr,
-                                                               m_playerStateRepo, m_settingsRepo);
+        auto backend = std::make_unique<MockBackend>();
+        auto *backendPtr = backend.get();
+        auto controller = std::make_unique<PlaybackController>(std::move(backend), nullptr,
+                                                               m_playerStateRepo.get(), m_settingsRepo.get());
 
-        QVERIFY(backend->isMuted());
+        QVERIFY(backendPtr->isMuted());
     }
 
     // --- Play with mediaUri ---
