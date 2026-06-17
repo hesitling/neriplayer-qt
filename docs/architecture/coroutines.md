@@ -298,7 +298,8 @@ public:
     QCoro::Task<void> search(const QString &query);
     
 private:
-    NeteaseClient *m_neteaseClient;
+    IMusicPlatformPlugin *currentPlugin() const;
+    QVector<IMusicPlatformPlugin *> m_plugins;
 };
 ```
 
