@@ -115,16 +115,9 @@ Integrate audio playback with the platform APIs.
 
 ---
 
-## Phase 4: Services & ViewModels
+## Phase 4: ViewModels
 
-Business logic layer connecting data access to the UI.
-
-- [ ] **Service Layer** (`src/service/`)
-  - [ ] `PlayerService` — wraps PlaybackController, manages current song, exposes state
-  - [ ] `SearchService` — aggregates search across all registered platforms
-  - [ ] `PlaylistService` — playlist CRUD, add/remove songs
-  - [ ] `AuthService` — per-platform login state, token refresh
-  - [ ] `DownloadService` — queue downloads, track progress (see Phase 6)
+Business logic layer connecting data access to the UI. No dedicated service layer — ViewModels access repositories and API clients directly, following the Android NeriPlayer pattern. `PlaybackController` (Phase 3) handles playback orchestration as a de facto service.
 
 - [ ] **ViewModel Layer** (`src/viewmodel/`)
   - [ ] `MainViewModel` — app-wide state, navigation, service coordination

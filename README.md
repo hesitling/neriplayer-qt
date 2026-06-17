@@ -69,7 +69,8 @@ Near-term implementation areas:
 
 - Domain models shared by API, repositories, player, and UI
 - Platform API clients for NetEase, Bilibili, YouTube Music, and QQ Music
-- Repository and service layers for search, playback, playlists, settings, and sync
+- Repository layer for songs, playlists, settings, history, and player state
+- PlaybackController for playback orchestration (queue, URL resolution, persistence)
 - ViewModels that expose Qt properties/signals without depending on UI widgets
 - Player integration and persistent local storage
 

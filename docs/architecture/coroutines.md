@@ -281,14 +281,24 @@ public:
 ### 7.3 Business Layer
 
 ```cpp
-class PlayerService : public QObject {
+// PlaybackController lives in player/ and acts as a de facto service for playback orchestration
+class PlaybackController : public QObject {
     Q_OBJECT
 public:
     QCoro::Task<void> play(const Song &song);
-    QCoro::Task<void> loadPlaylist(const QString &playlistId);
     
 private:
-    QCoro::Task<QUrl> resolvePlaybackUrl(const Song &song);
+    QCoro::Task<QString> resolveUrl(const Song &song);
+};
+
+// ViewModels access repos and API clients directly (no dedicated service layer)
+class SearchViewModel : public QObject {
+    Q_OBJECT
+public:
+    QCoro::Task<void> search(const QString &query);
+    
+private:
+    NeteaseClient *m_neteaseClient;
 };
 ```
 

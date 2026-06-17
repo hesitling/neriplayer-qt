@@ -59,7 +59,7 @@ src/
 ├──────────────────────────────────────┤
 │           ViewModel Layer            │  (planned)
 ├──────────────────────────────────────┤
-│            Service Layer             │  (planned)
+│      PlaybackController (player/)    │  Playback orchestration
 ├──────────────────────────────────────┤
 │          Repository Layer            │  SongRepository, PlaylistRepository, ...
 ├──────────────────────────────────────┤
@@ -70,6 +70,8 @@ src/
 │            Core Layer                │  Network, Database, FileSystem, Crypto, Logger
 └──────────────────────────────────────┘
 ```
+
+Note: There is no dedicated service layer. ViewModels access repositories and API clients directly, following the Android NeriPlayer pattern. `PlaybackController` is the exception — it encapsulates complex playback orchestration.
 
 ## Technology Stack
 

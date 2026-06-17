@@ -52,9 +52,10 @@ See also: [Module Design Documents](../modules/index.md)
                               ↓
 ┌─────────────────────────────────────────────────────────────┐
 │                    Business Layer                            │
-│  ┌─────────────┐  ┌─────────────┐  ┌─────────────────────┐  │
-│  │  ViewModel   │  │  Service    │  │  Domain Models      │  │
-│  └─────────────┘  └─────────────┘  └─────────────────────┘  │
+│  ┌─────────────┐  ┌─────────────────────┐  ┌─────────────┐  │
+│  │  ViewModel   │  │ PlaybackController  │  │  Domain     │  │
+│  │             │  │  (player/ module)    │  │  Models     │  │
+│  └─────────────┘  └─────────────────────┘  └─────────────┘  │
 └─────────────────────────────────────────────────────────────┘
                               ↓
 ┌─────────────────────────────────────────────────────────────┐
@@ -72,6 +73,8 @@ See also: [Module Design Documents](../modules/index.md)
 └─────────────────────────────────────────────────────────────┘
 ```
 
+Note: There is no dedicated service layer. ViewModels access repositories and API clients directly, following the Android NeriPlayer pattern. `PlaybackController` encapsulates playback orchestration (queue, URL resolution, state persistence) and lives in the `player/` module.
+
 ## 6. Module Dependencies
 
 ```
@@ -82,16 +85,15 @@ See also: [Module Design Documents](../modules/index.md)
 ┌─────────────────────────────────────────────────────────────┐
 │                      ViewModel Module                        │
 └─────────────────────────────────────────────────────────────┘
-                              ↓
-┌─────────────────────────────────────────────────────────────┐
-│                       Service Module                         │
-└─────────────────────────────────────────────────────────────┘
-                              ↓
-┌─────────────────────────────────────────────────────────────┐
-│                      Repository Module                       │
-└─────────────────────────────────────────────────────────────┘
-                              ↓
+                    ↓                   ↓
+┌──────────────────────────┐  ┌──────────────────────────────┐
+│    Player Module         │  │   Repository / API Module    │
+│  (PlaybackController)    │  │  (SongRepo, NeteaseClient)   │
+└──────────────────────────┘  └──────────────────────────────┘
+                    ↓                   ↓
 ┌─────────────────────────────────────────────────────────────┐
 │                       Core Module                            │
 └─────────────────────────────────────────────────────────────┘
 ```
+
+ViewModels access repositories and API clients directly. `PlaybackController` (Player Module) is the exception — it encapsulates playback orchestration and is accessed by `PlayerViewModel`.
