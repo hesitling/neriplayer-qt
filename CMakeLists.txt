@@ -84,6 +84,7 @@ set(SOURCES
     src/core/network/NetworkManager.cpp
     src/core/network/NetworkMonitor.cpp
     src/repo/SqlRowMapper.cpp
+    src/repo/SongRepository.cpp
     src/mainwindow.cpp
     src/api/common/ApiError.cpp
     src/api/netease/NeteaseCrypto.cpp
@@ -112,6 +113,7 @@ set(HEADERS
     src/core/network/NetworkManager.h
     src/core/network/NetworkMonitor.h
     src/repo/SqlRowMapper.h
+    src/repo/SongRepository.h
     src/repo/ISongRepository.h
     src/repo/IPlaylistRepository.h
     src/repo/IPlayHistoryRepository.h
@@ -358,6 +360,29 @@ target_compile_definitions(TestSqlRowMapper PRIVATE
     QT_NO_KEYWORDS
 )
 add_test(NAME TestSqlRowMapper COMMAND TestSqlRowMapper)
+
+add_executable(TestSongRepository
+    tests/repo/TestSongRepository.cpp
+    src/repo/SongRepository.cpp
+    src/repo/SqlRowMapper.cpp
+    src/core/database/DatabaseManager.cpp
+)
+target_include_directories(TestSongRepository PRIVATE
+    ${CMAKE_SOURCE_DIR}/src
+    ${SQLITE3_INCLUDE_DIRS}
+)
+target_link_libraries(TestSongRepository PRIVATE
+    Qt6::Core
+    Qt6::Test
+    ${SQLITE3_LIBRARIES}
+)
+if(UNIX)
+    target_link_libraries(TestSongRepository PRIVATE dl pthread)
+endif()
+target_compile_definitions(TestSongRepository PRIVATE
+    QT_NO_KEYWORDS
+)
+add_test(NAME TestSongRepository COMMAND TestSongRepository)
 
 # Shared library for Netease API + core infra (used by E2E tests and CLI tools)
 set(NETEASE_E2E_SOURCES

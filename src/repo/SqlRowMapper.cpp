@@ -11,7 +11,7 @@ namespace NeriPlayerQt {
 
 // ── helpers ──────────────────────────────────────────────────────────────────
 
-static QString platformToString(MusicPlatform p)
+QString SqlRowMapper::platformToString(MusicPlatform p)
 {
     switch (p) {
         case MusicPlatform::NetEase:
@@ -27,7 +27,7 @@ static QString platformToString(MusicPlatform p)
     }
 }
 
-static MusicPlatform stringToPlatform(const QString &s)
+MusicPlatform SqlRowMapper::stringToPlatform(const QString &s)
 {
     if (s == "NetEase")
         return MusicPlatform::NetEase;

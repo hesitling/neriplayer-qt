@@ -60,6 +60,16 @@ public:
      */
     static PersistedPlayerState playerStateFromJson(const QVariantMap &map);
 
+    /**
+     * @brief Convert a MusicPlatform enum to its string representation
+     */
+    static QString platformToString(MusicPlatform p);
+
+    /**
+     * @brief Convert a string to a MusicPlatform enum
+     */
+    static MusicPlatform stringToPlatform(const QString &s);
+
 private:
     SqlRowMapper() = default;
 
