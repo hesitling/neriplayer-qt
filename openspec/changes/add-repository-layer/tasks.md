@@ -7,16 +7,16 @@
 
 ## 2. SQL↔Domain Mapper
 
-- [ ] 2.1 Create `src/repo/SqlRowMapper.h` — declare `toSong()`, `songToInsertParams()`, `songToUpdateParams()`, `toPlaylistSummary()`, `playerStateToJson()`, `playerStateFromJson()`
-- [ ] 2.2 Create `src/repo/SqlRowMapper.cpp` — implement Song↔QVariant mapping, handle lyrics_json and extra_json serialization via QJsonDocument
+- [x] 2.1 Create `src/repo/SqlRowMapper.h` — declare `toSong()`, `songToInsertParams()`, `songToUpdateParams()`, `toPlaylistSummary()`, `playerStateToJson()`, `playerStateFromJson()`
+- [x] 2.2 Create `src/repo/SqlRowMapper.cpp` — implement Song↔QVariant mapping, handle lyrics_json and extra_json serialization via QJsonDocument
 
 ## 3. Repository Interfaces
 
-- [ ] 3.1 Create `src/repo/ISongRepository.h` — pure virtual interface with findById, findByIds, save, saveBatch, remove, exists, findByPlatform, search
-- [ ] 3.2 Create `src/repo/IPlaylistRepository.h` — pure virtual interface with findAll, findById, create, updateMetadata, remove, addSong, removeSong, reorderSongs, songCount
-- [ ] 3.3 Create `src/repo/IPlayHistoryRepository.h` — pure virtual interface with record, recent, clear, remove, playCount
-- [ ] 3.4 Create `src/repo/IPlayerStateRepository.h` — pure virtual interface with save, load, clear
-- [ ] 3.5 Create `src/repo/ISettingsRepository.h` — pure virtual interface with get, set, remove, getAll, getBool, getInt
+- [x] 3.1 Create `src/repo/ISongRepository.h` — pure virtual interface with findById, findByIds, save, saveBatch, remove, exists, findByPlatform, search
+- [x] 3.2 Create `src/repo/IPlaylistRepository.h` — pure virtual interface with findAll, findById, create, updateMetadata, remove, addSong, removeSong, reorderSongs, songCount
+- [x] 3.3 Create `src/repo/IPlayHistoryRepository.h` — pure virtual interface with record, recent, clear, remove, playCount
+- [x] 3.4 Create `src/repo/IPlayerStateRepository.h` — pure virtual interface with save, load, clear
+- [x] 3.5 Create `src/repo/ISettingsRepository.h` — pure virtual interface with get, set, remove, getAll, getBool, getInt
 
 ## 4. SongRepository Implementation
 

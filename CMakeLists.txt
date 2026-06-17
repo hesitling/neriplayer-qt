@@ -112,6 +112,11 @@ set(HEADERS
     src/core/network/NetworkManager.h
     src/core/network/NetworkMonitor.h
     src/repo/SqlRowMapper.h
+    src/repo/ISongRepository.h
+    src/repo/IPlaylistRepository.h
+    src/repo/IPlayHistoryRepository.h
+    src/repo/IPlayerStateRepository.h
+    src/repo/ISettingsRepository.h
     src/domain/Domain.h
     src/domain/Enums.h
     src/domain/Song.h
