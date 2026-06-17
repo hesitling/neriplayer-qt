@@ -21,13 +21,13 @@
 
 ## 4. PlayQueue
 
-- [ ] 4.1 Create `src/player/PlayQueue.h` class declaration
-- [ ] 4.2 Implement `PlayQueue.cpp`: song management (setSongs, addSong, removeAt, moveSong, clear)
-- [ ] 4.3 Implement navigation: next(), prev(), currentSong(), setCurrentIndex()
-- [ ] 4.4 Implement repeat modes: Off, One, All
-- [ ] 4.5 Implement shuffle: Fisher-Yates index array, shuffle/unshuffle toggle
-- [ ] 4.6 Implement persistence: toPersistedState(), loadFromState()
-- [ ] 4.7 Implement signals: currentChanged, queueChanged, shuffleChanged, repeatChanged
+- [x] 4.1 Create `src/player/PlayQueue.h` class declaration
+- [x] 4.2 Implement `PlayQueue.cpp`: song management (setSongs, addSong, removeAt, moveSong, clear)
+- [x] 4.3 Implement navigation: next(), prev(), currentSong(), setCurrentIndex()
+- [x] 4.4 Implement repeat modes: Off, One, All
+- [x] 4.5 Implement shuffle: Fisher-Yates index array, shuffle/unshuffle toggle
+- [x] 4.6 Implement persistence: toPersistedState(), loadFromState()
+- [x] 4.7 Implement signals: currentChanged, queueChanged, shuffleChanged, repeatChanged
 
 ## 5. PlaybackController
 
