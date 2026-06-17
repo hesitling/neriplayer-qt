@@ -65,8 +65,14 @@ void NeteasePlaylistDetailViewModel::loadAlbum(const QString &albumId)
 void NeteasePlaylistDetailViewModel::retry()
 {
     if (m_isAlbum) {
+        if (m_lastAlbumId.isEmpty()) {
+            return;
+        }
         loadAlbum(m_lastAlbumId);
     } else {
+        if (m_lastPlaylistId.isEmpty()) {
+            return;
+        }
         loadPlaylist(m_lastPlaylistId);
     }
 }
