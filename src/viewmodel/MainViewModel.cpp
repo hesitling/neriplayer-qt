@@ -137,18 +137,16 @@ void MainViewModel::wireDetailVmSignals()
     if (m_localPlaylistDetail) {
         connect(m_localPlaylistDetail, &LocalPlaylistDetailViewModel::requestPlay, m_playerVm,
                 [this](const Song &song) { m_playerVm->play(song); });
-        connect(m_localPlaylistDetail, &LocalPlaylistDetailViewModel::requestPlayPlaylist, m_playerVm,
-                [this](const QVector<Song> &songs, int startIndex) {
-                    m_playerVm->loadQueueAndPlay(songs, startIndex);
-                });
+        connect(
+            m_localPlaylistDetail, &LocalPlaylistDetailViewModel::requestPlayPlaylist, m_playerVm,
+            [this](const QVector<Song> &songs, int startIndex) { m_playerVm->loadQueueAndPlay(songs, startIndex); });
     }
     if (m_neteasePlaylistDetail) {
         connect(m_neteasePlaylistDetail, &NeteasePlaylistDetailViewModel::requestPlay, m_playerVm,
                 [this](const Song &song) { m_playerVm->play(song); });
-        connect(m_neteasePlaylistDetail, &NeteasePlaylistDetailViewModel::requestPlayPlaylist, m_playerVm,
-                [this](const QVector<Song> &songs, int startIndex) {
-                    m_playerVm->loadQueueAndPlay(songs, startIndex);
-                });
+        connect(
+            m_neteasePlaylistDetail, &NeteasePlaylistDetailViewModel::requestPlayPlaylist, m_playerVm,
+            [this](const QVector<Song> &songs, int startIndex) { m_playerVm->loadQueueAndPlay(songs, startIndex); });
     }
 }
 
