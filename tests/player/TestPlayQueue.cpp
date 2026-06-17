@@ -203,19 +203,34 @@ private Q_SLOTS:
     {
         PlayQueue q;
         q.setSongs(makeSongs(10));
+        q.setRepeatMode(RepeatMode::All);
         q.setShuffleEnabled(true);
         QVERIFY(q.isShuffleEnabled());
 
-        // Collect all songs via next()
+        // Collect all songs: current + 9 next() calls
         QStringList ids;
-        for (int i = 0; i < 10; ++i) {
+        auto current = q.currentSong();
+        QVERIFY(current.has_value());
+        ids.append(current->id);
+
+        for (int i = 0; i < 9; ++i) {
             auto song = q.next();
-            if (song.has_value()) {
-                ids.append(song->id);
-            }
+            QVERIFY(song.has_value());
+            ids.append(song->id);
         }
-        // Should have gotten some songs (exact order is random)
-        QVERIFY(ids.size() > 0);
+
+        // All 10 songs should be retrieved
+        QCOMPARE(ids.size(), 10);
+
+        // All IDs should be unique (no duplicates)
+        QCOMPARE(QSet<QString>(ids.begin(), ids.end()).size(), 10);
+
+        // Order should not be strictly sequential (shuffle changed it)
+        QStringList sequential;
+        for (int i = 0; i < 10; ++i) {
+            sequential.append(QString::number(i));
+        }
+        QVERIFY(ids != sequential);
     }
 
     void shuffle_disableRestoresOrder()
