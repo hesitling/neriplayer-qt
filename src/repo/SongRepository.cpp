@@ -6,6 +6,8 @@
 #include "core/database/DatabaseManager.h"
 #include "repo/SqlRowMapper.h"
 
+#include <QDebug>
+
 namespace NeriPlayerQt {
 
 SongRepository::SongRepository(DatabaseManager *db)
@@ -95,7 +97,8 @@ void SongRepository::saveBatch(const QVector<Song> &songs)
     } catch (...) {
         try {
             m_db->rollbackTransaction();
-        } catch (...) {
+        } catch (const std::exception &rbEx) {
+            qWarning() << "SongRepository: rollback failed:" << rbEx.what();
         }
         throw;
     }
@@ -132,6 +135,8 @@ QVector<Song> SongRepository::findByPlatform(MusicPlatform platform)
 
 QVector<Song> SongRepository::search(const QString &query, int limit)
 {
+    if (limit <= 0)
+        limit = 50;
     QString pattern = "%" + query + "%";
     auto rows = m_db->exec("SELECT id, platform, name, artist, album, album_id, duration_ms, "
                            "cover_url, media_uri, custom_name, custom_artist, custom_cover_url, "
