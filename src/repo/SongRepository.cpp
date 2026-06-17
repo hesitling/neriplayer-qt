@@ -4,9 +4,8 @@
 #include "repo/SongRepository.h"
 
 #include "core/database/DatabaseManager.h"
+#include "core/logger/Logger.h"
 #include "repo/SqlRowMapper.h"
-
-#include <QDebug>
 
 namespace NeriPlayerQt {
 
@@ -98,7 +97,7 @@ void SongRepository::saveBatch(const QVector<Song> &songs)
         try {
             m_db->rollbackTransaction();
         } catch (const std::exception &rbEx) {
-            qWarning() << "SongRepository: rollback failed:" << rbEx.what();
+            Logger::get("repo")->warn("SongRepository: rollback failed: {}", rbEx.what());
         }
         throw;
     }

@@ -4,9 +4,8 @@
 #include "repo/PlayHistoryRepository.h"
 
 #include "core/database/DatabaseManager.h"
+#include "core/logger/Logger.h"
 #include "repo/SqlRowMapper.h"
-
-#include <QDebug>
 
 namespace NeriPlayerQt {
 
@@ -24,7 +23,7 @@ void PlayHistoryRepository::record(const QString &songId)
         m_db->commitTransaction();
     } catch (...) {
         try { m_db->rollbackTransaction(); } catch (const std::exception &rbEx) {
-            qWarning() << "PlayHistoryRepository: rollback failed:" << rbEx.what();
+            Logger::get("repo")->warn("PlayHistoryRepository: rollback failed: {}", rbEx.what());
         }
         throw;
     }

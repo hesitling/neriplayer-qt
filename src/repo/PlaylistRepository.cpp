@@ -4,6 +4,7 @@
 #include "repo/PlaylistRepository.h"
 
 #include "core/database/DatabaseManager.h"
+#include "core/logger/Logger.h"
 #include "repo/SqlRowMapper.h"
 
 #include <QDateTime>
@@ -127,7 +128,7 @@ bool PlaylistRepository::addSong(const QString &playlistId, const QString &songI
         m_db->commitTransaction();
     } catch (...) {
         try { m_db->rollbackTransaction(); } catch (const std::exception &rbEx) {
-            qWarning() << "PlaylistRepository: rollback failed:" << rbEx.what();
+            Logger::get("repo")->warn("PlaylistRepository: rollback failed: {}", rbEx.what());
         }
         throw;
     }
@@ -158,7 +159,7 @@ void PlaylistRepository::removeSong(const QString &playlistId, const QString &so
         m_db->commitTransaction();
     } catch (...) {
         try { m_db->rollbackTransaction(); } catch (const std::exception &rbEx) {
-            qWarning() << "PlaylistRepository: rollback failed:" << rbEx.what();
+            Logger::get("repo")->warn("PlaylistRepository: rollback failed: {}", rbEx.what());
         }
         throw;
     }
@@ -177,7 +178,7 @@ void PlaylistRepository::reorderSongs(const QString &playlistId, const QStringLi
         try {
             m_db->rollbackTransaction();
         } catch (const std::exception &rbEx) {
-            qWarning() << "PlaylistRepository: rollback failed:" << rbEx.what();
+            Logger::get("repo")->warn("PlaylistRepository: rollback failed: {}", rbEx.what());
         }
         throw;
     }
