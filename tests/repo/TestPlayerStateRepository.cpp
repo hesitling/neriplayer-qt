@@ -144,8 +144,13 @@ void TestPlayerStateRepository::roundTrip_allFields()
     QCOMPARE(loaded->playlist[0].id, QStringLiteral("s1"));
     QCOMPARE(loaded->playlist[0].name, QStringLiteral("Song 1"));
     QCOMPARE(loaded->playlist[0].artist, QStringLiteral("Artist 1"));
+    QCOMPARE(loaded->playlist[0].album, QStringLiteral("Album 1"));
+    QCOMPARE(loaded->playlist[0].albumId, QString());
+    QCOMPARE(loaded->playlist[0].durationMs, 120000);
     QCOMPARE(loaded->playlist[0].platform, MusicPlatform::NetEase);
     QCOMPARE(loaded->playlist[1].id, QStringLiteral("s2"));
+    QCOMPARE(loaded->playlist[1].name, QStringLiteral("Song 2"));
+    QCOMPARE(loaded->playlist[1].durationMs, 180000);
     QCOMPARE(loaded->currentIndex, 1);
     QCOMPARE(loaded->mediaUrl, QStringLiteral("https://example.com/play.mp3"));
     QCOMPARE(loaded->positionMs, 30000);
