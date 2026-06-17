@@ -377,6 +377,54 @@ private Q_SLOTS:
         QVERIFY(m_playerStateRepo->m_savedState->shouldResumePlayback);
     }
 
+    // --- Auto-advance on mediaFinished ---
+
+    void mediaFinished_advancesToNextSong()
+    {
+        // Set up queue with multiple songs
+        m_controller->queue()->setSongs({
+            makeSong("A", QUrl(QStringLiteral("file:///a.mp3"))),
+            makeSong("B", QUrl(QStringLiteral("file:///b.mp3"))),
+            makeSong("C", QUrl(QStringLiteral("file:///c.mp3"))),
+        });
+
+        // Simulate media finished — should auto-advance
+        Q_EMIT m_backend->mediaFinished();
+
+        // Allow event loop to process the coroutine
+        QTest::qWait(50);
+
+        QCOMPARE(m_controller->queue()->currentIndex(), 1);
+        QCOMPARE(m_controller->currentSong().id, QStringLiteral("B"));
+        QCOMPARE(m_backend->m_loadCount, 1);
+        QCOMPARE(m_backend->m_lastLoadedUrl, QUrl(QStringLiteral("file:///b.mp3")));
+    }
+
+    void mediaFinished_queueExhausted_emitsPlaybackFinished()
+    {
+        // Set up queue with single song, repeat off
+        m_controller->queue()->setSongs({
+            makeSong("A", QUrl(QStringLiteral("file:///a.mp3"))),
+        });
+        m_controller->queue()->setRepeatMode(RepeatMode::Off);
+
+        QSignalSpy finishedSpy(m_controller.get(), &PlaybackController::playbackFinished);
+        QSignalSpy stateSpy(m_controller.get(), &PlaybackController::playbackStateChanged);
+
+        // Simulate media finished — queue exhausted
+        Q_EMIT m_backend->mediaFinished();
+
+        // Allow event loop to process
+        QTest::qWait(50);
+
+        QCOMPARE(m_controller->playbackState(), PlaybackState::Stopped);
+        QCOMPARE(finishedSpy.count(), 1);
+
+        // State should be persisted
+        QVERIFY(m_playerStateRepo->m_savedState.has_value());
+        QVERIFY(m_playerStateRepo->m_savedState->shouldResumePlayback);
+    }
+
     // --- Backend name ---
 
     void backendName_returnsMock()

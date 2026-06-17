@@ -31,8 +31,7 @@ QCoro::Task<void> QtMultimediaBackend::load(const QUrl &url)
         co_return;
     }
     if (currentStatus == QMediaPlayer::InvalidMedia) {
-        throw std::runtime_error(
-            QStringLiteral("Failed to load media: %1").arg(m_player->errorString()).toStdString());
+        throw std::runtime_error(QStringLiteral("Failed to load media: %1").arg(m_player->errorString()).toStdString());
     }
 
     // Wait for the media to reach a terminal status with timeout
