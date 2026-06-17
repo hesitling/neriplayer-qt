@@ -10,8 +10,14 @@ WebSocketClient::WebSocketClient(QObject *parent)
     connect(&m_socket, &QWebSocket::connected, this, &WebSocketClient::connected);
     connect(&m_socket, &QWebSocket::disconnected, this, &WebSocketClient::disconnected);
     connect(&m_socket, &QWebSocket::textMessageReceived, this, &WebSocketClient::textMessageReceived);
+#if QT_VERSION >= QT_VERSION_CHECK(6, 5, 0)
     connect(&m_socket, &QWebSocket::errorOccurred, this,
             [this](QAbstractSocket::SocketError) { emit errorOccurred(m_socket.errorString()); });
+#else
+    connect(
+        &m_socket, QOverload<QAbstractSocket::SocketError>::of(&QWebSocket::error), this,
+        [this](QAbstractSocket::SocketError) { emit errorOccurred(m_socket.errorString()); });
+#endif
 }
 
 void WebSocketClient::connectTo(const QUrl &url)
