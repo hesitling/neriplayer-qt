@@ -104,8 +104,22 @@ static QString lyricsToJson(const Song &song)
     if (!song.lyrics.lines.isEmpty()) {
         QJsonArray linesArr;
         for (const auto &line : song.lyrics.lines) {
-            linesArr.append(QJsonObject::fromVariantMap(
-                { { "s", line.startTimeMs }, { "e", line.endTimeMs }, { "t", line.text } }));
+            QJsonObject lineObj;
+            lineObj["s"] = line.startTimeMs;
+            lineObj["e"] = line.endTimeMs;
+            lineObj["t"] = line.text;
+            if (!line.words.isEmpty()) {
+                QJsonArray wordsArr;
+                for (const auto &w : line.words) {
+                    QJsonObject wo;
+                    wo["t"] = w.text;
+                    wo["s"] = w.startTimeMs;
+                    wo["e"] = w.endTimeMs;
+                    wordsArr.append(wo);
+                }
+                lineObj["w"] = wordsArr;
+            }
+            linesArr.append(lineObj);
         }
         root["lines"] = linesArr;
     }
@@ -283,7 +297,7 @@ QVariantList SqlRowMapper::songToUpdateParams(const Song &s)
 PlaylistSummary SqlRowMapper::toPlaylistSummary(const QueryRow &row)
 {
     PlaylistSummary ps;
-    if (row.isEmpty())
+    if (row.size() < 6)
         return ps;
 
     ps.id = row[0].toString(); // id
