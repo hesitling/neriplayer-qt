@@ -5,8 +5,8 @@
 
 namespace NeriPlayerQt {
 
-LocalPlaylistDetailViewModel::LocalPlaylistDetailViewModel(IPlaylistRepository *playlistRepo,
-                                                           ISongRepository *songRepo, QObject *parent)
+LocalPlaylistDetailViewModel::LocalPlaylistDetailViewModel(IPlaylistRepository *playlistRepo, ISongRepository *songRepo,
+                                                           QObject *parent)
     : QObject(parent)
     , m_playlistRepo(playlistRepo)
     , m_songRepo(songRepo)
@@ -16,12 +16,30 @@ LocalPlaylistDetailViewModel::LocalPlaylistDetailViewModel(IPlaylistRepository *
 
 LocalPlaylistDetailViewModel::~LocalPlaylistDetailViewModel() = default;
 
-QString LocalPlaylistDetailViewModel::playlistId() const { return m_playlistId; }
-QString LocalPlaylistDetailViewModel::playlistName() const { return m_playlistName; }
-SongListModel *LocalPlaylistDetailViewModel::songs() const { return m_songs; }
-bool LocalPlaylistDetailViewModel::isLoading() const { return m_isLoading; }
-bool LocalPlaylistDetailViewModel::hasError() const { return m_hasError; }
-ViewModelError LocalPlaylistDetailViewModel::error() const { return m_error; }
+QString LocalPlaylistDetailViewModel::playlistId() const
+{
+    return m_playlistId;
+}
+QString LocalPlaylistDetailViewModel::playlistName() const
+{
+    return m_playlistName;
+}
+SongListModel *LocalPlaylistDetailViewModel::songs() const
+{
+    return m_songs;
+}
+bool LocalPlaylistDetailViewModel::isLoading() const
+{
+    return m_isLoading;
+}
+bool LocalPlaylistDetailViewModel::hasError() const
+{
+    return m_hasError;
+}
+ViewModelError LocalPlaylistDetailViewModel::error() const
+{
+    return m_error;
+}
 
 void LocalPlaylistDetailViewModel::loadPlaylist(const QString &id)
 {
@@ -66,8 +84,7 @@ void LocalPlaylistDetailViewModel::rename(const QString &newName)
 {
     auto playlist = m_playlistRepo->findById(m_playlistId);
     if (playlist.has_value()) {
-        m_playlistRepo->updateMetadata(m_playlistId, newName, playlist->description,
-                                       playlist->coverUrl.toString());
+        m_playlistRepo->updateMetadata(m_playlistId, newName, playlist->description, playlist->coverUrl.toString());
         m_playlistName = newName;
         Q_EMIT playlistNameChanged();
     }

@@ -29,8 +29,8 @@ class SearchViewModel : public QObject {
     Q_OBJECT
 
     Q_PROPERTY(QString query READ query WRITE setQuery NOTIFY queryChanged)
-    Q_PROPERTY(MusicPlatform selectedPlatform READ selectedPlatform WRITE setSelectedPlatform NOTIFY
-                   selectedPlatformChanged)
+    Q_PROPERTY(
+        MusicPlatform selectedPlatform READ selectedPlatform WRITE setSelectedPlatform NOTIFY selectedPlatformChanged)
     Q_PROPERTY(SongListModel *results READ results CONSTANT)
     Q_PROPERTY(bool isLoading READ isLoading NOTIFY isLoadingChanged)
     Q_PROPERTY(bool hasMore READ hasMore NOTIFY hasMoreChanged)

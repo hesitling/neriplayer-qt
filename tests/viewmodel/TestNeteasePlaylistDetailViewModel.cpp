@@ -1,10 +1,10 @@
 /// @file TestNeteasePlaylistDetailViewModel.cpp
 /// @brief Unit tests for NeteasePlaylistDetailViewModel
 
-#include "viewmodel/NeteasePlaylistDetailViewModel.h"
 #include "domain/Song.h"
 #include "repo/IPlaylistRepository.h"
 #include "repo/ISongRepository.h"
+#include "viewmodel/NeteasePlaylistDetailViewModel.h"
 
 #include <QSignalSpy>
 #include <QTest>
@@ -15,21 +15,45 @@ using namespace NeriPlayerQt;
 
 class MockSongRepo : public ISongRepository {
 public:
-    std::optional<Song> findById(const QString &) override { return std::nullopt; }
-    QVector<Song> findByIds(const QStringList &) override { return {}; }
-    void save(const Song &) override {}
-    void saveBatch(const QVector<Song> &songs) override { m_savedSongs.append(songs); }
-    void remove(const QString &) override {}
-    bool exists(const QString &) override { return false; }
-    QVector<Song> findByPlatform(MusicPlatform) override { return {}; }
-    QVector<Song> search(const QString &, int) override { return {}; }
+    std::optional<Song> findById(const QString &) override
+    {
+        return std::nullopt;
+    }
+    QVector<Song> findByIds(const QStringList &) override
+    {
+        return {};
+    }
+    void save(const Song &) override { }
+    void saveBatch(const QVector<Song> &songs) override
+    {
+        m_savedSongs.append(songs);
+    }
+    void remove(const QString &) override { }
+    bool exists(const QString &) override
+    {
+        return false;
+    }
+    QVector<Song> findByPlatform(MusicPlatform) override
+    {
+        return {};
+    }
+    QVector<Song> search(const QString &, int) override
+    {
+        return {};
+    }
     QVector<Song> m_savedSongs;
 };
 
 class MockPlaylistRepo : public IPlaylistRepository {
 public:
-    QVector<PlaylistSummary> findAll() override { return {}; }
-    std::optional<Playlist> findById(const QString &) override { return std::nullopt; }
+    QVector<PlaylistSummary> findAll() override
+    {
+        return {};
+    }
+    std::optional<Playlist> findById(const QString &) override
+    {
+        return std::nullopt;
+    }
     Playlist create(const QString &name, MusicPlatform) override
     {
         Playlist p;
@@ -38,16 +62,19 @@ public:
         m_createdName = name;
         return p;
     }
-    void updateMetadata(const QString &, const QString &, const QString &, const QString &) override {}
-    void remove(const QString &) override {}
+    void updateMetadata(const QString &, const QString &, const QString &, const QString &) override { }
+    void remove(const QString &) override { }
     bool addSong(const QString &, const QString &, int) override
     {
         m_addSongCount++;
         return true;
     }
-    void removeSong(const QString &, const QString &) override {}
-    void reorderSongs(const QString &, const QStringList &) override {}
-    int songCount(const QString &) override { return 0; }
+    void removeSong(const QString &, const QString &) override { }
+    void reorderSongs(const QString &, const QStringList &) override { }
+    int songCount(const QString &) override
+    {
+        return 0;
+    }
     QString m_createdName;
     int m_addSongCount = 0;
 };

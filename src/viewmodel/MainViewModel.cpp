@@ -18,17 +18,39 @@ MainViewModel::MainViewModel(PlayerViewModel *playerVm, SearchViewModel *searchV
 
 MainViewModel::~MainViewModel() = default;
 
-MainViewModel::View MainViewModel::currentView() const { return m_currentView; }
-PlayerViewModel *MainViewModel::playerViewModel() const { return m_playerVm; }
-SearchViewModel *MainViewModel::searchViewModel() const { return m_searchVm; }
-PlaylistViewModel *MainViewModel::playlistViewModel() const { return m_playlistVm; }
-SettingsViewModel *MainViewModel::settingsViewModel() const { return m_settingsVm; }
-LocalPlaylistDetailViewModel *MainViewModel::localPlaylistDetail() const { return m_localPlaylistDetail; }
-NeteasePlaylistDetailViewModel *MainViewModel::neteasePlaylistDetail() const { return m_neteasePlaylistDetail; }
+MainViewModel::View MainViewModel::currentView() const
+{
+    return m_currentView;
+}
+PlayerViewModel *MainViewModel::playerViewModel() const
+{
+    return m_playerVm;
+}
+SearchViewModel *MainViewModel::searchViewModel() const
+{
+    return m_searchVm;
+}
+PlaylistViewModel *MainViewModel::playlistViewModel() const
+{
+    return m_playlistVm;
+}
+SettingsViewModel *MainViewModel::settingsViewModel() const
+{
+    return m_settingsVm;
+}
+LocalPlaylistDetailViewModel *MainViewModel::localPlaylistDetail() const
+{
+    return m_localPlaylistDetail;
+}
+NeteasePlaylistDetailViewModel *MainViewModel::neteasePlaylistDetail() const
+{
+    return m_neteasePlaylistDetail;
+}
 
 void MainViewModel::navigateTo(View view)
 {
-    if (m_currentView == view) return;
+    if (m_currentView == view)
+        return;
 
     // Delete detail VMs when navigating away
     if (m_currentView == View::LocalPlaylist || m_currentView == View::NeteasePlaylist) {
@@ -102,12 +124,9 @@ void MainViewModel::connectSignals()
             [this](const Song &song) { m_playerVm->play(song); });
 
     // Playlist → Navigation
-    connect(m_playlistVm, &PlaylistViewModel::localPlaylistSelected, this,
-            &MainViewModel::openLocalPlaylist);
-    connect(m_playlistVm, &PlaylistViewModel::neteasePlaylistSelected, this,
-            &MainViewModel::openNeteasePlaylist);
-    connect(m_playlistVm, &PlaylistViewModel::neteaseAlbumSelected, this,
-            &MainViewModel::openNeteaseAlbum);
+    connect(m_playlistVm, &PlaylistViewModel::localPlaylistSelected, this, &MainViewModel::openLocalPlaylist);
+    connect(m_playlistVm, &PlaylistViewModel::neteasePlaylistSelected, this, &MainViewModel::openNeteasePlaylist);
+    connect(m_playlistVm, &PlaylistViewModel::neteaseAlbumSelected, this, &MainViewModel::openNeteaseAlbum);
 }
 
 } // namespace NeriPlayerQt

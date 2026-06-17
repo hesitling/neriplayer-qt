@@ -5,8 +5,7 @@
 
 namespace NeriPlayerQt {
 
-PlaylistViewModel::PlaylistViewModel(IPlaylistRepository *playlistRepo, NeteaseClient *neteaseClient,
-                                     QObject *parent)
+PlaylistViewModel::PlaylistViewModel(IPlaylistRepository *playlistRepo, NeteaseClient *neteaseClient, QObject *parent)
     : QObject(parent)
     , m_playlistRepo(playlistRepo)
     , m_neteaseClient(neteaseClient)

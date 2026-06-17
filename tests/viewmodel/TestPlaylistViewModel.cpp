@@ -1,10 +1,10 @@
 /// @file TestPlaylistViewModel.cpp
 /// @brief Unit tests for PlaylistViewModel with mocked dependencies
 
-#include "viewmodel/PlaylistViewModel.h"
 #include "domain/Playlist.h"
 #include "domain/PlaylistSummary.h"
 #include "repo/IPlaylistRepository.h"
+#include "viewmodel/PlaylistViewModel.h"
 
 #include <QCoroTask>
 #include <QSignalSpy>
@@ -16,11 +16,15 @@ using namespace NeriPlayerQt;
 
 class MockPlaylistRepo : public IPlaylistRepository {
 public:
-    QVector<PlaylistSummary> findAll() override { return m_summaries; }
+    QVector<PlaylistSummary> findAll() override
+    {
+        return m_summaries;
+    }
     std::optional<Playlist> findById(const QString &id) override
     {
         auto it = m_playlists.find(id);
-        if (it != m_playlists.end()) return it.value();
+        if (it != m_playlists.end())
+            return it.value();
         return std::nullopt;
     }
     Playlist create(const QString &name, MusicPlatform) override
@@ -35,11 +39,20 @@ public:
     {
         m_renamedIds[id] = name;
     }
-    void remove(const QString &id) override { m_removedIds.append(id); }
-    bool addSong(const QString &, const QString &, int) override { return true; }
-    void removeSong(const QString &, const QString &) override {}
-    void reorderSongs(const QString &, const QStringList &) override {}
-    int songCount(const QString &) override { return 0; }
+    void remove(const QString &id) override
+    {
+        m_removedIds.append(id);
+    }
+    bool addSong(const QString &, const QString &, int) override
+    {
+        return true;
+    }
+    void removeSong(const QString &, const QString &) override { }
+    void reorderSongs(const QString &, const QStringList &) override { }
+    int songCount(const QString &) override
+    {
+        return 0;
+    }
 
     // Test data
     QVector<PlaylistSummary> m_summaries;

@@ -21,93 +21,174 @@ public:
         : IPlayerBackend(parent)
     {
     }
-    QCoro::Task<void> load(const QUrl &) override { co_return; }
-    void play() override {}
-    void pause() override {}
-    void stop() override {}
-    void seek(qint64) override {}
-    PlaybackState state() const override { return PlaybackState::Stopped; }
-    qint64 positionMs() const override { return 0; }
-    qint64 durationMs() const override { return 0; }
-    bool isSeekable() const override { return true; }
-    void setVolume(double) override {}
-    double volume() const override { return 1.0; }
-    void setMuted(bool) override {}
-    bool isMuted() const override { return false; }
-    QString backendName() const override { return "Mock"; }
+    QCoro::Task<void> load(const QUrl &) override
+    {
+        co_return;
+    }
+    void play() override { }
+    void pause() override { }
+    void stop() override { }
+    void seek(qint64) override { }
+    PlaybackState state() const override
+    {
+        return PlaybackState::Stopped;
+    }
+    qint64 positionMs() const override
+    {
+        return 0;
+    }
+    qint64 durationMs() const override
+    {
+        return 0;
+    }
+    bool isSeekable() const override
+    {
+        return true;
+    }
+    void setVolume(double) override { }
+    double volume() const override
+    {
+        return 1.0;
+    }
+    void setMuted(bool) override { }
+    bool isMuted() const override
+    {
+        return false;
+    }
+    QString backendName() const override
+    {
+        return "Mock";
+    }
 };
 
 class MockSettingsRepo : public ISettingsRepository {
 public:
-    std::optional<QString> get(const QString &) override { return std::nullopt; }
-    void set(const QString &, const QString &) override {}
-    void remove(const QString &) override {}
-    QVariantMap getAll() override { return {}; }
-    bool getBool(const QString &, bool defaultValue) override { return defaultValue; }
-    int getInt(const QString &, int defaultValue) override { return defaultValue; }
+    std::optional<QString> get(const QString &) override
+    {
+        return std::nullopt;
+    }
+    void set(const QString &, const QString &) override { }
+    void remove(const QString &) override { }
+    QVariantMap getAll() override
+    {
+        return {};
+    }
+    bool getBool(const QString &, bool defaultValue) override
+    {
+        return defaultValue;
+    }
+    int getInt(const QString &, int defaultValue) override
+    {
+        return defaultValue;
+    }
 };
 
 class MockPlayerStateRepo : public IPlayerStateRepository {
 public:
-    void save(const PersistedPlayerState &) override {}
-    std::optional<PersistedPlayerState> load() override { return std::nullopt; }
-    void clear() override {}
+    void save(const PersistedPlayerState &) override { }
+    std::optional<PersistedPlayerState> load() override
+    {
+        return std::nullopt;
+    }
+    void clear() override { }
 };
 
 class MockHistoryRepo : public IPlayHistoryRepository {
 public:
-    void record(const QString &) override {}
-    QVector<Song> recent(int) override { return {}; }
-    void clear() override {}
-    void remove(const QStringList &) override {}
-    int playCount(const QString &) override { return 0; }
+    void record(const QString &) override { }
+    QVector<Song> recent(int) override
+    {
+        return {};
+    }
+    void clear() override { }
+    void remove(const QStringList &) override { }
+    int playCount(const QString &) override
+    {
+        return 0;
+    }
 };
 
 class MockPlaylistRepo : public IPlaylistRepository {
 public:
-    QVector<PlaylistSummary> findAll() override { return {}; }
-    std::optional<Playlist> findById(const QString &) override { return std::nullopt; }
-    Playlist create(const QString &, MusicPlatform) override { return {}; }
-    void updateMetadata(const QString &, const QString &, const QString &, const QString &) override {}
-    void remove(const QString &) override {}
-    bool addSong(const QString &, const QString &, int) override { return true; }
-    void removeSong(const QString &, const QString &) override {}
-    void reorderSongs(const QString &, const QStringList &) override {}
-    int songCount(const QString &) override { return 0; }
+    QVector<PlaylistSummary> findAll() override
+    {
+        return {};
+    }
+    std::optional<Playlist> findById(const QString &) override
+    {
+        return std::nullopt;
+    }
+    Playlist create(const QString &, MusicPlatform) override
+    {
+        return {};
+    }
+    void updateMetadata(const QString &, const QString &, const QString &, const QString &) override { }
+    void remove(const QString &) override { }
+    bool addSong(const QString &, const QString &, int) override
+    {
+        return true;
+    }
+    void removeSong(const QString &, const QString &) override { }
+    void reorderSongs(const QString &, const QStringList &) override { }
+    int songCount(const QString &) override
+    {
+        return 0;
+    }
 };
 
 class MockSongRepo : public ISongRepository {
 public:
-    std::optional<Song> findById(const QString &) override { return std::nullopt; }
-    QVector<Song> findByIds(const QStringList &) override { return {}; }
-    void save(const Song &) override {}
-    void saveBatch(const QVector<Song> &) override {}
-    void remove(const QString &) override {}
-    bool exists(const QString &) override { return false; }
-    QVector<Song> findByPlatform(MusicPlatform) override { return {}; }
-    QVector<Song> search(const QString &, int) override { return {}; }
+    std::optional<Song> findById(const QString &) override
+    {
+        return std::nullopt;
+    }
+    QVector<Song> findByIds(const QStringList &) override
+    {
+        return {};
+    }
+    void save(const Song &) override { }
+    void saveBatch(const QVector<Song> &) override { }
+    void remove(const QString &) override { }
+    bool exists(const QString &) override
+    {
+        return false;
+    }
+    QVector<Song> findByPlatform(MusicPlatform) override
+    {
+        return {};
+    }
+    QVector<Song> search(const QString &, int) override
+    {
+        return {};
+    }
 };
 
 class MockPlugin : public IMusicPlatformPlugin {
 public:
     QCoro::Task<ApiResult<SearchResult>> search(const QString &, SearchType, int, int) override
     {
-        co_return ApiResult<SearchResult>(SearchResult{});
+        co_return ApiResult<SearchResult>(SearchResult {});
     }
     QCoro::Task<ApiResult<Song>> getSongDetail(const QString &) override
     {
-        co_return ApiResult<Song>(Song{});
+        co_return ApiResult<Song>(Song {});
     }
     QCoro::Task<ApiResult<SongUrlResult>> getSongUrl(const QString &, AudioQuality) override
     {
-        co_return ApiResult<SongUrlResult>(SongUrlResult{});
+        co_return ApiResult<SongUrlResult>(SongUrlResult {});
     }
     QCoro::Task<ApiResult<Lyrics>> getLyrics(const QString &) override
     {
-        co_return ApiResult<Lyrics>(Lyrics{});
+        co_return ApiResult<Lyrics>(Lyrics {});
     }
-    bool isAuthenticated() const override { return false; }
-    QString platformName() const override { return "Mock"; }
+    bool isAuthenticated() const override
+    {
+        return false;
+    }
+    QString platformName() const override
+    {
+        return "Mock";
+    }
 };
 
 class TestMainViewModel : public QObject {
@@ -132,9 +213,8 @@ private:
     MainViewModel *createViewModel()
     {
         m_backend = new MockPlayerBackend();
-        auto *controller =
-            new PlaybackController(std::unique_ptr<IPlayerBackend>(m_backend), nullptr, &m_stateRepo,
-                                   &m_settingsRepo);
+        auto *controller = new PlaybackController(std::unique_ptr<IPlayerBackend>(m_backend), nullptr, &m_stateRepo,
+                                                  &m_settingsRepo);
 
         m_playerVm = new PlayerViewModel(controller, &m_historyRepo);
         m_searchVm = new SearchViewModel({&m_plugin}, &m_songRepo);
@@ -177,8 +257,6 @@ void TestMainViewModel::navigation_changesView()
 
     delete vm;
 }
-
-
 
 void TestMainViewModel::searchRequestPlay_wiredToPlayer()
 {

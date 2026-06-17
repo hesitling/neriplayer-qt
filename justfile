@@ -72,6 +72,25 @@ format:
     echo "$files" | sed 's/^/  /'
     echo "$files" | xargs clang-format -i --style=file
 
+# Format files changed since a ref: just format-against main
+[group('format')]
+format-against ref='HEAD~1':
+    #!/usr/bin/env bash
+    set -euo pipefail
+    base_ref='{{ref}}'
+    if ! git rev-parse --verify "$base_ref" >/dev/null 2>&1; then
+        echo "Error: ref '$base_ref' not found." >&2
+        exit 1
+    fi
+    files=$(git diff --name-only --diff-filter=ACMR "$base_ref" -- '*.h' '*.cpp' || true)
+    if [ -z "$files" ]; then
+        echo "No changed C++ files since $base_ref."
+        exit 0
+    fi
+    echo "Formatting (since $base_ref):"
+    echo "$files" | sed 's/^/  /'
+    echo "$files" | xargs clang-format -i --style=file
+
 # Check formatting (no writes, exits non-zero on violation)
 [group('format')]
 check:
@@ -91,6 +110,11 @@ check:
         exit 1
     fi
     echo "All files formatted correctly."
+
+# Check formatting since a ref: just check-against main
+[group('format')]
+check-against ref='HEAD~1':
+    scripts/check-format.sh {{ref}}
 
 # Format a specific file: just format-file src/core/database/DatabaseManager.cpp
 [group('format')]

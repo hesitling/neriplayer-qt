@@ -1,12 +1,12 @@
 /// @file TestSearchViewModel.cpp
 /// @brief Unit tests for SearchViewModel with mocked plugin
 
-#include "viewmodel/SearchViewModel.h"
 #include "api/common/ApiResult.h"
 #include "api/common/IMusicPlatformPlugin.h"
 #include "domain/SearchResult.h"
 #include "domain/Song.h"
 #include "repo/ISongRepository.h"
+#include "viewmodel/SearchViewModel.h"
 
 #include <QCoroTask>
 #include <QSignalSpy>
@@ -18,8 +18,7 @@ using namespace NeriPlayerQt;
 
 class MockPlugin : public IMusicPlatformPlugin {
 public:
-    QCoro::Task<ApiResult<SearchResult>> search(const QString &keyword, SearchType, int limit,
-                                                int offset) override
+    QCoro::Task<ApiResult<SearchResult>> search(const QString &keyword, SearchType, int limit, int offset) override
     {
         m_lastKeyword = keyword;
         m_lastLimit = limit;
@@ -45,18 +44,24 @@ public:
 
     QCoro::Task<ApiResult<Song>> getSongDetail(const QString &) override
     {
-        co_return ApiResult<Song>(Song{});
+        co_return ApiResult<Song>(Song {});
     }
     QCoro::Task<ApiResult<SongUrlResult>> getSongUrl(const QString &, AudioQuality) override
     {
-        co_return ApiResult<SongUrlResult>(SongUrlResult{});
+        co_return ApiResult<SongUrlResult>(SongUrlResult {});
     }
     QCoro::Task<ApiResult<Lyrics>> getLyrics(const QString &) override
     {
-        co_return ApiResult<Lyrics>(Lyrics{});
+        co_return ApiResult<Lyrics>(Lyrics {});
     }
-    bool isAuthenticated() const override { return true; }
-    QString platformName() const override { return QStringLiteral("Mock"); }
+    bool isAuthenticated() const override
+    {
+        return true;
+    }
+    QString platformName() const override
+    {
+        return QStringLiteral("Mock");
+    }
 
     // Test control
     int m_resultCount = 10;
@@ -75,14 +80,32 @@ public:
 
 class MockSongRepo : public ISongRepository {
 public:
-    std::optional<Song> findById(const QString &) override { return std::nullopt; }
-    QVector<Song> findByIds(const QStringList &) override { return {}; }
-    void save(const Song &) override {}
-    void saveBatch(const QVector<Song> &songs) override { m_savedBatches.append(songs); }
-    void remove(const QString &) override {}
-    bool exists(const QString &) override { return false; }
-    QVector<Song> findByPlatform(MusicPlatform) override { return {}; }
-    QVector<Song> search(const QString &, int) override { return {}; }
+    std::optional<Song> findById(const QString &) override
+    {
+        return std::nullopt;
+    }
+    QVector<Song> findByIds(const QStringList &) override
+    {
+        return {};
+    }
+    void save(const Song &) override { }
+    void saveBatch(const QVector<Song> &songs) override
+    {
+        m_savedBatches.append(songs);
+    }
+    void remove(const QString &) override { }
+    bool exists(const QString &) override
+    {
+        return false;
+    }
+    QVector<Song> findByPlatform(MusicPlatform) override
+    {
+        return {};
+    }
+    QVector<Song> search(const QString &, int) override
+    {
+        return {};
+    }
 
     QVector<QVector<Song>> m_savedBatches;
 };

@@ -5,10 +5,8 @@
 
 namespace NeriPlayerQt {
 
-NeteasePlaylistDetailViewModel::NeteasePlaylistDetailViewModel(NeteaseClient *neteaseClient,
-                                                               ISongRepository *songRepo,
-                                                               IPlaylistRepository *playlistRepo,
-                                                               QObject *parent)
+NeteasePlaylistDetailViewModel::NeteasePlaylistDetailViewModel(NeteaseClient *neteaseClient, ISongRepository *songRepo,
+                                                               IPlaylistRepository *playlistRepo, QObject *parent)
     : QObject(parent)
     , m_neteaseClient(neteaseClient)
     , m_songRepo(songRepo)
@@ -19,13 +17,34 @@ NeteasePlaylistDetailViewModel::NeteasePlaylistDetailViewModel(NeteaseClient *ne
 
 NeteasePlaylistDetailViewModel::~NeteasePlaylistDetailViewModel() = default;
 
-QString NeteasePlaylistDetailViewModel::headerName() const { return m_headerName; }
-QString NeteasePlaylistDetailViewModel::headerCoverUrl() const { return m_headerCoverUrl; }
-int NeteasePlaylistDetailViewModel::headerTrackCount() const { return m_headerTrackCount; }
-SongListModel *NeteasePlaylistDetailViewModel::songs() const { return m_songs; }
-bool NeteasePlaylistDetailViewModel::isLoading() const { return m_isLoading; }
-bool NeteasePlaylistDetailViewModel::hasError() const { return m_hasError; }
-ViewModelError NeteasePlaylistDetailViewModel::error() const { return m_error; }
+QString NeteasePlaylistDetailViewModel::headerName() const
+{
+    return m_headerName;
+}
+QString NeteasePlaylistDetailViewModel::headerCoverUrl() const
+{
+    return m_headerCoverUrl;
+}
+int NeteasePlaylistDetailViewModel::headerTrackCount() const
+{
+    return m_headerTrackCount;
+}
+SongListModel *NeteasePlaylistDetailViewModel::songs() const
+{
+    return m_songs;
+}
+bool NeteasePlaylistDetailViewModel::isLoading() const
+{
+    return m_isLoading;
+}
+bool NeteasePlaylistDetailViewModel::hasError() const
+{
+    return m_hasError;
+}
+ViewModelError NeteasePlaylistDetailViewModel::error() const
+{
+    return m_error;
+}
 
 void NeteasePlaylistDetailViewModel::loadPlaylist(const QString &playlistId)
 {
@@ -54,7 +73,8 @@ void NeteasePlaylistDetailViewModel::retry()
 
 void NeteasePlaylistDetailViewModel::saveToLocal()
 {
-    if (m_headerName.isEmpty()) return;
+    if (m_headerName.isEmpty())
+        return;
 
     // Create local playlist
     Playlist localPlaylist = m_playlistRepo->create(m_headerName);

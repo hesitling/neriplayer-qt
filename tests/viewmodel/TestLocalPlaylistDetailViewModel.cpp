@@ -1,11 +1,11 @@
 /// @file TestLocalPlaylistDetailViewModel.cpp
 /// @brief Unit tests for LocalPlaylistDetailViewModel
 
-#include "viewmodel/LocalPlaylistDetailViewModel.h"
 #include "domain/Playlist.h"
 #include "domain/Song.h"
 #include "repo/IPlaylistRepository.h"
 #include "repo/ISongRepository.h"
+#include "viewmodel/LocalPlaylistDetailViewModel.h"
 
 #include <QSignalSpy>
 #include <QTest>
@@ -14,11 +14,15 @@ using namespace NeriPlayerQt;
 
 class MockPlaylistRepo : public IPlaylistRepository {
 public:
-    QVector<PlaylistSummary> findAll() override { return {}; }
+    QVector<PlaylistSummary> findAll() override
+    {
+        return {};
+    }
     std::optional<Playlist> findById(const QString &id) override
     {
         auto it = m_playlists.find(id);
-        if (it != m_playlists.end()) return it.value();
+        if (it != m_playlists.end())
+            return it.value();
         return std::nullopt;
     }
     Playlist create(const QString &name, MusicPlatform) override
@@ -32,11 +36,26 @@ public:
     {
         m_renamedIds[id] = name;
     }
-    void remove(const QString &id) override { m_removedIds.append(id); }
-    bool addSong(const QString &, const QString &, int) override { return true; }
-    void removeSong(const QString &, const QString &) override { m_removeSongCalled = true; }
-    void reorderSongs(const QString &, const QStringList &) override { m_reorderCalled = true; }
-    int songCount(const QString &) override { return 0; }
+    void remove(const QString &id) override
+    {
+        m_removedIds.append(id);
+    }
+    bool addSong(const QString &, const QString &, int) override
+    {
+        return true;
+    }
+    void removeSong(const QString &, const QString &) override
+    {
+        m_removeSongCalled = true;
+    }
+    void reorderSongs(const QString &, const QStringList &) override
+    {
+        m_reorderCalled = true;
+    }
+    int songCount(const QString &) override
+    {
+        return 0;
+    }
 
     QHash<QString, Playlist> m_playlists;
     QStringList m_removedIds;
@@ -47,14 +66,29 @@ public:
 
 class MockSongRepo : public ISongRepository {
 public:
-    std::optional<Song> findById(const QString &) override { return std::nullopt; }
-    QVector<Song> findByIds(const QStringList &) override { return {}; }
-    void save(const Song &) override {}
-    void saveBatch(const QVector<Song> &) override {}
-    void remove(const QString &) override {}
-    bool exists(const QString &) override { return false; }
-    QVector<Song> findByPlatform(MusicPlatform) override { return {}; }
-    QVector<Song> search(const QString &, int) override { return {}; }
+    std::optional<Song> findById(const QString &) override
+    {
+        return std::nullopt;
+    }
+    QVector<Song> findByIds(const QStringList &) override
+    {
+        return {};
+    }
+    void save(const Song &) override { }
+    void saveBatch(const QVector<Song> &) override { }
+    void remove(const QString &) override { }
+    bool exists(const QString &) override
+    {
+        return false;
+    }
+    QVector<Song> findByPlatform(MusicPlatform) override
+    {
+        return {};
+    }
+    QVector<Song> search(const QString &, int) override
+    {
+        return {};
+    }
 };
 
 class TestLocalPlaylistDetailViewModel : public QObject {

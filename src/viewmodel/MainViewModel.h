@@ -23,8 +23,8 @@ class MainViewModel : public QObject {
     Q_PROPERTY(SearchViewModel *searchViewModel READ searchViewModel CONSTANT)
     Q_PROPERTY(PlaylistViewModel *playlistViewModel READ playlistViewModel CONSTANT)
     Q_PROPERTY(SettingsViewModel *settingsViewModel READ settingsViewModel CONSTANT)
-    Q_PROPERTY(LocalPlaylistDetailViewModel *localPlaylistDetail READ localPlaylistDetail NOTIFY
-                   localPlaylistDetailChanged)
+    Q_PROPERTY(
+        LocalPlaylistDetailViewModel *localPlaylistDetail READ localPlaylistDetail NOTIFY localPlaylistDetailChanged)
     Q_PROPERTY(NeteasePlaylistDetailViewModel *neteasePlaylistDetail READ neteasePlaylistDetail NOTIFY
                    neteasePlaylistDetailChanged)
 
