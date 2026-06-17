@@ -129,6 +129,12 @@ ci: build test check
 
 # ─── Utilities ────────────────────────────────────────────────────
 
+# Set up git hooks from .githooks/ (run once after clone)
+[group('util')]
+setup-hooks:
+    git config core.hooksPath .githooks
+    @echo "Git hooks path set to .githooks/"
+
 # Open compile_commands.json in build/ (for IDEs)
 [group('util')]
 link-compile-commands:
