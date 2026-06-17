@@ -3,6 +3,8 @@
 
 #include "viewmodel/LocalPlaylistDetailViewModel.h"
 
+#include "core/logger/Logger.h"
+
 namespace NeriPlayerQt {
 
 LocalPlaylistDetailViewModel::LocalPlaylistDetailViewModel(IPlaylistRepository *playlistRepo, ISongRepository *songRepo,
@@ -46,58 +48,85 @@ void LocalPlaylistDetailViewModel::loadPlaylist(const QString &id)
     m_playlistId = id;
     Q_EMIT playlistIdChanged();
 
-    auto playlist = m_playlistRepo->findById(id);
-    if (!playlist.has_value()) {
-        m_playlistName.clear();
-        Q_EMIT playlistNameChanged();
-        m_songs->setSongs({});
+    try {
+        auto playlist = m_playlistRepo->findById(id);
+        if (!playlist.has_value()) {
+            m_playlistName.clear();
+            Q_EMIT playlistNameChanged();
+            m_songs->setSongs({});
 
-        m_error = ViewModelError(ViewModelError::ErrorType::NotFound, "Playlist not found");
+            m_error = ViewModelError(ViewModelError::ErrorType::NotFound, "Playlist not found");
+            m_hasError = true;
+            Q_EMIT errorChanged();
+            return;
+        }
+
+        m_playlistName = playlist->name;
+        Q_EMIT playlistNameChanged();
+
+        m_songs->setSongs(playlist->songs);
+        m_hasError = false;
+        Q_EMIT errorChanged();
+    } catch (const std::exception &ex) {
+        Logger::get("viewmodel")->warn("Failed to load playlist: {}", ex.what());
+        m_error = ViewModelError(ViewModelError::ErrorType::Database, QString::fromUtf8(ex.what()));
         m_hasError = true;
         Q_EMIT errorChanged();
-        return;
     }
-
-    m_playlistName = playlist->name;
-    Q_EMIT playlistNameChanged();
-
-    m_songs->setSongs(playlist->songs);
-    m_hasError = false;
-    Q_EMIT errorChanged();
 }
 
 void LocalPlaylistDetailViewModel::addSong(const QString &songId)
 {
-    m_playlistRepo->addSong(m_playlistId, songId);
-    loadPlaylist(m_playlistId); // Refresh
+    try {
+        m_playlistRepo->addSong(m_playlistId, songId);
+        loadPlaylist(m_playlistId); // Refresh
+    } catch (const std::exception &ex) {
+        Logger::get("viewmodel")->warn("Failed to add song to playlist: {}", ex.what());
+    }
 }
 
 void LocalPlaylistDetailViewModel::removeSong(const QString &songId)
 {
-    m_playlistRepo->removeSong(m_playlistId, songId);
-    loadPlaylist(m_playlistId); // Refresh
+    try {
+        m_playlistRepo->removeSong(m_playlistId, songId);
+        loadPlaylist(m_playlistId); // Refresh
+    } catch (const std::exception &ex) {
+        Logger::get("viewmodel")->warn("Failed to remove song from playlist: {}", ex.what());
+    }
 }
 
 void LocalPlaylistDetailViewModel::reorderSongs(const QStringList &songIds)
 {
-    m_playlistRepo->reorderSongs(m_playlistId, songIds);
-    loadPlaylist(m_playlistId); // Refresh
+    try {
+        m_playlistRepo->reorderSongs(m_playlistId, songIds);
+        loadPlaylist(m_playlistId); // Refresh
+    } catch (const std::exception &ex) {
+        Logger::get("viewmodel")->warn("Failed to reorder songs: {}", ex.what());
+    }
 }
 
 void LocalPlaylistDetailViewModel::rename(const QString &newName)
 {
-    auto playlist = m_playlistRepo->findById(m_playlistId);
-    if (playlist.has_value()) {
-        m_playlistRepo->updateMetadata(m_playlistId, newName, playlist->description, playlist->coverUrl.toString());
-        m_playlistName = newName;
-        Q_EMIT playlistNameChanged();
+    try {
+        auto playlist = m_playlistRepo->findById(m_playlistId);
+        if (playlist.has_value()) {
+            m_playlistRepo->updateMetadata(m_playlistId, newName, playlist->description, playlist->coverUrl.toString());
+            m_playlistName = newName;
+            Q_EMIT playlistNameChanged();
+        }
+    } catch (const std::exception &ex) {
+        Logger::get("viewmodel")->warn("Failed to rename playlist: {}", ex.what());
     }
 }
 
 void LocalPlaylistDetailViewModel::deletePlaylist()
 {
-    m_playlistRepo->remove(m_playlistId);
-    Q_EMIT playlistDeleted();
+    try {
+        m_playlistRepo->remove(m_playlistId);
+        Q_EMIT playlistDeleted();
+    } catch (const std::exception &ex) {
+        Logger::get("viewmodel")->warn("Failed to delete playlist: {}", ex.what());
+    }
 }
 
 void LocalPlaylistDetailViewModel::playSong(int index)

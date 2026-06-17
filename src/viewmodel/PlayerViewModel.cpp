@@ -3,6 +3,8 @@
 
 #include "viewmodel/PlayerViewModel.h"
 
+#include "core/logger/Logger.h"
+
 namespace NeriPlayerQt {
 
 PlayerViewModel::PlayerViewModel(PlaybackController *controller, IPlayHistoryRepository *historyRepo, QObject *parent)
@@ -94,7 +96,11 @@ ViewModelError PlayerViewModel::error() const
 
 QCoro::Task<void> PlayerViewModel::play(const Song &song)
 {
-    co_await m_controller->play(song);
+    try {
+        co_await m_controller->play(song);
+    } catch (const std::exception &ex) {
+        Logger::get("viewmodel")->warn("play() failed: {}", ex.what());
+    }
 }
 
 void PlayerViewModel::loadQueueAndPlay(const QVector<Song> &songs, int startIndex)
@@ -233,7 +239,7 @@ void PlayerViewModel::connectControllerSignals()
             try {
                 m_historyRepo->record(song.id);
             } catch (const std::exception &ex) {
-                qWarning() << "Failed to record play history:" << ex.what();
+                Logger::get("viewmodel")->warn("Failed to record play history: {}", ex.what());
             }
         }
     });

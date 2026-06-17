@@ -116,14 +116,17 @@ add_executable(TestSearchViewModel
     ${CMAKE_SOURCE_DIR}/src/viewmodel/SongListModel.cpp
     ${CMAKE_SOURCE_DIR}/src/viewmodel/ViewModelError.cpp
     ${CMAKE_SOURCE_DIR}/src/api/common/ApiError.cpp
+    ${CMAKE_SOURCE_DIR}/src/core/logger/Logger.cpp
 )
 target_include_directories(TestSearchViewModel PRIVATE
     ${CMAKE_SOURCE_DIR}/src
+    ${SPDLOG_INCLUDE_DIRS}
 )
 target_link_libraries(TestSearchViewModel PRIVATE
     Qt6::Core
     Qt6::Test
     ${NERIPLAYER_QCORO_LIBRARIES}
+    ${SPDLOG_LIBRARIES}
 )
 target_compile_definitions(TestSearchViewModel PRIVATE
     QT_NO_KEYWORDS
@@ -183,13 +186,16 @@ add_executable(TestLocalPlaylistDetailViewModel
     ${CMAKE_SOURCE_DIR}/src/viewmodel/SongListModel.cpp
     ${CMAKE_SOURCE_DIR}/src/viewmodel/ViewModelError.cpp
     ${CMAKE_SOURCE_DIR}/src/api/common/ApiError.cpp
+    ${CMAKE_SOURCE_DIR}/src/core/logger/Logger.cpp
 )
 target_include_directories(TestLocalPlaylistDetailViewModel PRIVATE
     ${CMAKE_SOURCE_DIR}/src
+    ${SPDLOG_INCLUDE_DIRS}
 )
 target_link_libraries(TestLocalPlaylistDetailViewModel PRIVATE
     Qt6::Core
     Qt6::Test
+    ${SPDLOG_LIBRARIES}
 )
 target_compile_definitions(TestLocalPlaylistDetailViewModel PRIVATE
     QT_NO_KEYWORDS

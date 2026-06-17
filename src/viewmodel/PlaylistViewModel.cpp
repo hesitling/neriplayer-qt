@@ -3,6 +3,8 @@
 
 #include "viewmodel/PlaylistViewModel.h"
 
+#include "core/logger/Logger.h"
+
 #include <QJsonArray>
 #include <QJsonObject>
 
@@ -53,15 +55,19 @@ ViewModelError PlaylistViewModel::error() const
 
 void PlaylistViewModel::loadLocalPlaylists()
 {
-    auto summaries = m_playlistRepo->findAll();
+    try {
+        auto summaries = m_playlistRepo->findAll();
 
-    QVariantList list;
-    for (const auto &summary : summaries) {
-        list.append(QVariant::fromValue(summary));
+        QVariantList list;
+        for (const auto &summary : summaries) {
+            list.append(QVariant::fromValue(summary));
+        }
+
+        m_localPlaylists = list;
+        Q_EMIT localPlaylistsChanged();
+    } catch (const std::exception &ex) {
+        Logger::get("viewmodel")->warn("Failed to load local playlists: {}", ex.what());
     }
-
-    m_localPlaylists = list;
-    Q_EMIT localPlaylistsChanged();
 }
 
 void PlaylistViewModel::loadNeteasePlaylists()
@@ -78,23 +84,35 @@ void PlaylistViewModel::loadNeteaseAlbums()
 
 void PlaylistViewModel::createLocalPlaylist(const QString &name)
 {
-    m_playlistRepo->create(name);
-    loadLocalPlaylists();
+    try {
+        m_playlistRepo->create(name);
+        loadLocalPlaylists();
+    } catch (const std::exception &ex) {
+        Logger::get("viewmodel")->warn("Failed to create local playlist: {}", ex.what());
+    }
 }
 
 void PlaylistViewModel::deleteLocalPlaylist(const QString &id)
 {
-    m_playlistRepo->remove(id);
-    loadLocalPlaylists();
+    try {
+        m_playlistRepo->remove(id);
+        loadLocalPlaylists();
+    } catch (const std::exception &ex) {
+        Logger::get("viewmodel")->warn("Failed to delete local playlist: {}", ex.what());
+    }
 }
 
 void PlaylistViewModel::renameLocalPlaylist(const QString &id, const QString &name)
 {
-    // Get existing playlist to preserve other metadata
-    auto playlist = m_playlistRepo->findById(id);
-    if (playlist.has_value()) {
-        m_playlistRepo->updateMetadata(id, name, playlist->description, playlist->coverUrl.toString());
-        loadLocalPlaylists();
+    try {
+        // Get existing playlist to preserve other metadata
+        auto playlist = m_playlistRepo->findById(id);
+        if (playlist.has_value()) {
+            m_playlistRepo->updateMetadata(id, name, playlist->description, playlist->coverUrl.toString());
+            loadLocalPlaylists();
+        }
+    } catch (const std::exception &ex) {
+        Logger::get("viewmodel")->warn("Failed to rename local playlist: {}", ex.what());
     }
 }
 
@@ -115,30 +133,39 @@ QCoro::Task<void> PlaylistViewModel::loadNeteasePlaylistsImpl()
     Q_EMIT isLoadingChanged();
     clearError();
 
-    auto result = co_await m_neteaseClient->getUserPlaylists(QString()); // Empty = current user
+    try {
+        auto result = co_await m_neteaseClient->getUserPlaylists(QString()); // Empty = current user
 
-    m_isLoading = false;
-    Q_EMIT isLoadingChanged();
+        m_isLoading = false;
+        Q_EMIT isLoadingChanged();
 
-    if (result.isError()) {
-        m_error = ViewModelError::fromApiError(result.error());
+        if (result.isError()) {
+            m_error = ViewModelError::fromApiError(result.error());
+            m_hasError = true;
+            Q_EMIT errorChanged();
+            co_return;
+        }
+
+        QVariantList list;
+        for (const auto &playlist : result.data()) {
+            PlaylistSummary summary;
+            summary.id = playlist.id;
+            summary.name = playlist.name;
+            summary.coverUrl = playlist.coverUrl;
+            summary.trackCount = playlist.songCount;
+            list.append(QVariant::fromValue(summary));
+        }
+
+        m_neteasePlaylists = list;
+        Q_EMIT neteasePlaylistsChanged();
+    } catch (const std::exception &ex) {
+        m_isLoading = false;
+        Q_EMIT isLoadingChanged();
+        m_error = ViewModelError(ViewModelError::ErrorType::Unknown, QString::fromUtf8(ex.what()));
         m_hasError = true;
         Q_EMIT errorChanged();
-        co_return;
+        Logger::get("viewmodel")->warn("Failed to load NetEase playlists: {}", ex.what());
     }
-
-    QVariantList list;
-    for (const auto &playlist : result.data()) {
-        PlaylistSummary summary;
-        summary.id = playlist.id;
-        summary.name = playlist.name;
-        summary.coverUrl = playlist.coverUrl;
-        summary.trackCount = playlist.songCount;
-        list.append(QVariant::fromValue(summary));
-    }
-
-    m_neteasePlaylists = list;
-    Q_EMIT neteasePlaylistsChanged();
 }
 
 QCoro::Task<void> PlaylistViewModel::loadNeteaseAlbumsImpl()
@@ -147,32 +174,41 @@ QCoro::Task<void> PlaylistViewModel::loadNeteaseAlbumsImpl()
     Q_EMIT isLoadingChanged();
     clearError();
 
-    auto result = co_await m_neteaseClient->getUserStarredAlbums(QString()); // Empty = current user
+    try {
+        auto result = co_await m_neteaseClient->getUserStarredAlbums(QString()); // Empty = current user
 
-    m_isLoading = false;
-    Q_EMIT isLoadingChanged();
+        m_isLoading = false;
+        Q_EMIT isLoadingChanged();
 
-    if (result.isError()) {
-        m_error = ViewModelError::fromApiError(result.error());
+        if (result.isError()) {
+            m_error = ViewModelError::fromApiError(result.error());
+            m_hasError = true;
+            Q_EMIT errorChanged();
+            co_return;
+        }
+
+        // Parse albums from response
+        QJsonArray playlistArray = result.data().value(QStringLiteral("playlist")).toArray();
+        QVariantList list;
+        for (const QJsonValue &val : playlistArray) {
+            QJsonObject obj = val.toObject();
+            PlaylistSummary summary;
+            summary.id = obj.value(QStringLiteral("id")).toVariant().toString();
+            summary.name = obj.value(QStringLiteral("name")).toString();
+            summary.coverUrl = QUrl(obj.value(QStringLiteral("coverImgUrl")).toString());
+            summary.trackCount = obj.value(QStringLiteral("trackCount")).toInt();
+            list.append(QVariant::fromValue(summary));
+        }
+        m_neteaseAlbums = list;
+        Q_EMIT neteaseAlbumsChanged();
+    } catch (const std::exception &ex) {
+        m_isLoading = false;
+        Q_EMIT isLoadingChanged();
+        m_error = ViewModelError(ViewModelError::ErrorType::Unknown, QString::fromUtf8(ex.what()));
         m_hasError = true;
         Q_EMIT errorChanged();
-        co_return;
+        Logger::get("viewmodel")->warn("Failed to load NetEase albums: {}", ex.what());
     }
-
-    // Parse albums from response
-    QJsonArray playlistArray = result.data().value(QStringLiteral("playlist")).toArray();
-    QVariantList list;
-    for (const QJsonValue &val : playlistArray) {
-        QJsonObject obj = val.toObject();
-        PlaylistSummary summary;
-        summary.id = obj.value(QStringLiteral("id")).toVariant().toString();
-        summary.name = obj.value(QStringLiteral("name")).toString();
-        summary.coverUrl = QUrl(obj.value(QStringLiteral("coverImgUrl")).toString());
-        summary.trackCount = obj.value(QStringLiteral("trackCount")).toInt();
-        list.append(QVariant::fromValue(summary));
-    }
-    m_neteaseAlbums = list;
-    Q_EMIT neteaseAlbumsChanged();
 }
 
 } // namespace NeriPlayerQt

@@ -64,6 +64,8 @@ public:
     }
     void clear() override
     {
+        if (m_throwOnClear)
+            throw std::runtime_error("DB error");
         m_cleared = true;
     }
     void remove(const QStringList &) override { }
@@ -73,6 +75,7 @@ public:
     }
 
     bool m_cleared = false;
+    bool m_throwOnClear = false;
 };
 
 // --- Test class ---
@@ -95,6 +98,7 @@ private Q_SLOTS:
     void isNeteaseLoggedIn_nullClient();
     void setTheme_invalidValue();
     void setTheme_validValues();
+    void clearPlayHistory_repoException_doesNotCrash();
 };
 
 void TestSettingsViewModel::initialState()
@@ -283,6 +287,18 @@ void TestSettingsViewModel::setTheme_validValues()
     vm.setTheme("light");
     QCOMPARE(vm.theme(), QStringLiteral("light"));
     QCOMPARE(spy.count(), 2);
+}
+
+void TestSettingsViewModel::clearPlayHistory_repoException_doesNotCrash()
+{
+    MockSettingsRepo settingsRepo;
+    MockPlayHistoryRepo historyRepo;
+    historyRepo.m_throwOnClear = true;
+
+    SettingsViewModel vm(&settingsRepo, nullptr, &historyRepo);
+
+    // Should not crash — exception is caught internally
+    vm.clearPlayHistory();
 }
 
 QTEST_MAIN(TestSettingsViewModel)

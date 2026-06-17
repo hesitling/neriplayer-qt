@@ -3,6 +3,8 @@
 
 #include "viewmodel/SearchViewModel.h"
 
+#include "core/logger/Logger.h"
+
 namespace NeriPlayerQt {
 
 SearchViewModel::SearchViewModel(QVector<IMusicPlatformPlugin *> plugins, ISongRepository *songRepo, QObject *parent)
@@ -148,30 +150,42 @@ QCoro::Task<void> SearchViewModel::searchImpl()
 
     m_currentPage = 0;
 
-    auto result = co_await plugin->search(m_query, SearchType::Song, PAGE_SIZE, m_currentPage * PAGE_SIZE);
+    try {
+        auto result = co_await plugin->search(m_query, SearchType::Song, PAGE_SIZE, m_currentPage * PAGE_SIZE);
 
-    // Check if this result is still current
-    if (version != m_searchRequestVersion) {
-        co_return;
-    }
+        // Check if this result is still current
+        if (version != m_searchRequestVersion) {
+            co_return;
+        }
 
-    m_isLoading = false;
-    Q_EMIT isLoadingChanged();
+        m_isLoading = false;
+        Q_EMIT isLoadingChanged();
 
-    if (result.isError()) {
-        m_error = ViewModelError::fromApiError(result.error());
+        if (result.isError()) {
+            m_error = ViewModelError::fromApiError(result.error());
+            m_hasError = true;
+            Q_EMIT errorChanged();
+            co_return;
+        }
+
+        const auto &searchResult = result.data();
+        m_results->setSongs(searchResult.songs);
+        m_hasMore = searchResult.hasMore;
+        Q_EMIT hasMoreChanged();
+
+        // Cache results
+        m_songRepo->saveBatch(searchResult.songs);
+    } catch (const std::exception &ex) {
+        if (version != m_searchRequestVersion) {
+            co_return;
+        }
+        m_isLoading = false;
+        Q_EMIT isLoadingChanged();
+        m_error = ViewModelError(ViewModelError::ErrorType::Unknown, QString::fromUtf8(ex.what()));
         m_hasError = true;
         Q_EMIT errorChanged();
-        co_return;
+        Logger::get("viewmodel")->warn("Search failed: {}", ex.what());
     }
-
-    const auto &searchResult = result.data();
-    m_results->setSongs(searchResult.songs);
-    m_hasMore = searchResult.hasMore;
-    Q_EMIT hasMoreChanged();
-
-    // Cache results
-    m_songRepo->saveBatch(searchResult.songs);
 }
 
 QCoro::Task<void> SearchViewModel::loadMoreImpl()
@@ -191,31 +205,43 @@ QCoro::Task<void> SearchViewModel::loadMoreImpl()
     m_isLoading = true;
     Q_EMIT isLoadingChanged();
 
-    auto result = co_await plugin->search(m_query, SearchType::Song, PAGE_SIZE, nextPage * PAGE_SIZE);
+    try {
+        auto result = co_await plugin->search(m_query, SearchType::Song, PAGE_SIZE, nextPage * PAGE_SIZE);
 
-    // Discard if a new search started while we were waiting
-    if (version != m_searchRequestVersion) {
-        co_return;
-    }
+        // Discard if a new search started while we were waiting
+        if (version != m_searchRequestVersion) {
+            co_return;
+        }
 
-    m_isLoading = false;
-    Q_EMIT isLoadingChanged();
+        m_isLoading = false;
+        Q_EMIT isLoadingChanged();
 
-    if (result.isError()) {
-        m_error = ViewModelError::fromApiError(result.error());
+        if (result.isError()) {
+            m_error = ViewModelError::fromApiError(result.error());
+            m_hasError = true;
+            Q_EMIT errorChanged();
+            co_return;
+        }
+
+        m_currentPage = nextPage;
+        const auto &searchResult = result.data();
+        m_results->appendSongs(searchResult.songs);
+        m_hasMore = searchResult.hasMore;
+        Q_EMIT hasMoreChanged();
+
+        // Cache results
+        m_songRepo->saveBatch(searchResult.songs);
+    } catch (const std::exception &ex) {
+        if (version != m_searchRequestVersion) {
+            co_return;
+        }
+        m_isLoading = false;
+        Q_EMIT isLoadingChanged();
+        m_error = ViewModelError(ViewModelError::ErrorType::Unknown, QString::fromUtf8(ex.what()));
         m_hasError = true;
         Q_EMIT errorChanged();
-        co_return;
+        Logger::get("viewmodel")->warn("Load more failed: {}", ex.what());
     }
-
-    m_currentPage = nextPage;
-    const auto &searchResult = result.data();
-    m_results->appendSongs(searchResult.songs);
-    m_hasMore = searchResult.hasMore;
-    Q_EMIT hasMoreChanged();
-
-    // Cache results
-    m_songRepo->saveBatch(searchResult.songs);
 }
 
 IMusicPlatformPlugin *SearchViewModel::currentPlugin() const

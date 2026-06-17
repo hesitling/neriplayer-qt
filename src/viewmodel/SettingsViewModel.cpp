@@ -3,6 +3,8 @@
 
 #include "viewmodel/SettingsViewModel.h"
 
+#include "core/logger/Logger.h"
+
 namespace NeriPlayerQt {
 
 SettingsViewModel::SettingsViewModel(ISettingsRepository *settingsRepo, NeteaseClient *neteaseClient,
@@ -67,7 +69,7 @@ void SettingsViewModel::loadSettings()
             Q_EMIT themeChanged();
         }
     } catch (const std::exception &ex) {
-        qWarning() << "Failed to load theme setting:" << ex.what();
+        Logger::get("viewmodel")->warn("Failed to load theme setting: {}", ex.what());
     }
 
     try {
@@ -86,7 +88,7 @@ void SettingsViewModel::loadSettings()
             Q_EMIT audioQualityChanged();
         }
     } catch (const std::exception &ex) {
-        qWarning() << "Failed to load audioQuality setting:" << ex.what();
+        Logger::get("viewmodel")->warn("Failed to load audioQuality setting: {}", ex.what());
     }
 
     try {
@@ -96,7 +98,7 @@ void SettingsViewModel::loadSettings()
             Q_EMIT downloadPathChanged();
         }
     } catch (const std::exception &ex) {
-        qWarning() << "Failed to load downloadPath setting:" << ex.what();
+        Logger::get("viewmodel")->warn("Failed to load downloadPath setting: {}", ex.what());
     }
 }
 
@@ -115,7 +117,7 @@ void SettingsViewModel::setTheme(const QString &theme)
     try {
         m_settingsRepo->set(QStringLiteral("theme"), theme);
     } catch (const std::exception &ex) {
-        qWarning() << "Failed to save theme setting:" << ex.what();
+        Logger::get("viewmodel")->warn("Failed to save theme setting: {}", ex.what());
     }
     Q_EMIT themeChanged();
 }
@@ -145,7 +147,7 @@ void SettingsViewModel::setAudioQuality(AudioQuality quality)
     try {
         m_settingsRepo->set(QStringLiteral("audioQuality"), qualityStr);
     } catch (const std::exception &ex) {
-        qWarning() << "Failed to save audioQuality setting:" << ex.what();
+        Logger::get("viewmodel")->warn("Failed to save audioQuality setting: {}", ex.what());
     }
     Q_EMIT audioQualityChanged();
 }
@@ -159,7 +161,7 @@ void SettingsViewModel::setDownloadPath(const QString &path)
     try {
         m_settingsRepo->set(QStringLiteral("downloadPath"), path);
     } catch (const std::exception &ex) {
-        qWarning() << "Failed to save downloadPath setting:" << ex.what();
+        Logger::get("viewmodel")->warn("Failed to save downloadPath setting: {}", ex.what());
     }
     Q_EMIT downloadPathChanged();
 }
@@ -216,7 +218,11 @@ QCoro::Task<void> SettingsViewModel::logoutNetease()
 
 void SettingsViewModel::clearPlayHistory()
 {
-    m_historyRepo->clear();
+    try {
+        m_historyRepo->clear();
+    } catch (const std::exception &ex) {
+        Logger::get("viewmodel")->warn("Failed to clear play history: {}", ex.what());
+    }
 }
 
 // --- Error ---

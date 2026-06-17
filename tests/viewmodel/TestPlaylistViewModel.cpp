@@ -18,6 +18,8 @@ class MockPlaylistRepo : public IPlaylistRepository {
 public:
     QVector<PlaylistSummary> findAll() override
     {
+        if (m_throwOnFindAll)
+            throw std::runtime_error("DB error");
         return m_summaries;
     }
     std::optional<Playlist> findById(const QString &id) override
@@ -61,6 +63,7 @@ public:
     QStringList m_removedIds;
     QHash<QString, QString> m_renamedIds;
     int m_nextId = 0;
+    bool m_throwOnFindAll = false;
 };
 
 // --- Test class ---
@@ -87,6 +90,7 @@ private Q_SLOTS:
     void clearError();
     void localPlaylistSelected_signal();
     void neteasePlaylistSelected_signal();
+    void loadLocalPlaylists_repoException_doesNotCrash();
 };
 
 void TestPlaylistViewModel::initialState()
@@ -199,6 +203,20 @@ void TestPlaylistViewModel::neteasePlaylistSelected_signal()
     Q_EMIT vm.neteasePlaylistSelected(summary);
 
     QCOMPARE(spy.count(), 1);
+}
+
+void TestPlaylistViewModel::loadLocalPlaylists_repoException_doesNotCrash()
+{
+    MockPlaylistRepo playlistRepo;
+    playlistRepo.m_throwOnFindAll = true;
+
+    PlaylistViewModel vm(&playlistRepo, nullptr);
+
+    // Should not crash — exception is caught internally
+    vm.loadLocalPlaylists();
+
+    // Local playlists should remain empty since the repo threw
+    QVERIFY(vm.localPlaylists().isEmpty());
 }
 
 QTEST_MAIN(TestPlaylistViewModel)

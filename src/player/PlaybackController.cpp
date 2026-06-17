@@ -130,7 +130,11 @@ void PlaybackController::setVolume(double normalized)
 {
     m_backend->setVolume(qBound(0.0, normalized, 1.0));
     if (m_settingsRepo) {
-        m_settingsRepo->set(QStringLiteral("player/volume"), QString::number(m_backend->volume(), 'f', 2));
+        try {
+            m_settingsRepo->set(QStringLiteral("player/volume"), QString::number(m_backend->volume(), 'f', 2));
+        } catch (const std::exception &ex) {
+            Logger::get("player")->warn("Failed to persist volume setting: {}", ex.what());
+        }
     }
 }
 
@@ -143,7 +147,12 @@ void PlaybackController::setMuted(bool muted)
 {
     m_backend->setMuted(muted);
     if (m_settingsRepo) {
-        m_settingsRepo->set(QStringLiteral("player/muted"), muted ? QStringLiteral("true") : QStringLiteral("false"));
+        try {
+            m_settingsRepo->set(QStringLiteral("player/muted"),
+                                muted ? QStringLiteral("true") : QStringLiteral("false"));
+        } catch (const std::exception &ex) {
+            Logger::get("player")->warn("Failed to persist muted setting: {}", ex.what());
+        }
     }
 }
 
@@ -270,16 +279,20 @@ void PlaybackController::persistState()
         return;
     }
 
-    PersistedPlayerState state = m_queue->toPersistedState();
-    state.positionMs = m_backend->positionMs();
-    state.shouldResumePlayback = (m_state == PlaybackState::Playing || m_state == PlaybackState::Paused);
-    m_playerStateRepo->save(state);
+    try {
+        PersistedPlayerState state = m_queue->toPersistedState();
+        state.positionMs = m_backend->positionMs();
+        state.shouldResumePlayback = (m_state == PlaybackState::Playing || m_state == PlaybackState::Paused);
+        m_playerStateRepo->save(state);
+    } catch (const std::exception &ex) {
+        Logger::get("player")->warn("Failed to persist player state: {}", ex.what());
+    }
 }
 
 void PlaybackController::restoreState()
 {
-    m_restoreState = [](PlaybackController *self) -> QCoro::Task<void> {
-        if (!self->m_playerStateRepo) {
+    m_restoreState = [](QPointer<PlaybackController> self) -> QCoro::Task<void> {
+        if (!self || !self->m_playerStateRepo) {
             co_return;
         }
 
@@ -292,6 +305,9 @@ void PlaybackController::restoreState()
             co_return;
         }
 
+        if (!self) {
+            co_return;
+        }
         self->m_queue->loadFromState(savedState.value());
 
         auto currentSongOpt = self->m_queue->currentSong();
@@ -299,6 +315,9 @@ void PlaybackController::restoreState()
             co_return;
         }
 
+        if (!self) {
+            co_return;
+        }
         self->m_currentSong = currentSongOpt.value();
         Q_EMIT self->currentSongChanged(self->m_currentSong);
 
@@ -308,17 +327,22 @@ void PlaybackController::restoreState()
                 co_await self->m_backend->load(self->m_currentSong.mediaUri);
             } else {
                 QString url = co_await self->resolveUrl(self->m_currentSong);
+                if (!self) {
+                    co_return;
+                }
                 if (!url.isEmpty()) {
                     co_await self->m_backend->load(QUrl(url));
                 }
             }
-            if (savedState->positionMs > 0) {
+            if (self && savedState->positionMs > 0) {
                 self->m_backend->seek(savedState->positionMs);
             }
         } catch (const std::exception &ex) {
-            Logger::get("player")->warn("Failed to restore playback state: {}", ex.what());
+            if (self) {
+                Logger::get("player")->warn("Failed to restore playback state: {}", ex.what());
+            }
         }
-    }(this);
+    }(QPointer<PlaybackController>(this));
 }
 
 QCoro::Task<QString> PlaybackController::resolveUrl(const Song &song)
