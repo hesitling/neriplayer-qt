@@ -158,6 +158,15 @@ void TestSqlRowMapper::roundTrip_songWithLyrics()
     line1.startTimeMs = 1000;
     line1.endTimeMs = 5000;
     line1.text = "Hello world";
+    LyricWord w1;
+    w1.text = "Hello";
+    w1.startTimeMs = 1000;
+    w1.endTimeMs = 2500;
+    LyricWord w2;
+    w2.text = "world";
+    w2.startTimeMs = 2500;
+    w2.endTimeMs = 5000;
+    line1.words = { w1, w2 };
     LyricLine line2;
     line2.startTimeMs = 5000;
     line2.endTimeMs = 10000;
@@ -181,7 +190,14 @@ void TestSqlRowMapper::roundTrip_songWithLyrics()
     QCOMPARE(loaded.lyrics.lines.size(), 2);
     QCOMPARE(loaded.lyrics.lines[0].text, QStringLiteral("Hello world"));
     QCOMPARE(loaded.lyrics.lines[0].startTimeMs, 1000);
+    QCOMPARE(loaded.lyrics.lines[0].words.size(), 2);
+    QCOMPARE(loaded.lyrics.lines[0].words[0].text, QStringLiteral("Hello"));
+    QCOMPARE(loaded.lyrics.lines[0].words[0].startTimeMs, 1000);
+    QCOMPARE(loaded.lyrics.lines[0].words[0].endTimeMs, 2500);
+    QCOMPARE(loaded.lyrics.lines[0].words[1].text, QStringLiteral("world"));
+    QCOMPARE(loaded.lyrics.lines[0].words[1].startTimeMs, 2500);
     QCOMPARE(loaded.lyrics.lines[1].text, QStringLiteral("Second line"));
+    QCOMPARE(loaded.lyrics.lines[1].words.size(), 0);
 
     db.close();
 }
