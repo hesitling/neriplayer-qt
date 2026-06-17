@@ -31,8 +31,8 @@
 
 ## 6. PlayHistoryRepository Implementation
 
-- [ ] 6.1 Create `src/repo/PlayHistoryRepository.h` — class declaration inheriting IPlayHistoryRepository
-- [ ] 6.2 Create `src/repo/PlayHistoryRepository.cpp` — implement record (INSERT + update last_played_at), recent (JOIN with songs_cache), clear, remove, playCount
+- [x] 6.1 Create `src/repo/PlayHistoryRepository.h` — class declaration inheriting IPlayHistoryRepository
+- [x] 6.2 Create `src/repo/PlayHistoryRepository.cpp` — implement record (INSERT + update last_played_at), recent (JOIN with songs_cache), clear, remove, playCount
 
 ## 7. PlaylistRepository Implementation
 

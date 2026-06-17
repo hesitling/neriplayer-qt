@@ -87,6 +87,7 @@ set(SOURCES
     src/repo/SongRepository.cpp
     src/repo/SettingsRepository.cpp
     src/repo/PlayHistoryRepository.cpp
+    src/repo/PlaylistRepository.cpp
     src/mainwindow.cpp
     src/api/common/ApiError.cpp
     src/api/netease/NeteaseCrypto.cpp
@@ -118,6 +119,7 @@ set(HEADERS
     src/repo/SongRepository.h
     src/repo/SettingsRepository.h
     src/repo/PlayHistoryRepository.h
+    src/repo/PlaylistRepository.h
     src/repo/ISongRepository.h
     src/repo/IPlaylistRepository.h
     src/repo/IPlayHistoryRepository.h
@@ -432,6 +434,30 @@ target_compile_definitions(TestPlayHistoryRepository PRIVATE
     QT_NO_KEYWORDS
 )
 add_test(NAME TestPlayHistoryRepository COMMAND TestPlayHistoryRepository)
+
+add_executable(TestPlaylistRepository
+    tests/repo/TestPlaylistRepository.cpp
+    src/repo/PlaylistRepository.cpp
+    src/repo/SongRepository.cpp
+    src/repo/SqlRowMapper.cpp
+    src/core/database/DatabaseManager.cpp
+)
+target_include_directories(TestPlaylistRepository PRIVATE
+    ${CMAKE_SOURCE_DIR}/src
+    ${SQLITE3_INCLUDE_DIRS}
+)
+target_link_libraries(TestPlaylistRepository PRIVATE
+    Qt6::Core
+    Qt6::Test
+    ${SQLITE3_LIBRARIES}
+)
+if(UNIX)
+    target_link_libraries(TestPlaylistRepository PRIVATE dl pthread)
+endif()
+target_compile_definitions(TestPlaylistRepository PRIVATE
+    QT_NO_KEYWORDS
+)
+add_test(NAME TestPlaylistRepository COMMAND TestPlaylistRepository)
 
 # Shared library for Netease API + core infra (used by E2E tests and CLI tools)
 set(NETEASE_E2E_SOURCES
