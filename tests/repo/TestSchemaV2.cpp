@@ -3,7 +3,6 @@
 
 #include "core/database/DatabaseManager.h"
 
-#include <QTemporaryDir>
 #include <QTest>
 
 using namespace NeriPlayerQt;
@@ -11,13 +10,7 @@ using namespace NeriPlayerQt;
 class TestSchemaV2 : public QObject {
     Q_OBJECT
 
-private:
-    QTemporaryDir m_tempDir;
-
 private Q_SLOTS:
-    void initTestCase();
-    void cleanupTestCase();
-
     void songsCache_has27Columns();
     void songsCache_columnNames();
     void playerState_exists();
@@ -26,18 +19,10 @@ private Q_SLOTS:
     void allTables_created();
 };
 
-void TestSchemaV2::initTestCase()
-{
-    QVERIFY(m_tempDir.isValid());
-}
-
-void TestSchemaV2::cleanupTestCase() { }
-
 void TestSchemaV2::songsCache_has27Columns()
 {
-    QString path = m_tempDir.filePath("cols.db");
     DatabaseManager db;
-    QVERIFY(db.open(path));
+    QVERIFY(db.open(QString(":memory:")));
 
     auto rows = db.exec("PRAGMA table_info(songs_cache)");
     QCOMPARE(rows.size(), 27);
@@ -46,9 +31,8 @@ void TestSchemaV2::songsCache_has27Columns()
 
 void TestSchemaV2::songsCache_columnNames()
 {
-    QString path = m_tempDir.filePath("names.db");
     DatabaseManager db;
-    QVERIFY(db.open(path));
+    QVERIFY(db.open(QString(":memory:")));
 
     auto rows = db.exec("PRAGMA table_info(songs_cache)");
     QStringList names;
@@ -107,9 +91,8 @@ void TestSchemaV2::songsCache_columnNames()
 
 void TestSchemaV2::playerState_exists()
 {
-    QString path = m_tempDir.filePath("ps_table.db");
     DatabaseManager db;
-    QVERIFY(db.open(path));
+    QVERIFY(db.open(QString(":memory:")));
 
     auto rows = db.exec("SELECT name FROM sqlite_master WHERE type='table' AND name='player_state'");
     QCOMPARE(rows.size(), 1);
@@ -136,9 +119,8 @@ void TestSchemaV2::playerState_exists()
 
 void TestSchemaV2::playerState_singletonConstraint()
 {
-    QString path = m_tempDir.filePath("ps_singleton.db");
     DatabaseManager db;
-    QVERIFY(db.open(path));
+    QVERIFY(db.open(QString(":memory:")));
 
     // Insert row with id=1 should work
     db.exec("INSERT INTO player_state (id, position_ms) VALUES (1, 1000)");
@@ -156,9 +138,8 @@ void TestSchemaV2::playerState_singletonConstraint()
 
 void TestSchemaV2::playlists_hasNewColumns()
 {
-    QString path = m_tempDir.filePath("pl_cols.db");
     DatabaseManager db;
-    QVERIFY(db.open(path));
+    QVERIFY(db.open(QString(":memory:")));
 
     auto rows = db.exec("PRAGMA table_info(playlists)");
     QStringList names;
@@ -173,9 +154,8 @@ void TestSchemaV2::playlists_hasNewColumns()
 
 void TestSchemaV2::allTables_created()
 {
-    QString path = m_tempDir.filePath("all_tables.db");
     DatabaseManager db;
-    QVERIFY(db.open(path));
+    QVERIFY(db.open(QString(":memory:")));
 
     auto rows = db.exec("SELECT name FROM sqlite_master WHERE type='table' ORDER BY name");
     QStringList tables;

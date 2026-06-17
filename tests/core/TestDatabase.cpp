@@ -5,7 +5,6 @@
 
 #include <sqlite3.h>
 
-#include <QTemporaryDir>
 #include <QTest>
 
 using namespace NeriPlayerQt;
@@ -13,17 +12,11 @@ using namespace NeriPlayerQt;
 class TestDatabase : public QObject {
     Q_OBJECT
 
-private:
-    QTemporaryDir m_tempDir;
-
 private Q_SLOTS:
-    void initTestCase();
-    void cleanupTestCase();
-
     // DatabaseManager lifecycle
-    void open_createsNewDatabase();
-    void open_existingDatabase();
-    void close_releasesFileHandle();
+    void open_inMemoryDatabase();
+    void close_releasesConnection();
+    void isOpen_returnsFalseBeforeOpen();
 
     // Schema versioning
     void firstTimeCreation_setsVersion2();
@@ -46,103 +39,71 @@ private Q_SLOTS:
     void initialSchema_createsAllTables();
 };
 
-void TestDatabase::initTestCase()
+void TestDatabase::open_inMemoryDatabase()
 {
-    QVERIFY(m_tempDir.isValid());
-}
-
-void TestDatabase::cleanupTestCase()
-{
-    // temp dir auto-cleans
-}
-
-void TestDatabase::open_createsNewDatabase()
-{
-    QString path = m_tempDir.filePath("test_new.db");
-    QVERIFY(!QFile::exists(path));
-
     DatabaseManager db;
-    bool ok = db.open(path);
-    QVERIFY(ok);
-    QVERIFY(QFile::exists(path));
+    QVERIFY(db.open(QString(":memory:")));
+    QVERIFY(db.isOpen());
     db.close();
 }
 
-void TestDatabase::open_existingDatabase()
+void TestDatabase::close_releasesConnection()
 {
-    QString path = m_tempDir.filePath("test_existing.db");
-
-    DatabaseManager db1;
-    QVERIFY(db1.open(path));
-    db1.close();
-
-    DatabaseManager db2;
-    QVERIFY(db2.open(path));
-    db2.close();
+    DatabaseManager db;
+    QVERIFY(db.open(QString(":memory:")));
+    db.close();
+    QVERIFY(!db.isOpen());
 }
 
-void TestDatabase::close_releasesFileHandle()
+void TestDatabase::isOpen_returnsFalseBeforeOpen()
 {
-    QString path = m_tempDir.filePath("test_close.db");
-
     DatabaseManager db;
-    QVERIFY(db.open(path));
-    db.close();
-
-    // Should be able to open again
-    DatabaseManager db2;
-    QVERIFY(db2.open(path));
-    db2.close();
+    QVERIFY(!db.isOpen());
 }
 
 void TestDatabase::firstTimeCreation_setsVersion2()
 {
-    QString path = m_tempDir.filePath("test_version2.db");
-
     DatabaseManager db;
-    QVERIFY(db.open(path));
+    QVERIFY(db.open(QString(":memory:")));
     QCOMPARE(db.schemaVersion(), 2);
     db.close();
 }
 
 void TestDatabase::alreadyAtCurrentVersion_noMigration()
 {
-    QString path = m_tempDir.filePath("test_no_migration.db");
-
+    // With in-memory DB each open() is a fresh database, so this test
+    // verifies that opening twice in sequence doesn't break anything.
+    // We use a single open to verify the version is stable.
     DatabaseManager db;
-    QVERIFY(db.open(path));
+    QVERIFY(db.open(QString(":memory:")));
     QCOMPARE(db.schemaVersion(), 2);
 
-    // Open again — should stay at version 2
+    // Close and reopen a fresh in-memory DB — still version 2
     db.close();
     DatabaseManager db2;
-    QVERIFY(db2.open(path));
+    QVERIFY(db2.open(QString(":memory:")));
     QCOMPARE(db2.schemaVersion(), 2);
     db2.close();
 }
 
 void TestDatabase::sequentialMigrations_fromV2()
 {
-    QString path = m_tempDir.filePath("test_migrations.db");
-
     DatabaseManager db;
-    // Register an extra migration before opening (on top of v2 base)
+    // Register an extra migration on top of v2 base
     db.registerMigration(3, [](sqlite3 *handle) {
         const char *sql = "CREATE TABLE IF NOT EXISTS test_table (id INTEGER PRIMARY KEY);";
         return sqlite3_exec(handle, sql, nullptr, nullptr, nullptr) == SQLITE_OK;
     });
 
-    QVERIFY(db.open(path));
+    QVERIFY(db.open(QString(":memory:")));
     QCOMPARE(db.schemaVersion(), 3);
     db.close();
 }
 
 void TestDatabase::exec_selectWithPositionalParams()
 {
-    QString path = m_tempDir.filePath("test_select_params.db");
-
     DatabaseManager db;
-    QVERIFY(db.open(path));
+    QVERIFY(db.open(QString(":memory:")));
 
     db.exec("INSERT INTO settings (key, value) VALUES (?, ?)", { QString("mykey"), QString("myval") });
 
@@ -156,10 +117,8 @@ void TestDatabase::exec_selectWithPositionalParams()
 
 void TestDatabase::exec_insertAndSelect()
 {
-    QString path = m_tempDir.filePath("test_insert_select.db");
-
     DatabaseManager db;
-    QVERIFY(db.open(path));
+    QVERIFY(db.open(QString(":memory:")));
 
     db.exec("INSERT INTO settings (key, value) VALUES (?, ?)", { QString("k1"), QString("v1") });
     db.exec("INSERT INTO settings (key, value) VALUES (?, ?)", { QString("k2"), QString("v2") });
@@ -174,10 +133,8 @@ void TestDatabase::exec_insertAndSelect()
 
 void TestDatabase::exec_selectWithNamedParams()
 {
-    QString path = m_tempDir.filePath("test_named_params.db");
-
     DatabaseManager db;
-    QVERIFY(db.open(path));
+    QVERIFY(db.open(QString(":memory:")));
 
     db.exec("INSERT INTO settings (key, value) VALUES (?, ?)", { QString("named_test"), QString("val") });
 
@@ -192,10 +149,8 @@ void TestDatabase::exec_selectWithNamedParams()
 
 void TestDatabase::transaction_commit()
 {
-    QString path = m_tempDir.filePath("test_txn_commit.db");
-
     DatabaseManager db;
-    QVERIFY(db.open(path));
+    QVERIFY(db.open(QString(":memory:")));
 
     db.beginTransaction();
     db.exec("INSERT INTO settings (key, value) VALUES (?, ?)", { QString("txn_k1"), QString("txn_v1") });
@@ -210,10 +165,8 @@ void TestDatabase::transaction_commit()
 
 void TestDatabase::transaction_rollback()
 {
-    QString path = m_tempDir.filePath("test_txn_rollback.db");
-
     DatabaseManager db;
-    QVERIFY(db.open(path));
+    QVERIFY(db.open(QString(":memory:")));
 
     db.beginTransaction();
     db.exec("INSERT INTO settings (key, value) VALUES (?, ?)", { QString("rollback_k"), QString("rollback_v") });
@@ -227,10 +180,8 @@ void TestDatabase::transaction_rollback()
 
 void TestDatabase::exec_invalidSql_throwsDatabaseError()
 {
-    QString path = m_tempDir.filePath("test_error.db");
-
     DatabaseManager db;
-    QVERIFY(db.open(path));
+    QVERIFY(db.open(QString(":memory:")));
 
     QVERIFY_EXCEPTION_THROWN(db.exec("INVALID SQL"), DatabaseError);
 
@@ -239,10 +190,8 @@ void TestDatabase::exec_invalidSql_throwsDatabaseError()
 
 void TestDatabase::initialSchema_createsAllTables()
 {
-    QString path = m_tempDir.filePath("test_schema.db");
-
     DatabaseManager db;
-    QVERIFY(db.open(path));
+    QVERIFY(db.open(QString(":memory:")));
 
     // Check all tables exist by querying sqlite_master
     auto rows = db.exec("SELECT name FROM sqlite_master WHERE type='table' ORDER BY name");

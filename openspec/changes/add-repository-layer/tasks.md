@@ -1,9 +1,9 @@
 ## 1. Schema Migration
 
-- [ ] 1.1 Add v2 migration to `DatabaseManager::applyInitialSchema()` — recreate `songs_cache` with 27 columns, rename `title`→`name`, `playback_url`→`media_uri`, `duration`→`duration_ms`, copy existing data
-- [ ] 1.2 Add `player_state` table creation to v2 migration (singleton with CHECK constraint)
-- [ ] 1.3 Add `custom_cover_url` TEXT and `modified_at` INTEGER columns to `playlists` table in v2 migration
-- [ ] 1.4 Update `TestDatabase` — update `initialSchema_createsAllTables` for new schema, add migration test for v1→v2
+- [x] 1.1 Add v2 migration to `DatabaseManager::applyInitialSchema()` — recreate `songs_cache` with 27 columns, rename `title`→`name`, `playback_url`→`media_uri`, `duration`→`duration_ms`, copy existing data
+- [x] 1.2 Add `player_state` table creation to v2 migration (singleton with CHECK constraint)
+- [x] 1.3 Add `custom_cover_url` TEXT and `modified_at` INTEGER columns to `playlists` table in v2 migration
+- [x] 1.4 Update `TestDatabase` — update `initialSchema_createsAllTables` for new schema, add migration test for v1→v2
 
 ## 2. SQL↔Domain Mapper
 
