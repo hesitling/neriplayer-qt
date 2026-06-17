@@ -6,6 +6,8 @@
 #include "core/database/DatabaseManager.h"
 #include "repo/SqlRowMapper.h"
 
+#include <QDebug>
+
 namespace NeriPlayerQt {
 
 PlayHistoryRepository::PlayHistoryRepository(DatabaseManager *db)
@@ -21,7 +23,9 @@ void PlayHistoryRepository::record(const QString &songId)
         m_db->exec("UPDATE songs_cache SET last_played_at = CURRENT_TIMESTAMP WHERE id = ?", { songId });
         m_db->commitTransaction();
     } catch (...) {
-        try { m_db->rollbackTransaction(); } catch (...) {}
+        try { m_db->rollbackTransaction(); } catch (const std::exception &rbEx) {
+            qWarning() << "PlayHistoryRepository: rollback failed:" << rbEx.what();
+        }
         throw;
     }
 }

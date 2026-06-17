@@ -126,7 +126,9 @@ bool PlaylistRepository::addSong(const QString &playlistId, const QString &songI
         updateSongCount(playlistId);
         m_db->commitTransaction();
     } catch (...) {
-        try { m_db->rollbackTransaction(); } catch (...) {}
+        try { m_db->rollbackTransaction(); } catch (const std::exception &rbEx) {
+            qWarning() << "PlaylistRepository: rollback failed:" << rbEx.what();
+        }
         throw;
     }
     return true;
@@ -155,7 +157,9 @@ void PlaylistRepository::removeSong(const QString &playlistId, const QString &so
         updateSongCount(playlistId);
         m_db->commitTransaction();
     } catch (...) {
-        try { m_db->rollbackTransaction(); } catch (...) {}
+        try { m_db->rollbackTransaction(); } catch (const std::exception &rbEx) {
+            qWarning() << "PlaylistRepository: rollback failed:" << rbEx.what();
+        }
         throw;
     }
 }
