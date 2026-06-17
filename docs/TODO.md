@@ -65,12 +65,13 @@ Implement API clients for each music platform and the repository layer.
   - [x] Playlist detail, user playlists
   - [x] Recommended playlists, high-quality playlists
 
-- [ ] **Bilibili API** (`src/api/bilibili/`)
-  - [ ] `BilibiliClient` implementing `IMusicPlatformPlugin`
-  - [ ] Login (cookie-based)
-  - [ ] Search (audio, video)
-  - [ ] Audio extraction from video
-  - [ ] Playlist/collection support
+- [x] **Bilibili API** (`src/api/bilibili/`)
+  - [x] `BilibiliClient` implementing `IMusicPlatformPlugin`
+  - [x] Login (QR code, cookie-based)
+  - [x] Search (video)
+  - [x] Audio extraction from video (DASH + progressive)
+  - [x] Favorites management (list, detail, add/remove)
+  - [x] WBI request signing
 
 - [ ] **YouTube Music API** (`src/api/youtube/`)
   - [ ] `YouTubeMusicClient` implementing `IMusicPlatformPlugin`

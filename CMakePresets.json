@@ -1,0 +1,27 @@
+{
+    "version": 6,
+    "cmakeMinimumRequired": {"major": 3, "minor": 16, "patch": 0},
+    "configurePresets": [
+        {
+            "name": "windows-msvc-base",
+            "hidden": true,
+            "generator": "Visual Studio 17 2022",
+            "architecture": {"value": "x64", "strategy": "set"},
+            "binaryDir": "${sourceDir}/build",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "RelWithDebInfo",
+                "CMAKE_TOOLCHAIN_FILE": "E:/neriplayer/vcpkg/scripts/buildsystems/vcpkg.cmake",
+                "VCPKG_TARGET_TRIPLET": "x64-windows",
+                "CMAKE_PREFIX_PATH": "E:/neriplayer/qt/6.8.3/msvc2022_64"
+            }
+        },
+        {
+            "name": "dev",
+            "displayName": "Development (MSVC 2022 x64)",
+            "inherits": "windows-msvc-base",
+            "cacheVariables": {"CMAKE_BUILD_TYPE": "Debug"}
+        }
+    ],
+    "buildPresets": [{"name": "dev", "configurePreset": "dev"}],
+    "testPresets": [{"name": "dev", "configurePreset": "dev", "output": {"outputOnFailure": true}}]
+}

@@ -48,15 +48,27 @@ if(NOT SQLITE3_FOUND)
 endif()
 
 # spdlog
-if(PkgConfig_FOUND)
-    pkg_check_modules(SPDLOG QUIET spdlog)
-endif()
-if(NOT SPDLOG_FOUND)
-    find_path(SPDLOG_INCLUDE_DIRS spdlog/spdlog.h)
-    find_library(SPDLOG_LIBRARIES NAMES spdlog)
-    if(NOT SPDLOG_INCLUDE_DIRS OR NOT SPDLOG_LIBRARIES)
-        message(FATAL_ERROR "spdlog not found. Install libspdlog-dev or equivalent.")
+find_package(spdlog CONFIG QUIET)
+if(NOT spdlog_FOUND)
+    if(PkgConfig_FOUND)
+        pkg_check_modules(SPDLOG QUIET spdlog)
     endif()
+    if(NOT SPDLOG_FOUND)
+        find_path(SPDLOG_INCLUDE_DIRS spdlog/spdlog.h)
+        find_library(SPDLOG_LIBRARIES NAMES spdlog)
+        if(NOT SPDLOG_INCLUDE_DIRS OR NOT SPDLOG_LIBRARIES)
+            message(FATAL_ERROR "spdlog not found. Install libspdlog-dev or equivalent.")
+        endif()
+    endif()
+endif()
+
+# Helper: spdlog link target (vcpkg config vs pkg-config)
+if(spdlog_FOUND)
+    set(NERIPLAYER_SPDLOG_LIBRARIES spdlog::spdlog)
+    set(NERIPLAYER_SPDLOG_INCLUDE_DIRS "")
+else()
+    set(NERIPLAYER_SPDLOG_LIBRARIES ${NERIPLAYER_SPDLOG_LIBRARIES})
+    set(NERIPLAYER_SPDLOG_INCLUDE_DIRS ${NERIPLAYER_SPDLOG_INCLUDE_DIRS})
 endif()
 
 # OpenSSL
@@ -97,6 +109,8 @@ set(SOURCES
     src/api/netease/NeteaseClientAuth.cpp
     src/api/netease/NeteaseClientContent.cpp
     src/api/netease/NeteaseClientUser.cpp
+    src/api/bilibili/BilibiliClient.cpp
+    src/api/bilibili/BilibiliParser.cpp
     src/player/backends/QtMultimediaBackend.cpp
     src/player/PlayQueue.cpp
     src/player/PlaybackController.cpp
@@ -153,6 +167,9 @@ set(HEADERS
     src/api/netease/NeteaseCrypto.h
     src/api/netease/NeteaseParser.h
     src/api/netease/NeteaseClient.h
+    src/api/bilibili/BilibiliClient.h
+    src/api/bilibili/BilibiliParser.h
+    src/api/bilibili/BilibiliTypes.h
     src/player/IPlayerBackend.h
     src/player/backends/QtMultimediaBackend.h
     src/player/PlayQueue.h
@@ -177,15 +194,20 @@ target_link_libraries(NeriPlayerQt PRIVATE
     Qt6::Multimedia
     ${NERIPLAYER_QCORO_LIBRARIES}
     ${SQLITE3_LIBRARIES}
-    ${SPDLOG_LIBRARIES}
     OpenSSL::Crypto
 )
+
+if(spdlog_FOUND)
+    target_link_libraries(NeriPlayerQt PRIVATE spdlog::spdlog)
+else()
+    target_link_libraries(NeriPlayerQt PRIVATE ${NERIPLAYER_SPDLOG_LIBRARIES})
+    target_include_directories(NeriPlayerQt PRIVATE ${NERIPLAYER_SPDLOG_INCLUDE_DIRS})
+endif()
 
 # 包含目录
 target_include_directories(NeriPlayerQt PRIVATE
     ${CMAKE_SOURCE_DIR}/src
     ${SQLITE3_INCLUDE_DIRS}
-    ${SPDLOG_INCLUDE_DIRS}
 )
 
 # Install target
@@ -241,12 +263,12 @@ add_executable(TestLogger
 )
 target_include_directories(TestLogger PRIVATE
     ${CMAKE_SOURCE_DIR}/src
-    ${SPDLOG_INCLUDE_DIRS}
+    ${NERIPLAYER_SPDLOG_INCLUDE_DIRS}
 )
 target_link_libraries(TestLogger PRIVATE
     Qt6::Core
     Qt6::Test
-    ${SPDLOG_LIBRARIES}
+    ${NERIPLAYER_SPDLOG_LIBRARIES}
 )
 if(UNIX)
     target_link_libraries(TestLogger PRIVATE pthread)
@@ -320,12 +342,12 @@ add_executable(TestNeteaseParser
 )
 target_include_directories(TestNeteaseParser PRIVATE
     ${CMAKE_SOURCE_DIR}/src
-    ${SPDLOG_INCLUDE_DIRS}
+    ${NERIPLAYER_SPDLOG_INCLUDE_DIRS}
 )
 target_link_libraries(TestNeteaseParser PRIVATE
     Qt6::Core
     Qt6::Test
-    ${SPDLOG_LIBRARIES}
+    ${NERIPLAYER_SPDLOG_LIBRARIES}
 )
 target_compile_definitions(TestNeteaseParser PRIVATE
     QT_NO_KEYWORDS
@@ -389,13 +411,13 @@ add_executable(TestSongRepository
 target_include_directories(TestSongRepository PRIVATE
     ${CMAKE_SOURCE_DIR}/src
     ${SQLITE3_INCLUDE_DIRS}
-    ${SPDLOG_INCLUDE_DIRS}
+    ${NERIPLAYER_SPDLOG_INCLUDE_DIRS}
 )
 target_link_libraries(TestSongRepository PRIVATE
     Qt6::Core
     Qt6::Test
     ${SQLITE3_LIBRARIES}
-    ${SPDLOG_LIBRARIES}
+    ${NERIPLAYER_SPDLOG_LIBRARIES}
 )
 if(UNIX)
     target_link_libraries(TestSongRepository PRIVATE dl pthread)
@@ -437,13 +459,13 @@ add_executable(TestPlayHistoryRepository
 target_include_directories(TestPlayHistoryRepository PRIVATE
     ${CMAKE_SOURCE_DIR}/src
     ${SQLITE3_INCLUDE_DIRS}
-    ${SPDLOG_INCLUDE_DIRS}
+    ${NERIPLAYER_SPDLOG_INCLUDE_DIRS}
 )
 target_link_libraries(TestPlayHistoryRepository PRIVATE
     Qt6::Core
     Qt6::Test
     ${SQLITE3_LIBRARIES}
-    ${SPDLOG_LIBRARIES}
+    ${NERIPLAYER_SPDLOG_LIBRARIES}
 )
 if(UNIX)
     target_link_libraries(TestPlayHistoryRepository PRIVATE dl pthread)
@@ -464,13 +486,13 @@ add_executable(TestPlaylistRepository
 target_include_directories(TestPlaylistRepository PRIVATE
     ${CMAKE_SOURCE_DIR}/src
     ${SQLITE3_INCLUDE_DIRS}
-    ${SPDLOG_INCLUDE_DIRS}
+    ${NERIPLAYER_SPDLOG_INCLUDE_DIRS}
 )
 target_link_libraries(TestPlaylistRepository PRIVATE
     Qt6::Core
     Qt6::Test
     ${SQLITE3_LIBRARIES}
-    ${SPDLOG_LIBRARIES}
+    ${NERIPLAYER_SPDLOG_LIBRARIES}
 )
 if(UNIX)
     target_link_libraries(TestPlaylistRepository PRIVATE dl pthread)
@@ -532,14 +554,14 @@ add_executable(TestPlaybackController
 target_include_directories(TestPlaybackController PRIVATE
     ${CMAKE_SOURCE_DIR}/src
     ${NERIPLAYER_QCORO_INCLUDE_DIRS}
-    ${SPDLOG_INCLUDE_DIRS}
+    ${NERIPLAYER_SPDLOG_INCLUDE_DIRS}
 )
 target_link_libraries(TestPlaybackController PRIVATE
     Qt6::Core
     Qt6::Multimedia
     Qt6::Test
     ${NERIPLAYER_QCORO_LIBRARIES}
-    ${SPDLOG_LIBRARIES}
+    ${NERIPLAYER_SPDLOG_LIBRARIES}
 )
 target_compile_definitions(TestPlaybackController PRIVATE
     QT_NO_KEYWORDS
@@ -572,6 +594,22 @@ set_tests_properties(TestQtMultimediaBackend PROPERTIES
     ENVIRONMENT "QT_QPA_PLATFORM=offscreen"
 )
 
+add_executable(TestBilibiliParser
+    tests/api/TestBilibiliParser.cpp
+    src/api/bilibili/BilibiliParser.cpp
+)
+target_include_directories(TestBilibiliParser PRIVATE
+    ${CMAKE_SOURCE_DIR}/src
+)
+target_link_libraries(TestBilibiliParser PRIVATE
+    Qt6::Core
+    Qt6::Test
+)
+target_compile_definitions(TestBilibiliParser PRIVATE
+    QT_NO_KEYWORDS
+)
+add_test(NAME TestBilibiliParser COMMAND TestBilibiliParser)
+
 # Shared library for Netease API + core infra (used by E2E tests and CLI tools)
 set(NETEASE_E2E_SOURCES
     src/api/netease/NeteaseClient.h
@@ -599,7 +637,7 @@ set(NETEASE_E2E_SOURCES
 set(NETEASE_E2E_INCLUDES
     ${CMAKE_SOURCE_DIR}/src
     ${SQLITE3_INCLUDE_DIRS}
-    ${SPDLOG_INCLUDE_DIRS}
+    ${NERIPLAYER_SPDLOG_INCLUDE_DIRS}
 )
 set(NETEASE_E2E_LIBS
     Qt6::Core
@@ -607,7 +645,7 @@ set(NETEASE_E2E_LIBS
     Qt6::WebSockets
     ${NERIPLAYER_QCORO_LIBRARIES}
     ${SQLITE3_LIBRARIES}
-    ${SPDLOG_LIBRARIES}
+    ${NERIPLAYER_SPDLOG_LIBRARIES}
     OpenSSL::Crypto
 )
 

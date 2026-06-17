@@ -1,0 +1,21 @@
+{
+    "code": 0,
+    "data": {
+        "aid": 12345,
+        "bvid": "BV1xx411c7mD",
+        "title": "Test Video",
+        "desc": "A test video",
+        "pic": "//i0.hdslb.com/test.jpg",
+        "duration": 180,
+        "pubdate": 1700000000,
+        "owner": {"name": "TestUP", "mid": 67890},
+        "stat": {
+            "view": 1000, "danmaku": 50, "like": 100,
+            "coin": 30, "favorite": 20, "share": 10
+        },
+        "pages": [
+            {"cid": 111, "page": 1, "part": "Part 1", "duration": 90},
+            {"cid": 222, "page": 2, "part": "Part 2", "duration": 90}
+        ]
+    }
+}
