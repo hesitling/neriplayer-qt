@@ -11,6 +11,7 @@
 
 #include <QCoroTask>
 #include <QObject>
+#include <QString>
 #include <QVariantList>
 
 namespace NeriPlayerQt {

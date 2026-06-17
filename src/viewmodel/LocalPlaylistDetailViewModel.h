@@ -12,6 +12,8 @@
 #include "viewmodel/ViewModelError.h"
 
 #include <QObject>
+#include <QStringList>
+#include <QVector>
 
 namespace NeriPlayerQt {
 

@@ -13,6 +13,8 @@
 
 #include <QCoroTask>
 #include <QObject>
+#include <QString>
+#include <QVector>
 
 namespace NeriPlayerQt {
 
