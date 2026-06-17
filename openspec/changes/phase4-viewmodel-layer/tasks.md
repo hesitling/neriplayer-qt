@@ -34,25 +34,25 @@
 
 ## 6. LocalPlaylistDetailViewModel
 
-- [ ] 6.1 Create `src/viewmodel/LocalPlaylistDetailViewModel.h` — Q_PROPERTYs (playlistId, playlistName, songs as SongListModel*, isLoading, hasError, error), Q_INVOKABLEs (loadPlaylist, addSong, removeSong, reorderSongs, rename, deletePlaylist, playSong, playAll), signals (requestPlay, requestPlayPlaylist, playlistDeleted)
-- [ ] 6.2 Create `src/viewmodel/LocalPlaylistDetailViewModel.cpp` — implement load via IPlaylistRepository::findById(), implement song management via IPlaylistRepository, implement play signal emission with songs from model, map errors to ViewModelError
-- [ ] 6.3 Write `tests/viewmodel/TestLocalPlaylistDetailViewModel.cpp` — mock IPlaylistRepository and ISongRepository, test playlist loading, test add/remove/reorder, test rename/delete, test play signals, test error when playlist not found
+- [x] 6.1 Create `src/viewmodel/LocalPlaylistDetailViewModel.h` — Q_PROPERTYs (playlistId, playlistName, songs as SongListModel*, isLoading, hasError, error), Q_INVOKABLEs (loadPlaylist, addSong, removeSong, reorderSongs, rename, deletePlaylist, playSong, playAll), signals (requestPlay, requestPlayPlaylist, playlistDeleted)
+- [x] 6.2 Create `src/viewmodel/LocalPlaylistDetailViewModel.cpp` — implement load via IPlaylistRepository::findById(), implement song management via IPlaylistRepository, implement play signal emission with songs from model, map errors to ViewModelError
+- [x] 6.3 Write `tests/viewmodel/TestLocalPlaylistDetailViewModel.cpp` — mock IPlaylistRepository and ISongRepository, test playlist loading, test add/remove/reorder, test rename/delete, test play signals, test error when playlist not found
 
 ## 7. NeteasePlaylistDetailViewModel
 
-- [ ] 7.1 Create `src/viewmodel/NeteasePlaylistDetailViewModel.h` — Q_PROPERTYs (headerName, headerCoverUrl, headerTrackCount, songs as SongListModel*, isLoading, hasError, error), Q_INVOKABLEs (loadPlaylist, loadAlbum, retry, saveToLocal, playSong, playAll), signals (requestPlay, requestPlayPlaylist)
-- [ ] 7.2 Create `src/viewmodel/NeteasePlaylistDetailViewModel.cpp` — implement playlist fetch via NeteaseClient::getPlaylistDetail(), implement album fetch via NeteaseClient::getAlbumDetail(), implement batch-fetch for large playlists (>1000 tracks in pages of 300), implement song caching via ISongRepository::saveBatch(), implement saveToLocal (create local playlist + duplicate songs), implement retry, map errors to ViewModelError
-- [ ] 7.3 Write `tests/viewmodel/TestNeteasePlaylistDetailViewModel.cpp` — mock NeteaseClient, ISongRepository, IPlaylistRepository, test playlist load, test album load, test batch-fetch logic, test saveToLocal, test retry, test error mapping
+- [x] 7.1 Create `src/viewmodel/NeteasePlaylistDetailViewModel.h` — Q_PROPERTYs (headerName, headerCoverUrl, headerTrackCount, songs as SongListModel*, isLoading, hasError, error), Q_INVOKABLEs (loadPlaylist, loadAlbum, retry, saveToLocal, playSong, playAll), signals (requestPlay, requestPlayPlaylist)
+- [x] 7.2 Create `src/viewmodel/NeteasePlaylistDetailViewModel.cpp` — implement playlist fetch via NeteaseClient::getPlaylistDetail(), implement album fetch via NeteaseClient::getAlbumDetail(), implement batch-fetch for large playlists (>1000 tracks in pages of 300), implement song caching via ISongRepository::saveBatch(), implement saveToLocal (create local playlist + duplicate songs), implement retry, map errors to ViewModelError
+- [x] 7.3 Write `tests/viewmodel/TestNeteasePlaylistDetailViewModel.cpp` — mock NeteaseClient, ISongRepository, IPlaylistRepository, test playlist load, test album load, test batch-fetch logic, test saveToLocal, test retry, test error mapping
 
 ## 8. MainViewModel
 
-- [ ] 8.1 Create `src/viewmodel/MainViewModel.h` — Q_PROPERTYs (currentView as View enum, playerViewModel, searchViewModel, playlistViewModel, settingsViewModel, localPlaylistDetail, neteasePlaylistDetail), Q_INVOKABLEs (navigateTo, openLocalPlaylist, openNeteasePlaylist, openNeteaseAlbum, initialize), View Q_ENUM
-- [ ] 8.2 Create `src/viewmodel/MainViewModel.cpp` — implement child VM ownership, implement signal wiring (search→player, localDetail→player, neteaseDetail→player, playlistVM→navigation), implement detail VM lifecycle (create on navigate, delete on navigate away), implement initialize (loadSettings, restoreState, loadLocalPlaylists)
-- [ ] 8.3 Write `tests/viewmodel/TestMainViewModel.cpp` — test navigation enum, test detail VM lifecycle (created/deleted), test signal wiring (search requestPlay reaches player), test initialize sequence
+- [x] 8.1 Create `src/viewmodel/MainViewModel.h` — Q_PROPERTYs (currentView as View enum, playerViewModel, searchViewModel, playlistViewModel, settingsViewModel, localPlaylistDetail, neteasePlaylistDetail), Q_INVOKABLEs (navigateTo, openLocalPlaylist, openNeteasePlaylist, openNeteaseAlbum, initialize), View Q_ENUM
+- [x] 8.2 Create `src/viewmodel/MainViewModel.cpp` — implement child VM ownership, implement signal wiring (search→player, localDetail→player, neteaseDetail→player, playlistVM→navigation), implement detail VM lifecycle (create on navigate, delete on navigate away), implement initialize (loadSettings, restoreState, loadLocalPlaylists)
+- [x] 8.3 Write `tests/viewmodel/TestMainViewModel.cpp` — test navigation enum, test detail VM lifecycle (created/deleted), test signal wiring (search requestPlay reaches player), test initialize sequence
 
 ## 9. Build Integration
 
-- [ ] 9.1 Update CMakeLists.txt — add all viewmodel source files to library target, link against api, repo, player, domain targets
-- [ ] 9.2 Update CMakeLists.txt test section — add all viewmodel test files, link against viewmodel library and test mocks
-- [ ] 9.3 Verify full build — run `just build` and ensure no compilation errors
-- [ ] 9.4 Verify all tests pass — run `just test` and ensure all viewmodel tests pass
+- [x] 9.1 Update CMakeLists.txt — add all viewmodel source files to library target, link against api, repo, player, domain targets
+- [x] 9.2 Update CMakeLists.txt test section — add all viewmodel test files, link against viewmodel library and test mocks
+- [x] 9.3 Verify full build — run `just build` and ensure no compilation errors
+- [x] 9.4 Verify all tests pass — run `just test` and ensure all viewmodel tests pass

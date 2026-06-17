@@ -580,6 +580,9 @@ set(VIEWMODEL_SOURCES
     src/viewmodel/SettingsViewModel.cpp
     src/viewmodel/SearchViewModel.cpp
     src/viewmodel/PlaylistViewModel.cpp
+    src/viewmodel/LocalPlaylistDetailViewModel.cpp
+    src/viewmodel/NeteasePlaylistDetailViewModel.cpp
+    src/viewmodel/MainViewModel.cpp
 )
 set(VIEWMODEL_HEADERS
     src/viewmodel/ViewModelError.h
@@ -588,6 +591,9 @@ set(VIEWMODEL_HEADERS
     src/viewmodel/SettingsViewModel.h
     src/viewmodel/SearchViewModel.h
     src/viewmodel/PlaylistViewModel.h
+    src/viewmodel/LocalPlaylistDetailViewModel.h
+    src/viewmodel/NeteasePlaylistDetailViewModel.h
+    src/viewmodel/MainViewModel.h
 )
 add_library(neriplayer_viewmodel STATIC ${VIEWMODEL_SOURCES} ${VIEWMODEL_HEADERS})
 target_include_directories(neriplayer_viewmodel PUBLIC
@@ -776,6 +782,131 @@ if(UNIX)
 endif()
 add_test(NAME TestPlaylistViewModel COMMAND TestPlaylistViewModel)
 set_tests_properties(TestPlaylistViewModel PROPERTIES
+    ENVIRONMENT "QT_QPA_PLATFORM=offscreen"
+)
+
+add_executable(TestLocalPlaylistDetailViewModel
+    tests/viewmodel/TestLocalPlaylistDetailViewModel.cpp
+    src/viewmodel/LocalPlaylistDetailViewModel.cpp
+    src/viewmodel/SongListModel.cpp
+    src/viewmodel/ViewModelError.cpp
+    src/api/common/ApiError.cpp
+)
+target_include_directories(TestLocalPlaylistDetailViewModel PRIVATE
+    ${CMAKE_SOURCE_DIR}/src
+)
+target_link_libraries(TestLocalPlaylistDetailViewModel PRIVATE
+    Qt6::Core
+    Qt6::Test
+)
+target_compile_definitions(TestLocalPlaylistDetailViewModel PRIVATE
+    QT_NO_KEYWORDS
+)
+add_test(NAME TestLocalPlaylistDetailViewModel COMMAND TestLocalPlaylistDetailViewModel)
+
+add_executable(TestNeteasePlaylistDetailViewModel
+    tests/viewmodel/TestNeteasePlaylistDetailViewModel.cpp
+    src/viewmodel/NeteasePlaylistDetailViewModel.cpp
+    src/viewmodel/SongListModel.cpp
+    src/viewmodel/ViewModelError.cpp
+    src/api/common/ApiError.cpp
+    src/api/netease/NeteaseClient.h
+    src/api/netease/NeteaseClientCore.cpp
+    src/api/netease/NeteaseClientAuth.cpp
+    src/api/netease/NeteaseClientContent.cpp
+    src/api/netease/NeteaseClientUser.cpp
+    src/api/netease/NeteaseCrypto.cpp
+    src/api/netease/NeteaseParser.cpp
+    src/core/network/HttpClient.h
+    src/core/network/HttpClient.cpp
+    src/core/crypto/CryptoUtils.cpp
+    src/core/crypto/Encryptor.cpp
+    src/core/crypto/Decryptor.cpp
+    src/core/crypto/SecureStorage.cpp
+    src/core/filesystem/AppPaths.cpp
+    src/core/filesystem/FileUtils.cpp
+    src/core/filesystem/FileWatcher.cpp
+    src/core/database/DatabaseManager.cpp
+    src/core/logger/Logger.cpp
+)
+target_include_directories(TestNeteasePlaylistDetailViewModel PRIVATE
+    ${CMAKE_SOURCE_DIR}/src
+    ${SQLITE3_INCLUDE_DIRS}
+    ${SPDLOG_INCLUDE_DIRS}
+)
+target_link_libraries(TestNeteasePlaylistDetailViewModel PRIVATE
+    Qt6::Core
+    Qt6::Network
+    Qt6::WebSockets
+    Qt6::Test
+    ${NERIPLAYER_QCORO_LIBRARIES}
+    ${SQLITE3_LIBRARIES}
+    ${SPDLOG_LIBRARIES}
+    OpenSSL::Crypto
+)
+if(UNIX)
+    target_link_libraries(TestNeteasePlaylistDetailViewModel PRIVATE dl pthread)
+endif()
+add_test(NAME TestNeteasePlaylistDetailViewModel COMMAND TestNeteasePlaylistDetailViewModel)
+set_tests_properties(TestNeteasePlaylistDetailViewModel PROPERTIES
+    ENVIRONMENT "QT_QPA_PLATFORM=offscreen"
+)
+
+add_executable(TestMainViewModel
+    tests/viewmodel/TestMainViewModel.cpp
+    src/viewmodel/MainViewModel.cpp
+    src/viewmodel/PlayerViewModel.cpp
+    src/viewmodel/SearchViewModel.cpp
+    src/viewmodel/PlaylistViewModel.cpp
+    src/viewmodel/SettingsViewModel.cpp
+    src/viewmodel/LocalPlaylistDetailViewModel.cpp
+    src/viewmodel/NeteasePlaylistDetailViewModel.cpp
+    src/viewmodel/SongListModel.cpp
+    src/viewmodel/ViewModelError.cpp
+    src/player/PlaybackController.cpp
+    src/player/PlayQueue.cpp
+    src/player/IPlayerBackend.h
+    src/api/common/ApiError.cpp
+    src/api/netease/NeteaseClient.h
+    src/api/netease/NeteaseClientCore.cpp
+    src/api/netease/NeteaseClientAuth.cpp
+    src/api/netease/NeteaseClientContent.cpp
+    src/api/netease/NeteaseClientUser.cpp
+    src/api/netease/NeteaseCrypto.cpp
+    src/api/netease/NeteaseParser.cpp
+    src/core/network/HttpClient.h
+    src/core/network/HttpClient.cpp
+    src/core/crypto/CryptoUtils.cpp
+    src/core/crypto/Encryptor.cpp
+    src/core/crypto/Decryptor.cpp
+    src/core/crypto/SecureStorage.cpp
+    src/core/filesystem/AppPaths.cpp
+    src/core/filesystem/FileUtils.cpp
+    src/core/filesystem/FileWatcher.cpp
+    src/core/database/DatabaseManager.cpp
+    src/core/logger/Logger.cpp
+)
+target_include_directories(TestMainViewModel PRIVATE
+    ${CMAKE_SOURCE_DIR}/src
+    ${SQLITE3_INCLUDE_DIRS}
+    ${SPDLOG_INCLUDE_DIRS}
+)
+target_link_libraries(TestMainViewModel PRIVATE
+    Qt6::Core
+    Qt6::Network
+    Qt6::WebSockets
+    Qt6::Multimedia
+    Qt6::Test
+    ${NERIPLAYER_QCORO_LIBRARIES}
+    ${SQLITE3_LIBRARIES}
+    ${SPDLOG_LIBRARIES}
+    OpenSSL::Crypto
+)
+if(UNIX)
+    target_link_libraries(TestMainViewModel PRIVATE dl pthread)
+endif()
+add_test(NAME TestMainViewModel COMMAND TestMainViewModel)
+set_tests_properties(TestMainViewModel PROPERTIES
     ENVIRONMENT "QT_QPA_PLATFORM=offscreen"
 )
 
