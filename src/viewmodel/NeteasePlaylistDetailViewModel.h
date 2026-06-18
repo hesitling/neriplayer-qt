@@ -59,9 +59,6 @@ Q_SIGNALS:
     void requestPlayPlaylist(const QVector<QeriPlayerQt::Song> &songs, int startIndex);
 
 private:
-    QCoro::Task<void> loadPlaylistImpl(const QString &playlistId);
-    QCoro::Task<void> loadAlbumImpl(const QString &albumId);
-
     NeteaseClient *m_neteaseClient;
     ISongRepository *m_songRepo;
     IPlaylistRepository *m_playlistRepo;
@@ -78,6 +75,7 @@ private:
     QString m_lastPlaylistId;
     QString m_lastAlbumId;
     bool m_isAlbum = false;
+    QCoro::QmlTask m_pendingTask;
 };
 
 } // namespace QeriPlayerQt
