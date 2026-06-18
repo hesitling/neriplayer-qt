@@ -103,6 +103,8 @@ QCoro::QmlTask PlaylistViewModel::renameLocalPlaylist(const QString &id, const Q
             if (playlist.has_value()) {
                 m_playlistRepo->updateMetadata(id, name, playlist->description, playlist->coverUrl.toString());
                 co_await loadLocalPlaylistsImpl();
+            } else {
+                Logger::get("viewmodel")->warn("Cannot rename playlist: id {} not found", id.toStdString());
             }
         } catch (const std::exception &ex) {
             Logger::get("viewmodel")->warn("Failed to rename local playlist: {}", ex.what());
