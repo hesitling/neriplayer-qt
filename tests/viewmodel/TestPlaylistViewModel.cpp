@@ -1,92 +1,28 @@
 /// @file TestPlaylistViewModel.cpp
-/// @brief Unit tests for PlaylistViewModel with mocked dependencies
+/// @brief Unit tests for PlaylistViewModel (in-memory SQLite)
 
+#include "core/database/DatabaseManager.h"
 #include "domain/Playlist.h"
 #include "domain/PlaylistSummary.h"
-#include "repo/IPlaylistRepository.h"
+#include "repo/PlaylistRepository.h"
 #include "viewmodel/PlaylistViewModel.h"
 
-#include <QCoroTask>
 #include <QSignalSpy>
 #include <QTest>
 
+#include <memory>
+
 using namespace QeriPlayerQt;
-
-// --- Mock IPlaylistRepository ---
-
-class MockPlaylistRepo : public IPlaylistRepository {
-public:
-    QVector<PlaylistSummary> findAll() override
-    {
-        if (m_throwOnFindAll)
-            throw std::runtime_error("DB error");
-        return m_summaries;
-    }
-    std::optional<Playlist> findById(const QString &id) override
-    {
-        auto it = m_playlists.find(id);
-        if (it != m_playlists.end())
-            return it.value();
-        return std::nullopt;
-    }
-    Playlist create(const QString &name, MusicPlatform) override
-    {
-        if (m_throwOnCreate)
-            throw std::runtime_error("create failed");
-        Playlist p;
-        p.id = QString::number(++m_nextId);
-        p.name = name;
-        m_createdIds.append(p.id);
-        return p;
-    }
-    void updateMetadata(const QString &id, const QString &name, const QString &, const QString &) override
-    {
-        if (m_throwOnUpdateMetadata)
-            throw std::runtime_error("updateMetadata failed");
-        m_renamedIds[id] = name;
-    }
-    void remove(const QString &id) override
-    {
-        if (m_throwOnRemove)
-            throw std::runtime_error("remove failed");
-        m_removedIds.append(id);
-    }
-    bool addSong(const QString &, const QString &, int) override
-    {
-        return true;
-    }
-    void removeSong(const QString &, const QString &) override { }
-    void reorderSongs(const QString &, const QStringList &) override { }
-    int songCount(const QString &) override
-    {
-        return 0;
-    }
-
-    // Test data
-    QVector<PlaylistSummary> m_summaries;
-    QHash<QString, Playlist> m_playlists;
-    QStringList m_createdIds;
-    QStringList m_removedIds;
-    QHash<QString, QString> m_renamedIds;
-    int m_nextId = 0;
-    bool m_throwOnFindAll = false;
-    bool m_throwOnCreate = false;
-    bool m_throwOnRemove = false;
-    bool m_throwOnUpdateMetadata = false;
-};
-
-// --- Test class ---
 
 class TestPlaylistViewModel : public QObject {
     Q_OBJECT
 
 private:
-    PlaylistSummary makeSummary(const QString &id, const QString &name)
+    std::unique_ptr<DatabaseManager> createDb()
     {
-        PlaylistSummary s;
-        s.id = id;
-        s.name = name;
-        return s;
+        auto db = std::make_unique<DatabaseManager>();
+        db->open(QString(":memory:"));
+        return db;
     }
 
 private Q_SLOTS:
@@ -107,8 +43,10 @@ private Q_SLOTS:
 
 void TestPlaylistViewModel::initialState()
 {
-    MockPlaylistRepo playlistRepo;
-    PlaylistViewModel vm(&playlistRepo, nullptr);
+    auto db = createDb();
+    PlaylistRepository repo(db.get());
+
+    PlaylistViewModel vm(&repo, nullptr);
 
     QVERIFY(vm.localPlaylists().isEmpty());
     QVERIFY(vm.neteasePlaylists().isEmpty());
@@ -118,10 +56,13 @@ void TestPlaylistViewModel::initialState()
 
 void TestPlaylistViewModel::loadLocalPlaylists()
 {
-    MockPlaylistRepo playlistRepo;
-    playlistRepo.m_summaries = {makeSummary("1", "Playlist A"), makeSummary("2", "Playlist B")};
+    auto db = createDb();
+    PlaylistRepository repo(db.get());
 
-    PlaylistViewModel vm(&playlistRepo, nullptr);
+    repo.create("Playlist A");
+    repo.create("Playlist B");
+
+    PlaylistViewModel vm(&repo, nullptr);
     QSignalSpy spy(&vm, &PlaylistViewModel::localPlaylistsChanged);
 
     vm.loadLocalPlaylists();
@@ -132,9 +73,10 @@ void TestPlaylistViewModel::loadLocalPlaylists()
 
 void TestPlaylistViewModel::loadLocalPlaylists_empty()
 {
-    MockPlaylistRepo playlistRepo;
+    auto db = createDb();
+    PlaylistRepository repo(db.get());
 
-    PlaylistViewModel vm(&playlistRepo, nullptr);
+    PlaylistViewModel vm(&repo, nullptr);
     vm.loadLocalPlaylists();
 
     QCOMPARE(vm.localPlaylists().size(), 0);
@@ -142,45 +84,55 @@ void TestPlaylistViewModel::loadLocalPlaylists_empty()
 
 void TestPlaylistViewModel::createLocalPlaylist()
 {
-    MockPlaylistRepo playlistRepo;
+    auto db = createDb();
+    PlaylistRepository repo(db.get());
 
-    PlaylistViewModel vm(&playlistRepo, nullptr);
+    PlaylistViewModel vm(&repo, nullptr);
     vm.createLocalPlaylist("New Playlist");
 
-    QCOMPARE(playlistRepo.m_createdIds.size(), 1);
-    QCOMPARE(playlistRepo.m_createdIds.first(), QStringLiteral("1"));
+    // Verify persisted via repo
+    auto all = repo.findAll();
+    QCOMPARE(all.size(), 1);
+    QCOMPARE(all.first().name, QStringLiteral("New Playlist"));
 }
 
 void TestPlaylistViewModel::deleteLocalPlaylist()
 {
-    MockPlaylistRepo playlistRepo;
+    auto db = createDb();
+    PlaylistRepository repo(db.get());
 
-    PlaylistViewModel vm(&playlistRepo, nullptr);
-    vm.deleteLocalPlaylist("abc");
+    auto pl = repo.create("To Delete");
 
-    QCOMPARE(playlistRepo.m_removedIds.size(), 1);
-    QCOMPARE(playlistRepo.m_removedIds.first(), QStringLiteral("abc"));
+    PlaylistViewModel vm(&repo, nullptr);
+    vm.deleteLocalPlaylist(pl.id);
+
+    // Verify deleted from DB
+    QVERIFY(!repo.findById(pl.id).has_value());
 }
 
 void TestPlaylistViewModel::renameLocalPlaylist()
 {
-    MockPlaylistRepo playlistRepo;
-    Playlist existing;
-    existing.id = "abc";
-    existing.name = "Old Name";
-    playlistRepo.m_playlists["abc"] = existing;
+    auto db = createDb();
+    PlaylistRepository repo(db.get());
 
-    PlaylistViewModel vm(&playlistRepo, nullptr);
-    vm.renameLocalPlaylist("abc", "New Name");
+    auto pl = repo.create("Old Name");
 
-    QCOMPARE(playlistRepo.m_renamedIds["abc"], QStringLiteral("New Name"));
+    PlaylistViewModel vm(&repo, nullptr);
+    vm.loadLocalPlaylists(); // Populate the list first
+    vm.renameLocalPlaylist(pl.id, "New Name");
+
+    // Verify persisted
+    auto found = repo.findById(pl.id);
+    QVERIFY(found.has_value());
+    QCOMPARE(found->name, QStringLiteral("New Name"));
 }
 
 void TestPlaylistViewModel::clearError()
 {
-    MockPlaylistRepo playlistRepo;
+    auto db = createDb();
+    PlaylistRepository repo(db.get());
 
-    PlaylistViewModel vm(&playlistRepo, nullptr);
+    PlaylistViewModel vm(&repo, nullptr);
 
     QSignalSpy spy(&vm, &PlaylistViewModel::errorChanged);
     vm.clearError();
@@ -191,9 +143,10 @@ void TestPlaylistViewModel::clearError()
 
 void TestPlaylistViewModel::localPlaylistSelected_signal()
 {
-    MockPlaylistRepo playlistRepo;
+    auto db = createDb();
+    PlaylistRepository repo(db.get());
 
-    PlaylistViewModel vm(&playlistRepo, nullptr);
+    PlaylistViewModel vm(&repo, nullptr);
     QSignalSpy spy(&vm, &PlaylistViewModel::localPlaylistSelected);
 
     Q_EMIT vm.localPlaylistSelected("abc");
@@ -204,9 +157,10 @@ void TestPlaylistViewModel::localPlaylistSelected_signal()
 
 void TestPlaylistViewModel::neteasePlaylistSelected_signal()
 {
-    MockPlaylistRepo playlistRepo;
+    auto db = createDb();
+    PlaylistRepository repo(db.get());
 
-    PlaylistViewModel vm(&playlistRepo, nullptr);
+    PlaylistViewModel vm(&repo, nullptr);
     QSignalSpy spy(&vm, &PlaylistViewModel::neteasePlaylistSelected);
 
     PlaylistSummary summary;
@@ -219,12 +173,14 @@ void TestPlaylistViewModel::neteasePlaylistSelected_signal()
 
 void TestPlaylistViewModel::loadLocalPlaylists_repoException_doesNotCrash()
 {
-    MockPlaylistRepo playlistRepo;
-    playlistRepo.m_throwOnFindAll = true;
+    auto db = createDb();
+    PlaylistRepository repo(db.get());
 
-    PlaylistViewModel vm(&playlistRepo, nullptr);
+    PlaylistViewModel vm(&repo, nullptr);
 
-    // Should not crash — exception is caught internally
+    // Close DB — findAll() throws, caught internally by loadLocalPlaylistsImpl
+    db->close();
+
     vm.loadLocalPlaylists();
 
     // Local playlists should remain empty since the repo threw
@@ -233,12 +189,14 @@ void TestPlaylistViewModel::loadLocalPlaylists_repoException_doesNotCrash()
 
 void TestPlaylistViewModel::createLocalPlaylist_repoException_setsError()
 {
-    MockPlaylistRepo playlistRepo;
-    playlistRepo.m_throwOnCreate = true;
+    auto db = createDb();
+    PlaylistRepository repo(db.get());
 
-    PlaylistViewModel vm(&playlistRepo, nullptr);
+    PlaylistViewModel vm(&repo, nullptr);
+
+    db->close();
+
     QSignalSpy errorSpy(&vm, &PlaylistViewModel::errorChanged);
-
     vm.createLocalPlaylist("New Playlist");
 
     QVERIFY(vm.hasError());
@@ -248,13 +206,17 @@ void TestPlaylistViewModel::createLocalPlaylist_repoException_setsError()
 
 void TestPlaylistViewModel::deleteLocalPlaylist_repoException_setsError()
 {
-    MockPlaylistRepo playlistRepo;
-    playlistRepo.m_throwOnRemove = true;
+    auto db = createDb();
+    PlaylistRepository repo(db.get());
 
-    PlaylistViewModel vm(&playlistRepo, nullptr);
+    repo.create("To Delete");
+
+    PlaylistViewModel vm(&repo, nullptr);
+
+    db->close();
+
     QSignalSpy errorSpy(&vm, &PlaylistViewModel::errorChanged);
-
-    vm.deleteLocalPlaylist("abc");
+    vm.deleteLocalPlaylist("nonexistent");
 
     QVERIFY(vm.hasError());
     QCOMPARE(vm.error().type(), ViewModelError::ErrorType::Database);
@@ -263,17 +225,17 @@ void TestPlaylistViewModel::deleteLocalPlaylist_repoException_setsError()
 
 void TestPlaylistViewModel::renameLocalPlaylist_repoException_setsError()
 {
-    MockPlaylistRepo playlistRepo;
-    playlistRepo.m_throwOnUpdateMetadata = true;
-    Playlist existing;
-    existing.id = "abc";
-    existing.name = "Old Name";
-    playlistRepo.m_playlists["abc"] = existing;
+    auto db = createDb();
+    PlaylistRepository repo(db.get());
 
-    PlaylistViewModel vm(&playlistRepo, nullptr);
+    auto pl = repo.create("Old Name");
+
+    PlaylistViewModel vm(&repo, nullptr);
+
+    db->close();
+
     QSignalSpy errorSpy(&vm, &PlaylistViewModel::errorChanged);
-
-    vm.renameLocalPlaylist("abc", "New Name");
+    vm.renameLocalPlaylist(pl.id, "New Name");
 
     QVERIFY(vm.hasError());
     QCOMPARE(vm.error().type(), ViewModelError::ErrorType::Database);
