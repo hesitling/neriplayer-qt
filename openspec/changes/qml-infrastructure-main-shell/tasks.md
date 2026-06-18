@@ -34,4 +34,4 @@
 - [x] 6.1 Run `just build_dir=/tmp/qeriplayer-build build` — verify compilation succeeds
 - [x] 6.2 Run `just build_dir=/tmp/qeriplayer-build test` — verify all existing tests pass
 - [x] 6.3 Run `just format` — format changed files
-- [ ] 6.4 Launch app manually and verify: window appears, sidebar visible, navigation switches placeholder pages
+- [x] 6.4 Launch app manually and verify: window appears, sidebar visible, navigation switches placeholder pages

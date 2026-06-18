@@ -13,7 +13,7 @@ Rectangle {
         ListElement { name: "Home"; icon: "🏠"; view: 0 }
         ListElement { name: "Search"; icon: "🔍"; view: 1 }
         ListElement { name: "Library"; icon: "📚"; view: 2 }
-        ListElement { name: "Settings"; icon: "⚙"; view: 5 }
+        ListElement { name: "Settings"; icon: "⚙️"; view: 5 }
     }
 
     ListView {
@@ -30,6 +30,7 @@ Rectangle {
 
             contentItem: RowLayout {
                 spacing: 12
+                anchors.verticalCenter: parent.verticalCenter
 
                 Label {
                     text: model.icon
