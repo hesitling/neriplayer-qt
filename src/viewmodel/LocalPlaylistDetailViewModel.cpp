@@ -97,6 +97,9 @@ QCoro::QmlTask LocalPlaylistDetailViewModel::rename(const QString &newName)
             }
         } catch (const std::exception &ex) {
             Logger::get("viewmodel")->warn("Failed to rename playlist: {}", ex.what());
+            m_error = ViewModelError(ViewModelError::ErrorType::Database, QString::fromUtf8(ex.what()));
+            m_hasError = true;
+            Q_EMIT errorChanged();
         }
         co_return;
     }());
@@ -110,6 +113,9 @@ QCoro::QmlTask LocalPlaylistDetailViewModel::deletePlaylist()
             Q_EMIT playlistDeleted();
         } catch (const std::exception &ex) {
             Logger::get("viewmodel")->warn("Failed to delete playlist: {}", ex.what());
+            m_error = ViewModelError(ViewModelError::ErrorType::Database, QString::fromUtf8(ex.what()));
+            m_hasError = true;
+            Q_EMIT errorChanged();
         }
         co_return;
     }());
