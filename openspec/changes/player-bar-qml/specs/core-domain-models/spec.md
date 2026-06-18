@@ -10,7 +10,7 @@ The system SHALL provide a `Song` struct containing:
 - Platform identifiers: `channelId` (QString), `audioId` (QString), `subAudioId` (QString), `playlistContextId` (QString), `streamUrl` (QString)
 - `extra` (QVariantMap for platform-specific fields)
 
-The struct SHALL include the `Q_GADGET` macro and `Q_PROPERTY` declarations with `MEMBER` binding for the following fields to enable QML property access: `id`, `name`, `artist`, `album`, `durationMs`, `coverUrl`, `platform`. All other fields SHALL remain as public members without Q_PROPERTY.
+The struct SHALL include the `Q_GADGET` macro and `Q_PROPERTY` declarations with `READ` accessor functions (using `get` prefix, e.g., `getId()`, `getName()`) and `CONSTANT` modifier for the following fields to enable QML property access: `id`, `name`, `artist`, `album`, `durationMs`, `coverUrl`, `platform`. All other fields SHALL remain as public members without Q_PROPERTY.
 
 Field names SHALL match Android QeriPlayer's `SongItem` model. All fields SHALL be default-constructible and copyable.
 

@@ -4,7 +4,7 @@ The PlayerBar is the core playback UI — users need to see what's playing, cont
 
 ## What Changes
 
-- **Song Q_GADGET**: Add `Q_GADGET` and `Q_PROPERTY(MEMBER)` macros to `Song` struct so QML can access `song.name`, `song.artist`, `coverUrl`, etc. No C++ API breakage — public members stay as-is.
+- **Song Q_GADGET**: Add `Q_GADGET` and `Q_PROPERTY(READ getX, CONSTANT)` macros to `Song` struct so QML can access `song.name`, `song.artist`, `coverUrl`, etc. No C++ API breakage — public members stay as-is.
 - **PlayerBar QML components**: Create 4 new QML files — `PlayerBar.qml` (container), `NowPlayingInfo.qml` (album art + song info), `TransportControls.qml` (play/pause, next, prev, shuffle, repeat, seek slider), `VolumeControl.qml` (volume slider + mute toggle).
 - **Toast notification**: Reusable `Toast.qml` component for error display (slides in above PlayerBar, auto-dismisses).
 - **Keyboard shortcuts**: Space for play/pause, Left/Right arrows for seek (±5 seconds), added to `main.qml`.

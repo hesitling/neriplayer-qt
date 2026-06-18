@@ -124,14 +124,12 @@ ColumnLayout {
 
             value: seeking ? value : root.positionMs
 
-            onMoved: {
-                seeking = false
-                root.seekRequested(Math.round(value))
-            }
-
             onPressedChanged: {
                 if (pressed) {
                     seeking = true
+                } else {
+                    seeking = false
+                    root.seekRequested(Math.round(value))
                 }
             }
         }

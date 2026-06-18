@@ -76,7 +76,7 @@ ApplicationWindow {
     // Wire toast to player errors
     Connections {
         target: playerVm
-        function onHasErrorChanged() {
+        function onErrorChanged() {
             if (playerVm.hasError) {
                 toast.show(playerVm.error.message)
             }

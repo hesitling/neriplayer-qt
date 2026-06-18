@@ -32,6 +32,7 @@ Phase 4 ViewModels are complete — `PlayerViewModel` exposes all playback state
 **Alternative considered — Wrapper Q_GADGET**: Rejected as unnecessary indirection. Song is already a value type.
 
 **Fields to expose**:
+
 | Field | Type | Used by |
 |-------|------|---------|
 | `id` | QString | Search, Playlists |
@@ -44,7 +45,7 @@ Phase 4 ViewModels are complete — `PlayerViewModel` exposes all playback state
 
 ### D2: Spotify-style PlayerBar layout
 
-```
+```text
 ┌──────────────────────────────────────────────────────────────────────────┐
 │ 80px                                                                     │
 ├────────────┬──────────────────────────────────────┬──────────────────────┤
