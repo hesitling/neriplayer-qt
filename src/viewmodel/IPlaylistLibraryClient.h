@@ -20,8 +20,7 @@ public:
 
     virtual QCoro::Task<ApiResult<QVector<Playlist>>> getUserPlaylists(const QString &userId) = 0;
     virtual QCoro::Task<ApiResult<QJsonObject>> getUserStarredAlbums(const QString &userId, int limit = 1000,
-                                                                     int offset = 0)
-        = 0;
+                                                                     int offset = 0) = 0;
 };
 
 } // namespace QeriPlayerQt
