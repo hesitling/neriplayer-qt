@@ -15,7 +15,7 @@ SearchViewModel::SearchViewModel(QVector<IMusicPlatformPlugin *> plugins, ISongR
     , m_debounceTimer(new QTimer(this))
 {
     m_debounceTimer->setSingleShot(true);
-    m_debounceTimer->setInterval(300);
+    m_debounceTimer->setInterval(500);
 
     connect(m_debounceTimer, &QTimer::timeout, this, [this]() { m_pendingSearch = search(); });
 }
@@ -126,6 +126,35 @@ void SearchViewModel::clearError()
     m_hasError = false;
     m_error = ViewModelError();
     Q_EMIT errorChanged();
+}
+
+void SearchViewModel::selectPlatformByName(const QString &name)
+{
+    for (auto *plugin : m_plugins) {
+        if (plugin->platformName() == name) {
+            // Map platform name to enum based on known names
+            MusicPlatform platform = MusicPlatform::Unknown;
+            if (name == QStringLiteral("NetEase")) {
+                platform = MusicPlatform::NetEase;
+            } else if (name == QStringLiteral("Bilibili")) {
+                platform = MusicPlatform::Bilibili;
+            } else if (name == QStringLiteral("YouTube")) {
+                platform = MusicPlatform::YouTube;
+            } else if (name == QStringLiteral("QQMusic")) {
+                platform = MusicPlatform::QQMusic;
+            }
+            setSelectedPlatform(platform);
+            return;
+        }
+    }
+}
+
+void SearchViewModel::playSong(int index)
+{
+    Song song = m_results->songAt(index);
+    if (!song.id.isEmpty()) {
+        Q_EMIT requestPlay(song);
+    }
 }
 
 // --- Private ---
@@ -260,6 +289,9 @@ IMusicPlatformPlugin *SearchViewModel::currentPlugin() const
                 return plugin;
             }
             if (m_selectedPlatform == MusicPlatform::YouTube && plugin->platformName() == QStringLiteral("YouTube")) {
+                return plugin;
+            }
+            if (m_selectedPlatform == MusicPlatform::QQMusic && plugin->platformName() == QStringLiteral("QQMusic")) {
                 return plugin;
             }
         }

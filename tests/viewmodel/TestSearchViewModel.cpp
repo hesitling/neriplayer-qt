@@ -68,11 +68,65 @@ public:
     bool m_hasMore = false;
     int m_totalCount = 10;
     bool m_shouldFail = false;
+    QString m_platformName = QStringLiteral("Mock");
 
     // Tracking
     QString m_lastKeyword;
     int m_lastLimit = 0;
     int m_lastOffset = 0;
+    int m_searchCount = 0;
+};
+
+// --- Mock IMusicPlatformPlugin with configurable platform name ---
+
+class MockPluginNamed : public IMusicPlatformPlugin {
+public:
+    explicit MockPluginNamed(const QString &name, MusicPlatform platform)
+        : m_name(name)
+        , m_platform(platform)
+    {
+    }
+
+    QCoro::Task<ApiResult<SearchResult>> search(const QString &keyword, SearchType, int limit, int offset) override
+    {
+        m_lastKeyword = keyword;
+        m_searchCount++;
+        SearchResult result;
+        for (int i = 0; i < 5 && i < limit; ++i) {
+            Song song;
+            song.id = QString::number(offset + i);
+            song.name = QString("Song %1").arg(offset + i);
+            song.artist = "Artist";
+            result.songs.append(song);
+        }
+        result.hasMore = false;
+        co_return ApiResult<SearchResult>(result);
+    }
+
+    QCoro::Task<ApiResult<Song>> getSongDetail(const QString &) override
+    {
+        co_return ApiResult<Song>(Song {});
+    }
+    QCoro::Task<ApiResult<SongUrlResult>> getSongUrl(const QString &, AudioQuality) override
+    {
+        co_return ApiResult<SongUrlResult>(SongUrlResult {});
+    }
+    QCoro::Task<ApiResult<Lyrics>> getLyrics(const QString &) override
+    {
+        co_return ApiResult<Lyrics>(Lyrics {});
+    }
+    bool isAuthenticated() const override
+    {
+        return true;
+    }
+    QString platformName() const override
+    {
+        return m_name;
+    }
+
+    QString m_name;
+    MusicPlatform m_platform;
+    QString m_lastKeyword;
     int m_searchCount = 0;
 };
 
@@ -130,6 +184,11 @@ private Q_SLOTS:
     void clearResults_emptiesModel();
     void clearError_resetsError();
     void setSelectedPlatform_researches();
+    void selectPlatformByName_setsPlatform();
+    void selectPlatformByName_unknown_doesNothing();
+    void selectPlatformByName_searchesCorrectPlugin();
+    void playSong_emitsRequestPlay();
+    void playSong_invalidIndex_doesNothing();
 };
 
 void TestSearchViewModel::initialState()
@@ -354,6 +413,85 @@ void TestSearchViewModel::setSelectedPlatform_researches()
 
     // Should have triggered another search
     QCOMPARE(plugin.m_searchCount, countBefore + 1);
+}
+
+void TestSearchViewModel::selectPlatformByName_setsPlatform()
+{
+    MockPluginNamed neteasePlugin(QStringLiteral("NetEase"), MusicPlatform::NetEase);
+    MockPluginNamed bilibiliPlugin(QStringLiteral("Bilibili"), MusicPlatform::Bilibili);
+    MockSongRepo repo;
+    SearchViewModel vm({&neteasePlugin, &bilibiliPlugin}, &repo);
+
+    QSignalSpy spy(&vm, &SearchViewModel::selectedPlatformChanged);
+    vm.selectPlatformByName(QStringLiteral("Bilibili"));
+
+    QCOMPARE(vm.selectedPlatform(), MusicPlatform::Bilibili);
+    QCOMPARE(spy.count(), 1);
+}
+
+void TestSearchViewModel::selectPlatformByName_unknown_doesNothing()
+{
+    MockPluginNamed neteasePlugin(QStringLiteral("NetEase"), MusicPlatform::NetEase);
+    MockSongRepo repo;
+    SearchViewModel vm({&neteasePlugin}, &repo);
+
+    QSignalSpy spy(&vm, &SearchViewModel::selectedPlatformChanged);
+    vm.selectPlatformByName(QStringLiteral("UnknownPlatform"));
+
+    // Should not have changed
+    QCOMPARE(spy.count(), 0);
+}
+
+void TestSearchViewModel::selectPlatformByName_searchesCorrectPlugin()
+{
+    MockPluginNamed neteasePlugin(QStringLiteral("NetEase"), MusicPlatform::NetEase);
+    MockPluginNamed qqPlugin(QStringLiteral("QQMusic"), MusicPlatform::QQMusic);
+    MockSongRepo repo;
+    SearchViewModel vm({&neteasePlugin, &qqPlugin}, &repo);
+
+    // Select QQMusic and search
+    vm.selectPlatformByName(QStringLiteral("QQMusic"));
+    vm.setQuery("rock");
+    vm.search();
+
+    // Search should have dispatched to the QQMusic plugin, not NetEase
+    QCOMPARE(qqPlugin.m_searchCount, 1);
+    QCOMPARE(neteasePlugin.m_searchCount, 0);
+    QCOMPARE(qqPlugin.m_lastKeyword, QStringLiteral("rock"));
+}
+
+void TestSearchViewModel::playSong_emitsRequestPlay()
+{
+    MockPlugin plugin;
+    plugin.m_resultCount = 5;
+    MockSongRepo repo;
+    SearchViewModel vm({&plugin}, &repo);
+
+    vm.setQuery("rock");
+    vm.search();
+
+    QSignalSpy spy(&vm, &SearchViewModel::requestPlay);
+    vm.playSong(2);
+
+    QCOMPARE(spy.count(), 1);
+    auto song = spy.at(0).at(0).value<Song>();
+    QCOMPARE(song.id, QStringLiteral("2"));
+}
+
+void TestSearchViewModel::playSong_invalidIndex_doesNothing()
+{
+    MockPlugin plugin;
+    plugin.m_resultCount = 3;
+    MockSongRepo repo;
+    SearchViewModel vm({&plugin}, &repo);
+
+    vm.setQuery("rock");
+    vm.search();
+
+    QSignalSpy spy(&vm, &SearchViewModel::requestPlay);
+    vm.playSong(999);
+
+    QCOMPARE(spy.count(), 0);
 }
 
 QTEST_MAIN(TestSearchViewModel)
