@@ -103,6 +103,8 @@ ApplicationWindow {
     }
 
     // Navigation handler
+    // NOTE: Case values mirror MainViewModel::View enum (Home=0, Search=1, Library=2, Settings=5).
+    // If the enum order changes in C++, update these values to match.
     Connections {
         target: mainVm
 
