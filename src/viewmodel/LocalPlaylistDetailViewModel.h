@@ -56,6 +56,7 @@ Q_SIGNALS:
     void errorChanged();
     void requestPlay(const QeriPlayerQt::Song &song);
     void requestPlayPlaylist(const QVector<QeriPlayerQt::Song> &songs, int startIndex);
+    void playlistUpdated();
     void playlistDeleted();
 
 private:

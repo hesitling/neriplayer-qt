@@ -182,7 +182,6 @@ Page {
                     onClicked: {
                         detailVm.deletePlaylist()
                         deleteDialog.close()
-                        mainVm.navigateTo(2)
                     }
                 }
             }

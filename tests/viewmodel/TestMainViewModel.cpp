@@ -117,16 +117,37 @@ public:
     {
         return summaries;
     }
-    std::optional<Playlist> findById(const QString &) override
+    std::optional<Playlist> findById(const QString &id) override
     {
-        return playlist;
+        if (playlist.has_value() && playlist->id == id) {
+            return playlist;
+        }
+        return std::nullopt;
     }
     Playlist create(const QString &, MusicPlatform) override
     {
         return {};
     }
-    void updateMetadata(const QString &, const QString &, const QString &, const QString &) override { }
-    void remove(const QString &) override { }
+    void updateMetadata(const QString &id, const QString &name, const QString &, const QString &) override
+    {
+        if (playlist.has_value() && playlist->id == id) {
+            playlist->name = name;
+        }
+        for (auto &summary : summaries) {
+            if (summary.id == id) {
+                summary.name = name;
+            }
+        }
+    }
+    void remove(const QString &id) override
+    {
+        summaries.erase(std::remove_if(summaries.begin(), summaries.end(),
+                                       [&](const PlaylistSummary &summary) { return summary.id == id; }),
+                        summaries.end());
+        if (playlist.has_value() && playlist->id == id) {
+            playlist.reset();
+        }
+    }
     bool addSong(const QString &, const QString &, int) override
     {
         return true;
@@ -247,6 +268,8 @@ private Q_SLOTS:
     void navigation_changesView();
     void searchRequestPlay_wiredToPlayer();
     void openLocalPlaylist_createsDetailAndNavigates();
+    void renameLocalPlaylist_refreshesLibrary();
+    void deleteLocalPlaylist_refreshesLibraryAndNavigates();
     void navigateAway_clearsLocalDetail();
 };
 
@@ -320,6 +343,60 @@ void TestMainViewModel::openLocalPlaylist_createsDetailAndNavigates()
     QCOMPARE(vm->localPlaylistDetail()->songs()->count(), 1);
     QVERIFY(currentViewSpy.count() >= 1);
     QVERIFY(detailSpy.count() >= 1);
+
+    delete vm;
+}
+
+void TestMainViewModel::renameLocalPlaylist_refreshesLibrary()
+{
+    Playlist playlist;
+    playlist.id = QStringLiteral("abc");
+    playlist.name = QStringLiteral("Road Trip");
+    m_playlistRepo.playlist = playlist;
+
+    PlaylistSummary summary;
+    summary.id = QStringLiteral("abc");
+    summary.name = QStringLiteral("Road Trip");
+    m_playlistRepo.summaries = {summary};
+
+    auto *vm = createViewModel();
+    m_playlistVm->loadLocalPlaylists();
+    vm->openLocalPlaylist(QStringLiteral("abc"));
+
+    QSignalSpy listSpy(m_playlistVm, &PlaylistViewModel::localPlaylistsChanged);
+    vm->localPlaylistDetail()->rename(QStringLiteral("Evening Mix"));
+
+    QCOMPARE(m_playlistVm->localPlaylists().size(), 1);
+    QCOMPARE(m_playlistVm->localPlaylists().first().value<PlaylistSummary>().name, QStringLiteral("Evening Mix"));
+    QVERIFY(listSpy.count() >= 1);
+
+    delete vm;
+}
+
+void TestMainViewModel::deleteLocalPlaylist_refreshesLibraryAndNavigates()
+{
+    Playlist playlist;
+    playlist.id = QStringLiteral("abc");
+    playlist.name = QStringLiteral("Road Trip");
+    m_playlistRepo.playlist = playlist;
+
+    PlaylistSummary summary;
+    summary.id = QStringLiteral("abc");
+    summary.name = QStringLiteral("Road Trip");
+    m_playlistRepo.summaries = {summary};
+
+    auto *vm = createViewModel();
+    m_playlistVm->loadLocalPlaylists();
+    vm->openLocalPlaylist(QStringLiteral("abc"));
+    QVERIFY(vm->localPlaylistDetail() != nullptr);
+
+    QSignalSpy listSpy(m_playlistVm, &PlaylistViewModel::localPlaylistsChanged);
+    vm->localPlaylistDetail()->deletePlaylist();
+
+    QCOMPARE(vm->currentView(), MainViewModel::View::Library);
+    QVERIFY(vm->localPlaylistDetail() == nullptr);
+    QCOMPARE(m_playlistVm->localPlaylists().size(), 0);
+    QVERIFY(listSpy.count() >= 1);
 
     delete vm;
 }
