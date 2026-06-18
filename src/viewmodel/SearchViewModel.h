@@ -69,6 +69,8 @@ public:
     Q_INVOKABLE QCoro::QmlTask loadMore();
     Q_INVOKABLE void clearResults();
     Q_INVOKABLE void clearError();
+    Q_INVOKABLE void selectPlatformByName(const QString &name);
+    Q_INVOKABLE void playSong(int index);
 
 Q_SIGNALS:
     void queryChanged();
