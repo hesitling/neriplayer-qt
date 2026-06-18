@@ -63,6 +63,20 @@ src/
 └── viewmodel/              # ViewModels (MVVM)
 ```
 
+## OpenSpec Specs
+
+Spec directories under `openspec/specs/` use a prefix to group by architectural layer:
+
+| Prefix | Layer | Example |
+|--------|-------|--------|
+| `core-` | Infrastructure | `core-database`, `core-logger`, `core-domain-models` |
+| `repo-` | Data access | `repo-song`, `repo-playlist`, `repo-settings` |
+| `api-` | Platform integrations | `api-netease` |
+| `player-` | Playback engine | `player-backend`, `player-controller`, `player-queue` |
+| `vm-` | ViewModels (MVVM) | `vm-player`, `vm-search`, `vm-main` |
+
+Specs must have `## Purpose` and `## Requirements` sections. See existing specs for format.
+
 ## Code Conventions
 
 ### Naming
