@@ -13,7 +13,6 @@
 #include "viewmodel/SettingsViewModel.h"
 
 #include <QCoroQmlTask>
-#include <QCoroTask>
 #include <QObject>
 
 namespace QeriPlayerQt {
