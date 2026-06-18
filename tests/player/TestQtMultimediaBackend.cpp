@@ -6,70 +6,75 @@
 #include <QSignalSpy>
 #include <QTemporaryDir>
 #include <QTest>
+#include <memory>
 
 using namespace QeriPlayerQt;
 
 class TestQtMultimediaBackend : public QObject {
     Q_OBJECT
 
+private:
+    std::unique_ptr<QtMultimediaBackend> m_backend;
+
 private Q_SLOTS:
     void init()
     {
         // Each test gets a fresh backend
+        m_backend = std::make_unique<QtMultimediaBackend>();
+    }
+
+    void cleanup()
+    {
+        // Explicitly destroy before next test to avoid PipeWire thread races
+        m_backend.reset();
     }
 
     // --- Basic construction ---
 
     void construction_initialStateIsStopped()
     {
-        QtMultimediaBackend backend;
-        QCOMPARE(backend.state(), PlaybackState::Stopped);
+        QCOMPARE(m_backend->state(), PlaybackState::Stopped);
     }
 
     void construction_backendName()
     {
-        QtMultimediaBackend backend;
-        QCOMPARE(backend.backendName(), QStringLiteral("Qt Multimedia"));
+        QCOMPARE(m_backend->backendName(), QStringLiteral("Qt Multimedia"));
     }
 
     // --- Volume ---
 
     void setVolume_setsVolume()
     {
-        QtMultimediaBackend backend;
-        backend.setVolume(0.5);
-        QCOMPARE(backend.volume(), 0.5);
+        m_backend->setVolume(0.5);
+        QCOMPARE(m_backend->volume(), 0.5);
     }
 
     void setVolume_clampsToRange()
     {
-        QtMultimediaBackend backend;
-        backend.setVolume(1.5);
-        QCOMPARE(backend.volume(), 1.0);
+        m_backend->setVolume(1.5);
+        QCOMPARE(m_backend->volume(), 1.0);
 
-        backend.setVolume(-0.5);
-        QCOMPARE(backend.volume(), 0.0);
+        m_backend->setVolume(-0.5);
+        QCOMPARE(m_backend->volume(), 0.0);
     }
 
     // --- Mute ---
 
     void setMuted_toggles()
     {
-        QtMultimediaBackend backend;
-        QVERIFY(!backend.isMuted());
-        backend.setMuted(true);
-        QVERIFY(backend.isMuted());
-        backend.setMuted(false);
-        QVERIFY(!backend.isMuted());
+        QVERIFY(!m_backend->isMuted());
+        m_backend->setMuted(true);
+        QVERIFY(m_backend->isMuted());
+        m_backend->setMuted(false);
+        QVERIFY(!m_backend->isMuted());
     }
 
     // --- Signals ---
 
     void stateChanged_onStop_doesNotCrash()
     {
-        QtMultimediaBackend backend;
-        QSignalSpy spy(&backend, &IPlayerBackend::stateChanged);
-        backend.stop();
+        QSignalSpy spy(m_backend.get(), &IPlayerBackend::stateChanged);
+        m_backend->stop();
         // Stop on already-stopped player may or may not emit signal
         // Just verify it doesn't crash
         Q_UNUSED(spy);
@@ -79,8 +84,7 @@ private Q_SLOTS:
 
     void seek_doesNotCrash()
     {
-        QtMultimediaBackend backend;
-        backend.seek(5000);
+        m_backend->seek(5000);
         // Position may not update immediately without media loaded
         // Just verify it doesn't crash
     }
