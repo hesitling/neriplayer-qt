@@ -105,6 +105,9 @@ QCoro::QmlTask NeteasePlaylistDetailViewModel::saveToLocal()
             }
         } catch (const std::exception &ex) {
             Logger::get("viewmodel")->warn("Failed to save playlist to local: {}", ex.what());
+            m_error = ViewModelError(ViewModelError::ErrorType::Unknown, QString::fromUtf8(ex.what()));
+            m_hasError = true;
+            Q_EMIT errorChanged();
         }
     }());
 }
