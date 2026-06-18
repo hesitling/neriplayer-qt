@@ -6,12 +6,16 @@
 namespace QeriPlayerQt {
 
 MainViewModel::MainViewModel(PlayerViewModel *playerVm, SearchViewModel *searchVm, PlaylistViewModel *playlistVm,
-                             SettingsViewModel *settingsVm, QObject *parent)
+                             SettingsViewModel *settingsVm, ISongRepository *songRepo,
+                             IPlaylistRepository *playlistRepo, NeteaseClient *neteaseClient, QObject *parent)
     : QObject(parent)
     , m_playerVm(playerVm)
     , m_searchVm(searchVm)
     , m_playlistVm(playlistVm)
     , m_settingsVm(settingsVm)
+    , m_songRepo(songRepo)
+    , m_playlistRepo(playlistRepo)
+    , m_neteaseClient(neteaseClient)
 {
     connectSignals();
 }
@@ -65,9 +69,7 @@ QCoro::QmlTask MainViewModel::openLocalPlaylist(const QString &id)
 {
     deleteDetailViewModels();
 
-    // TODO: get repos from ServiceLocator or inject
-    // For now, create with nullptr repos (will be wired properly in integration)
-    m_localPlaylistDetail = new LocalPlaylistDetailViewModel(nullptr, nullptr, this);
+    m_localPlaylistDetail = new LocalPlaylistDetailViewModel(m_playlistRepo, m_songRepo, this);
     wireDetailVmSignals();
     auto task = m_localPlaylistDetail->loadPlaylist(id);
     Q_EMIT localPlaylistDetailChanged();
@@ -80,8 +82,7 @@ QCoro::QmlTask MainViewModel::openNeteasePlaylist(const PlaylistSummary &summary
 {
     deleteDetailViewModels();
 
-    // TODO: get repos from ServiceLocator or inject
-    m_neteasePlaylistDetail = new NeteasePlaylistDetailViewModel(nullptr, nullptr, nullptr, this);
+    m_neteasePlaylistDetail = new NeteasePlaylistDetailViewModel(m_neteaseClient, m_songRepo, m_playlistRepo, this);
     wireDetailVmSignals();
     auto task = m_neteasePlaylistDetail->loadPlaylist(summary.id);
     Q_EMIT neteasePlaylistDetailChanged();
@@ -94,7 +95,7 @@ QCoro::QmlTask MainViewModel::openNeteaseAlbum(const AlbumSummary &summary)
 {
     deleteDetailViewModels();
 
-    m_neteasePlaylistDetail = new NeteasePlaylistDetailViewModel(nullptr, nullptr, nullptr, this);
+    m_neteasePlaylistDetail = new NeteasePlaylistDetailViewModel(m_neteaseClient, m_songRepo, m_playlistRepo, this);
     wireDetailVmSignals();
     auto task = m_neteasePlaylistDetail->loadAlbum(summary.id);
     Q_EMIT neteasePlaylistDetailChanged();

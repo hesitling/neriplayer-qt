@@ -3,13 +3,13 @@
 
 #include "app/QeriPlayerApplication.h"
 
+#include "api/common/IMusicPlatformPlugin.h"
 #include "api/netease/NeteaseClient.h"
 #include "core/crypto/SecureStorage.h"
 #include "core/database/DatabaseManager.h"
 #include "core/filesystem/AppPaths.h"
 #include "core/logger/Logger.h"
 #include "core/network/NetworkManager.h"
-#include "mainwindow.h"
 #include "player/BackendFactory.h"
 #include "player/PlaybackController.h"
 #include "repo/PlayHistoryRepository.h"
@@ -17,8 +17,15 @@
 #include "repo/PlaylistRepository.h"
 #include "repo/SettingsRepository.h"
 #include "repo/SongRepository.h"
+#include "viewmodel/MainViewModel.h"
+#include "viewmodel/PlayerViewModel.h"
+#include "viewmodel/PlaylistViewModel.h"
+#include "viewmodel/SearchViewModel.h"
+#include "viewmodel/SettingsViewModel.h"
 
 #include <QDebug>
+#include <QQmlApplicationEngine>
+#include <QQmlContext>
 
 namespace QeriPlayerQt {
 
@@ -32,8 +39,8 @@ QeriPlayerApplication::QeriPlayerApplication(int &argc, char **argv)
 
 QeriPlayerApplication::~QeriPlayerApplication()
 {
-    // Services are cleaned up by ServiceLocator's unique_ptr.
-    // Destruction order is unspecified (unordered_map).
+    // QML engine must be destroyed before services
+    delete m_qmlEngine;
     m_services.clear();
 }
 
@@ -44,13 +51,6 @@ bool QeriPlayerApplication::initialize()
     return true;
 }
 
-void QeriPlayerApplication::showMainWindow()
-{
-    if (m_mainWindow) {
-        m_mainWindow->show();
-    }
-}
-
 ServiceLocator *QeriPlayerApplication::services()
 {
     return &m_services;
@@ -59,11 +59,6 @@ ServiceLocator *QeriPlayerApplication::services()
 const ServiceLocator *QeriPlayerApplication::services() const
 {
     return &m_services;
-}
-
-MainWindow *QeriPlayerApplication::mainWindow() const
-{
-    return m_mainWindow.get();
 }
 
 void QeriPlayerApplication::initializeCoreServices()
@@ -165,7 +160,58 @@ void QeriPlayerApplication::initializeCoreServices()
 
 void QeriPlayerApplication::initializeUi()
 {
-    m_mainWindow = std::make_unique<MainWindow>();
+    auto log = Logger::get("app");
+
+    // Gather dependencies from ServiceLocator
+    auto *ctrl = m_services.service<PlaybackController>();
+    auto *historyRepo = m_services.service<PlayHistoryRepository>();
+    auto *songRepo = m_services.service<SongRepository>();
+    auto *playlistRepo = m_services.service<PlaylistRepository>();
+    auto *settingsRepo = m_services.service<SettingsRepository>();
+    auto *neteaseClient = m_services.service<NeteaseClient>();
+
+    // Create ViewModels
+    auto *playerVm = new PlayerViewModel(ctrl, historyRepo, this);
+
+    QVector<IMusicPlatformPlugin *> plugins;
+    if (neteaseClient) {
+        plugins.append(neteaseClient);
+    }
+    auto *searchVm = new SearchViewModel(plugins, songRepo, this);
+
+    auto *playlistVm = new PlaylistViewModel(playlistRepo, neteaseClient, this);
+    auto *settingsVm = new SettingsViewModel(settingsRepo, neteaseClient, historyRepo, this);
+    auto *mainVm
+        = new MainViewModel(playerVm, searchVm, playlistVm, settingsVm, songRepo, playlistRepo, neteaseClient, this);
+
+    // Set Material Dark as default style
+    qputenv("QT_QUICK_CONTROLS_STYLE", "Material");
+
+    // Create QML engine and register context properties
+    m_qmlEngine = new QQmlApplicationEngine(this);
+
+    // Log QML warnings
+    connect(m_qmlEngine, &QQmlApplicationEngine::warnings, this, [log](const QList<QQmlError> &warnings) {
+        for (const auto &warning : warnings) {
+            log->warn("QML: {}", warning.toString().toStdString());
+        }
+    });
+
+    auto *ctx = m_qmlEngine->rootContext();
+    ctx->setContextProperty(QStringLiteral("mainVm"), mainVm);
+    ctx->setContextProperty(QStringLiteral("playerVm"), playerVm);
+    ctx->setContextProperty(QStringLiteral("searchVm"), searchVm);
+    ctx->setContextProperty(QStringLiteral("playlistVm"), playlistVm);
+    ctx->setContextProperty(QStringLiteral("settingsVm"), settingsVm);
+
+    log->info("Loading QML UI");
+    m_qmlEngine->load(QUrl(QStringLiteral("qrc:/qml/main.qml")));
+
+    if (m_qmlEngine->rootObjects().isEmpty()) {
+        log->error("Failed to load QML UI — no root objects");
+    } else {
+        log->info("QML UI loaded successfully");
+    }
 }
 
 } // namespace QeriPlayerQt
