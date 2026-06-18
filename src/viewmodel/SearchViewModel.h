@@ -23,7 +23,7 @@ namespace QeriPlayerQt {
  * @brief ViewModel for music search with platform dispatch and debounce
  *
  * Dispatches search to the IMusicPlatformPlugin matching selectedPlatform.
- * Uses a 300ms debounce timer and request versioning for race safety.
+ * Uses a 500ms debounce timer and request versioning for race safety.
  * Caches results in ISongRepository.
  */
 class SearchViewModel : public QObject {
