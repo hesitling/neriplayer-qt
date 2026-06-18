@@ -9,5 +9,6 @@
         <file>VolumeControl.qml</file>
         <file>Toast.qml</file>
         <file>SongDelegate.qml</file>
+        <file>SearchView.qml</file>
     </qresource>
 </RCC>

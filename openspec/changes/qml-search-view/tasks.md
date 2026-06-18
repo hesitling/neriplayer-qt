@@ -20,15 +20,15 @@
 
 ## 3. SearchView.qml
 
-- [ ] 3.1 Create `src/qml/SearchView.qml` — Page with ColumnLayout containing search bar and results list
-- [ ] 3.2 Implement TextField bound to `searchVm.query` with placeholder text
-- [ ] 3.3 Implement ComboBox bound to `searchVm.availablePlatforms`, `onActivated` calls `searchVm.selectPlatformByName()`
-- [ ] 3.4 Implement ListView with `model: searchVm.results` and `delegate: SongDelegate`
-- [ ] 3.5 Implement double-click handler — `searchVm.playSong(index)`
-- [ ] 3.6 Implement infinite scroll — `onAtYEndChanged` calls `searchVm.loadMore()` when `hasMore && !isLoading`
-- [ ] 3.7 Implement footer BusyIndicator — visible when `isLoading && hasMore`
-- [ ] 3.8 Implement empty states — initial hint (no query) and no-results message
-- [ ] 3.9 Add `SearchView.qml` to `src/qml/qml.qrc`
+- [x] 3.1 Create `src/qml/SearchView.qml` — Page with ColumnLayout containing search bar and results list
+- [x] 3.2 Implement TextField bound to `searchVm.query` with placeholder text
+- [x] 3.3 Implement ComboBox bound to `searchVm.availablePlatforms`, `onActivated` calls `searchVm.selectPlatformByName()`
+- [x] 3.4 Implement ListView with `model: searchVm.results` and `delegate: SongDelegate`
+- [x] 3.5 Implement double-click handler — `searchVm.playSong(index)`
+- [x] 3.6 Implement infinite scroll — `onAtYEndChanged` calls `searchVm.loadMore()` when `hasMore && !isLoading`
+- [x] 3.7 Implement footer BusyIndicator — visible when `isLoading && hasMore`
+- [x] 3.8 Implement empty states — initial hint (no query) and no-results message
+- [x] 3.9 Add `SearchView.qml` to `src/qml/qml.qrc`
 
 ## 4. Wire into main.qml
 
