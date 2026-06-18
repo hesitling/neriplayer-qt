@@ -17,7 +17,7 @@ SearchViewModel::SearchViewModel(QVector<IMusicPlatformPlugin *> plugins, ISongR
     m_debounceTimer->setSingleShot(true);
     m_debounceTimer->setInterval(300);
 
-    connect(m_debounceTimer, &QTimer::timeout, this, [this]() { searchImpl(); });
+    connect(m_debounceTimer, &QTimer::timeout, this, [this]() { m_pendingSearch = search(); });
 }
 
 SearchViewModel::~SearchViewModel() = default;
@@ -97,7 +97,7 @@ void SearchViewModel::setSelectedPlatform(MusicPlatform platform)
     // Clear and re-search if query is non-empty
     if (!m_query.isEmpty()) {
         clearResults();
-        searchImpl();
+        m_pendingSearch = search();
     }
 }
 

@@ -97,6 +97,8 @@ private:
     ViewModelError m_error;
     bool m_hasError = false;
 
+    QCoro::QmlTask m_pendingSearch;
+
     quint64 m_searchRequestVersion = 0;
     int m_currentPage = 0;
     static constexpr int PAGE_SIZE = 30;
