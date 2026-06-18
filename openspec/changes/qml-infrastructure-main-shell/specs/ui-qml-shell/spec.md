@@ -81,7 +81,7 @@ The `MainWindow` class (`mainwindow.h`, `mainwindow.cpp`, `mainwindow.ui`) SHALL
 ### Requirement: VM dependency wiring
 `QeriPlayerApplication::initializeUi()` SHALL create all VMs with real dependencies from `ServiceLocator`:
 
-```
+```text
 PlayerViewModel(PlaybackController*, PlayHistoryRepository*)
 SearchViewModel({NeteaseClient*}, SongRepository*)
 PlaylistViewModel(PlaylistRepository*, NeteaseClient*)
