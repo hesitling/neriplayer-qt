@@ -7,7 +7,7 @@ Phase 4 ViewModels are complete — `PlayerViewModel` exposes all playback state
 ## Goals / Non-Goals
 
 **Goals:**
-- Make Song QML-accessible via `Q_GADGET` + `Q_PROPERTY(MEMBER)` — zero C++ API breakage
+- Make Song QML-accessible via `Q_GADGET` + `Q_PROPERTY(READ)` — zero C++ API breakage
 - Build PlayerBar with Spotify-style layout: transport controls + seek bar (center), now-playing info (left), volume (right)
 - Provide toast notifications for player errors
 - Add keyboard shortcuts: Space (play/pause), Left/Right (seek ±5s)
@@ -21,11 +21,11 @@ Phase 4 ViewModels are complete — `PlayerViewModel` exposes all playback state
 
 ## Decisions
 
-### D1: Song Q_GADGET with MEMBER properties
+### D1: Song Q_GADGET with READ getters
 
-**Decision**: Add `Q_GADGET` macro and `Q_PROPERTY(Type member MEMBER member)` for 7 fields to `Song.h`.
+**Decision**: Add `Q_GADGET` macro and `Q_PROPERTY(Type name READ getName CONSTANT)` for 7 fields to `Song.h`. Getters use `get` prefix (e.g., `getId()`, `getName()`) and are `const`-qualified.
 
-**Why MEMBER over READ**: Song is a plain struct with public members. MEMBER lets us keep the existing public-member API — no getter functions needed, no rename to `m_name` etc. QML gets dot-access (`song.name`), C++ code keeps working with `song.name`.
+**Why READ + CONSTANT over MEMBER**: MEMBER makes QML properties read-write, which would let QML accidentally mutate a Song value type. READ + CONSTANT makes properties explicitly read-only. Song remains a plain struct with public members — C++ code still uses `song.name` directly. The `get` prefix avoids shadowing the member names.
 
 **Alternative considered — Convenience properties on PlayerViewModel** (`currentSongName`, `currentSongArtist`, etc.): Rejected because it duplicates for every ViewModel that exposes Song (SearchViewModel, PlaylistViewModel, etc.) and doesn't scale.
 
@@ -122,9 +122,7 @@ Image {
 
 ## Risks / Trade-offs
 
-**[Risk] Song Q_GADGET may affect moc processing** → Song.h is already in the build. Adding Q_GADGET triggers moc to generate a meta-object. Verify that moc picks up the header correctly and the build succeeds with no warnings.
-
-**[Risk] MEMBER properties are read-write in QML** → QML could theoretically write to `song.name`. Mitigation: Song is a value type passed by value; writes don't propagate back to C++. Acceptable.
+**[Risk] Song Q_GADGET may affect moc processing** → Song.h is already in the build. Adding Q_GADGET triggers moc to generate a meta-object. A `Song.cpp` compilation unit with `#include "moc_Song.cpp"` is needed for moc output. Verify that moc picks up the header correctly and the build succeeds with no warnings.
 
 **[Risk] Integer enum comparisons are fragile** → If enum values change in C++, QML comparisons break silently. Mitigation: Add comments referencing `Enums.h`, and Phase 7 will add proper `Q_ENUM` registration.
 

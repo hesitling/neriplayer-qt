@@ -2,7 +2,7 @@
 
 ## 1. Song Q_GADGET
 
-- [x] 1.1 Add `Q_GADGET` macro and `Q_PROPERTY(MEMBER)` declarations to `Song.h` for fields: `id`, `name`, `artist`, `album`, `durationMs`, `coverUrl`, `platform`
+- [x] 1.1 Add `Q_GADGET` macro and `Q_PROPERTY(READ ... CONSTANT)` declarations to `Song.h` for fields: `id`, `name`, `artist`, `album`, `durationMs`, `coverUrl`, `platform`
 - [x] 1.2 Verify build succeeds and `moc` processes `Song.h` correctly (check for moc warnings)
 
 ## 2. NowPlayingInfo
@@ -52,7 +52,7 @@
 
 - [x] 9.1 Replace placeholder PlayerBar `Rectangle` in `main.qml` with `PlayerBar` component
 - [x] 9.2 Add `Toast` component to `main.qml` as overlay anchored above PlayerBar
-- [x] 9.3 Wire `Connections` on `playerVm.hasErrorChanged` to trigger toast with `playerVm.error.message`
+- [x] 9.3 Wire `Connections` on `playerVm.errorChanged` to trigger toast with `playerVm.error.message`
 - [x] 9.4 Add keyboard `Shortcut` elements to `main.qml`
 - [x] 9.5 Update `src/qml/qml.qrc` to include all new .qml files (PlayerBar, NowPlayingInfo, TransportControls, VolumeControl, Toast)
 - [x] 9.6 Verify full build succeeds with no warnings
