@@ -68,39 +68,39 @@ void MainViewModel::navigateTo(View view)
 QCoro::QmlTask MainViewModel::openLocalPlaylist(const QString &id)
 {
     deleteDetailViewModels();
+    navigateTo(View::LocalPlaylist);
 
     m_localPlaylistDetail = new LocalPlaylistDetailViewModel(m_playlistRepo, m_songRepo, this);
     wireDetailVmSignals();
     auto task = m_localPlaylistDetail->loadPlaylist(id);
     Q_EMIT localPlaylistDetailChanged();
 
-    navigateTo(View::LocalPlaylist);
     return task;
 }
 
 QCoro::QmlTask MainViewModel::openNeteasePlaylist(const PlaylistSummary &summary)
 {
     deleteDetailViewModels();
+    navigateTo(View::NeteasePlaylist);
 
     m_neteasePlaylistDetail = new NeteasePlaylistDetailViewModel(m_neteaseClient, m_songRepo, m_playlistRepo, this);
     wireDetailVmSignals();
     auto task = m_neteasePlaylistDetail->loadPlaylist(summary.id);
     Q_EMIT neteasePlaylistDetailChanged();
 
-    navigateTo(View::NeteasePlaylist);
     return task;
 }
 
 QCoro::QmlTask MainViewModel::openNeteaseAlbum(const AlbumSummary &summary)
 {
     deleteDetailViewModels();
+    navigateTo(View::NeteasePlaylist);
 
     m_neteasePlaylistDetail = new NeteasePlaylistDetailViewModel(m_neteaseClient, m_songRepo, m_playlistRepo, this);
     wireDetailVmSignals();
     auto task = m_neteasePlaylistDetail->loadAlbum(summary.id);
     Q_EMIT neteasePlaylistDetailChanged();
 
-    navigateTo(View::NeteasePlaylist);
     return task;
 }
 
