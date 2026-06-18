@@ -12,7 +12,7 @@
 
 ## 3. Build and Test Verification
 
-- [ ] 3.1 Run `just build_dir=/tmp/qeriplayer-build build` to verify compilation succeeds
-- [ ] 3.2 Run `just build_dir=/tmp/qeriplayer-build test` to verify all tests pass
-- [ ] 3.3 Run `just format` to format changed files
+- [x] 3.1 Run `just build_dir=/tmp/qeriplayer-build build` to verify compilation succeeds
+- [x] 3.2 Run `just build_dir=/tmp/qeriplayer-build test` to verify all tests pass
+- [x] 3.3 Run `just format` to format changed files
 - [ ] 3.4 Launch app manually and verify: window appears, sidebar visible, navigation switches placeholder pages, Settings item aligned correctly
