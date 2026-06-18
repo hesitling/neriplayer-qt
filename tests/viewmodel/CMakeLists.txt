@@ -20,6 +20,7 @@ add_test(NAME TestViewModelError COMMAND TestViewModelError)
 add_executable(TestSongListModel
     TestSongListModel.cpp
     ${CMAKE_SOURCE_DIR}/src/viewmodel/SongListModel.cpp
+    ${CMAKE_SOURCE_DIR}/src/domain/Song.cpp
 )
 target_include_directories(TestSongListModel PRIVATE
     ${CMAKE_SOURCE_DIR}/src
@@ -43,6 +44,7 @@ add_executable(TestPlayerViewModel
     ${CMAKE_SOURCE_DIR}/src/player/IPlayerBackend.h
     ${CMAKE_SOURCE_DIR}/src/api/common/ApiError.cpp
     ${CMAKE_SOURCE_DIR}/src/core/logger/Logger.cpp
+    ${CMAKE_SOURCE_DIR}/src/domain/Song.cpp
 )
 target_include_directories(TestPlayerViewModel PRIVATE
     ${CMAKE_SOURCE_DIR}/src
@@ -117,6 +119,7 @@ add_executable(TestSearchViewModel
     ${CMAKE_SOURCE_DIR}/src/viewmodel/ViewModelError.cpp
     ${CMAKE_SOURCE_DIR}/src/api/common/ApiError.cpp
     ${CMAKE_SOURCE_DIR}/src/core/logger/Logger.cpp
+    ${CMAKE_SOURCE_DIR}/src/domain/Song.cpp
 )
 target_include_directories(TestSearchViewModel PRIVATE
     ${CMAKE_SOURCE_DIR}/src
@@ -194,6 +197,7 @@ add_executable(TestLocalPlaylistDetailViewModel
     ${CMAKE_SOURCE_DIR}/src/repo/SqlRowMapper.cpp
     ${CMAKE_SOURCE_DIR}/src/core/database/DatabaseManager.cpp
     ${CMAKE_SOURCE_DIR}/src/core/logger/Logger.cpp
+    ${CMAKE_SOURCE_DIR}/src/domain/Song.cpp
 )
 target_include_directories(TestLocalPlaylistDetailViewModel PRIVATE
     ${CMAKE_SOURCE_DIR}/src
@@ -236,6 +240,7 @@ add_executable(TestNeteasePlaylistDetailViewModel
     ${CMAKE_SOURCE_DIR}/src/core/filesystem/FileWatcher.cpp
     ${CMAKE_SOURCE_DIR}/src/core/database/DatabaseManager.cpp
     ${CMAKE_SOURCE_DIR}/src/core/logger/Logger.cpp
+    ${CMAKE_SOURCE_DIR}/src/domain/Song.cpp
 )
 target_include_directories(TestNeteasePlaylistDetailViewModel PRIVATE
     ${CMAKE_SOURCE_DIR}/src
@@ -293,6 +298,7 @@ add_executable(TestMainViewModel
     ${CMAKE_SOURCE_DIR}/src/core/filesystem/FileWatcher.cpp
     ${CMAKE_SOURCE_DIR}/src/core/database/DatabaseManager.cpp
     ${CMAKE_SOURCE_DIR}/src/core/logger/Logger.cpp
+    ${CMAKE_SOURCE_DIR}/src/domain/Song.cpp
 )
 target_include_directories(TestMainViewModel PRIVATE
     ${CMAKE_SOURCE_DIR}/src

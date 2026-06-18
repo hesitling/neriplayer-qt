@@ -103,6 +103,7 @@ set(SOURCES
     src/player/PlayQueue.cpp
     src/player/PlaybackController.cpp
     src/player/BackendFactory.cpp
+    src/domain/Song.cpp
 )
 
 set(HEADERS

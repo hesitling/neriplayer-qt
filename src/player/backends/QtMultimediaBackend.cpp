@@ -19,7 +19,18 @@ QtMultimediaBackend::QtMultimediaBackend(QObject *parent)
     connectSignals();
 }
 
-QtMultimediaBackend::~QtMultimediaBackend() = default;
+QtMultimediaBackend::~QtMultimediaBackend()
+{
+    // Explicit teardown to avoid race conditions with PipeWire/PulseAudio threads.
+    // Must disconnect audio output before destroying player to prevent callbacks
+    // from accessing freed resources.
+    if (m_player) {
+        m_player->stop();
+        m_player->setAudioOutput(nullptr);
+    }
+    m_audioOutput.reset();
+    m_player.reset();
+}
 
 QCoro::Task<void> QtMultimediaBackend::load(const QUrl &url)
 {

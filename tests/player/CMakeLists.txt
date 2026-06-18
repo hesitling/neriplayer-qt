@@ -24,6 +24,7 @@ add_executable(TestPlaybackController
     ${CMAKE_SOURCE_DIR}/src/player/IPlayerBackend.h
     ${CMAKE_SOURCE_DIR}/src/api/common/ApiError.cpp
     ${CMAKE_SOURCE_DIR}/src/core/logger/Logger.cpp
+    ${CMAKE_SOURCE_DIR}/src/domain/Song.cpp
 )
 target_include_directories(TestPlaybackController PRIVATE
     ${CMAKE_SOURCE_DIR}/src

@@ -2,6 +2,7 @@
 
 add_executable(TestDomainModels
     TestDomainModels.cpp
+    ${CMAKE_SOURCE_DIR}/src/domain/Song.cpp
 )
 target_include_directories(TestDomainModels PRIVATE
     ${CMAKE_SOURCE_DIR}/src

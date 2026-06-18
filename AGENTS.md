@@ -136,7 +136,7 @@ QCoro::Task<SearchResult> search(const QString &query) {
 - `QUrl` handles all URLs (not `QString`).
 - Durations (milliseconds), timestamps (epoch ms), and file sizes go in `qint64`.
 - All domain types passed through QVariant must use `Q_DECLARE_METATYPE`.
-- Domain structs are plain value types — no `QObject`, no `Q_GADGET`.
+- Domain structs are plain value types — no `QObject`. Exception: `Song` uses `Q_GADGET` to enable QML property access (see player-bar-qml change).
 
 ### C++ Includes
 

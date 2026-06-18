@@ -106,21 +106,21 @@ For the current PR's task group:
 git checkout -b feat/<change>/pr-<n>
 ```
 
-### 4b. Write tests
+### 4b. Write tests for a group of tasks
 
-Write test cases for the entire PR **before** writing any implementation.
+Write test cases for a logical group of tasks **before** writing any implementation.
 
 - Place tests in `tests/<module>/` following existing naming conventions.
 - Test files: `Test<ClassName>.cpp` using Qt Test (`QTest::qCompare`, `QVERIFY`, etc.).
 - Register test targets in `CMakeLists.txt` with `add_executable` + `add_test`.
 - Tests should compile but may fail at this point (expected).
 
-### 4c. Write implementation
+### 4c. Write implementation for the group
 
-Implement all tasks in the PR to make the tests pass.
+Implement the group of tasks to make the tests pass.
 
 - Follow code conventions in `AGENTS.md` (naming, includes, coroutine style).
-- Keep changes minimal and focused on the PR's scope.
+- Keep changes minimal and focused on the current group's scope.
 - Mark each task complete in `tasks.md`: `- [ ]` → `- [x]`
 
 ### 4d. Run tests
@@ -137,14 +137,24 @@ All tests must pass. If a test fails, fix the implementation (not the test) unle
 just format
 ```
 
-### 4f. Commit
+### 4f. Commit after every group of tasks
+
+**Important: Commit after every group of tasks, not just at the end of the PR.** This ensures incremental progress and makes it easier to track changes or revert if needed.
 
 ```bash
 git add -A
 git commit -m "<type>(<scope>): <subject>"
 ```
 
-Follow conventional commits. Reference the change name and PR number in the commit body.
+Follow conventional commits. Reference the change name, PR number, and which tasks are included in the commit body.
+
+### 4g. Repeat for next group
+
+If more task groups remain in this PR, return to **Step 4b** for the next group.
+
+### 4h. All groups complete
+
+Once all task groups in the PR are done, proceed to **Step 5** to create the PR.
 
 ---
 
@@ -246,6 +256,7 @@ Follow conventional commits. Reference the change name and PR number in the comm
 - **Plan PRs before implementing** — know the full scope before starting.
 - **One logical change per PR** — resist the urge to bundle.
 - **Tests before implementation** — TDD within each PR.
+- **Commit after every group of tasks** — don't wait until the entire PR is done. Incremental commits make progress visible and mistakes reversible.
 - **All tests must pass** before committing a PR.
 - **Format before committing** — `just format` then commit.
 - **Docs must match code** — field names, enum values, class names.
