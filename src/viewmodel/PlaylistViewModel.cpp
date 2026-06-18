@@ -78,6 +78,9 @@ QCoro::QmlTask PlaylistViewModel::createLocalPlaylist(const QString &name)
             co_await loadLocalPlaylistsImpl();
         } catch (const std::exception &ex) {
             Logger::get("viewmodel")->warn("Failed to create local playlist: {}", ex.what());
+            m_error = ViewModelError(ViewModelError::ErrorType::Database, QString::fromUtf8(ex.what()));
+            m_hasError = true;
+            Q_EMIT errorChanged();
         }
     }());
 }
@@ -90,6 +93,9 @@ QCoro::QmlTask PlaylistViewModel::deleteLocalPlaylist(const QString &id)
             co_await loadLocalPlaylistsImpl();
         } catch (const std::exception &ex) {
             Logger::get("viewmodel")->warn("Failed to delete local playlist: {}", ex.what());
+            m_error = ViewModelError(ViewModelError::ErrorType::Database, QString::fromUtf8(ex.what()));
+            m_hasError = true;
+            Q_EMIT errorChanged();
         }
     }());
 }
@@ -108,6 +114,9 @@ QCoro::QmlTask PlaylistViewModel::renameLocalPlaylist(const QString &id, const Q
             }
         } catch (const std::exception &ex) {
             Logger::get("viewmodel")->warn("Failed to rename local playlist: {}", ex.what());
+            m_error = ViewModelError(ViewModelError::ErrorType::Database, QString::fromUtf8(ex.what()));
+            m_hasError = true;
+            Q_EMIT errorChanged();
         }
     }());
 }

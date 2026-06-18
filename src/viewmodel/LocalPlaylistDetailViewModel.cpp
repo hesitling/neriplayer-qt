@@ -56,6 +56,9 @@ QCoro::QmlTask LocalPlaylistDetailViewModel::addSong(const QString &songId)
             co_await loadPlaylistImpl(m_playlistId); // Refresh
         } catch (const std::exception &ex) {
             Logger::get("viewmodel")->warn("Failed to add song to playlist: {}", ex.what());
+            m_error = ViewModelError(ViewModelError::ErrorType::Database, QString::fromUtf8(ex.what()));
+            m_hasError = true;
+            Q_EMIT errorChanged();
         }
     }());
 }
@@ -68,6 +71,9 @@ QCoro::QmlTask LocalPlaylistDetailViewModel::removeSong(const QString &songId)
             co_await loadPlaylistImpl(m_playlistId); // Refresh
         } catch (const std::exception &ex) {
             Logger::get("viewmodel")->warn("Failed to remove song from playlist: {}", ex.what());
+            m_error = ViewModelError(ViewModelError::ErrorType::Database, QString::fromUtf8(ex.what()));
+            m_hasError = true;
+            Q_EMIT errorChanged();
         }
     }());
 }
@@ -80,6 +86,9 @@ QCoro::QmlTask LocalPlaylistDetailViewModel::reorderSongs(const QStringList &son
             co_await loadPlaylistImpl(m_playlistId); // Refresh
         } catch (const std::exception &ex) {
             Logger::get("viewmodel")->warn("Failed to reorder songs: {}", ex.what());
+            m_error = ViewModelError(ViewModelError::ErrorType::Database, QString::fromUtf8(ex.what()));
+            m_hasError = true;
+            Q_EMIT errorChanged();
         }
     }());
 }
