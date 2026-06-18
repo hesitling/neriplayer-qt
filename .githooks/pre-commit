@@ -35,7 +35,27 @@ else
     dim "No staged C++ files — skipping format check"
 fi
 
-# ─── 2. Build + test (if source files changed) ───────────────────
+# ─── 2. OpenSpec validation (if openspec files changed) ───────────
+staged_openspec=$(git diff --cached --name-only --diff-filter=ACMR -- 'openspec/' || true)
+
+if [ -n "$staged_openspec" ]; then
+    echo ""
+    echo "Validating OpenSpec artifacts..."
+    output=$(openspec validate --all --json 2>&1) || true
+    failed=$(echo "$output" | jq -r '.summary.totals.failed // 0')
+    if [ "$failed" != "0" ]; then
+        red "OpenSpec validation failed:"
+        echo "$output" | jq -r '.items[] | select(.valid == false) | .issues[] | select(.level == "ERROR") | "  " + .message' 2>/dev/null || echo "$output"
+        exit 1
+    fi
+    passed=$(echo "$output" | jq -r '.summary.totals.passed')
+    total=$(echo "$output" | jq -r '.summary.totals.total')
+    green "OpenSpec: $passed/$total passed ✓"
+else
+    dim "No openspec files changed — skipping validation"
+fi
+
+# ─── 3. Build + test (if source files changed) ───────────────────
 src_changed=$(git diff --cached --name-only --diff-filter=ACMR -- 'src/' 'tests/' '*.h' '*.hpp' '*.cpp' '*.cc' 'CMakeLists.txt' 'tests/CMakeLists.txt' || true)
 
 if [ -z "$src_changed" ]; then
