@@ -186,6 +186,7 @@ private Q_SLOTS:
     void setSelectedPlatform_researches();
     void selectPlatformByName_setsPlatform();
     void selectPlatformByName_unknown_doesNothing();
+    void selectPlatformByName_searchesCorrectPlugin();
     void playSong_emitsRequestPlay();
     void playSong_invalidIndex_doesNothing();
 };
@@ -439,6 +440,24 @@ void TestSearchViewModel::selectPlatformByName_unknown_doesNothing()
 
     // Should not have changed
     QCOMPARE(spy.count(), 0);
+}
+
+void TestSearchViewModel::selectPlatformByName_searchesCorrectPlugin()
+{
+    MockPluginNamed neteasePlugin(QStringLiteral("NetEase"), MusicPlatform::NetEase);
+    MockPluginNamed qqPlugin(QStringLiteral("QQMusic"), MusicPlatform::QQMusic);
+    MockSongRepo repo;
+    SearchViewModel vm({&neteasePlugin, &qqPlugin}, &repo);
+
+    // Select QQMusic and search
+    vm.selectPlatformByName(QStringLiteral("QQMusic"));
+    vm.setQuery("rock");
+    vm.search();
+
+    // Search should have dispatched to the QQMusic plugin, not NetEase
+    QCOMPARE(qqPlugin.m_searchCount, 1);
+    QCOMPARE(neteasePlugin.m_searchCount, 0);
+    QCOMPARE(qqPlugin.m_lastKeyword, QStringLiteral("rock"));
 }
 
 void TestSearchViewModel::playSong_emitsRequestPlay()
