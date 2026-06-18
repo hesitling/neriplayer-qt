@@ -31,6 +31,8 @@ public:
     }
     Playlist create(const QString &name, MusicPlatform) override
     {
+        if (m_throwOnCreate)
+            throw std::runtime_error("create failed");
         Playlist p;
         p.id = QString::number(++m_nextId);
         p.name = name;
@@ -39,10 +41,14 @@ public:
     }
     void updateMetadata(const QString &id, const QString &name, const QString &, const QString &) override
     {
+        if (m_throwOnUpdateMetadata)
+            throw std::runtime_error("updateMetadata failed");
         m_renamedIds[id] = name;
     }
     void remove(const QString &id) override
     {
+        if (m_throwOnRemove)
+            throw std::runtime_error("remove failed");
         m_removedIds.append(id);
     }
     bool addSong(const QString &, const QString &, int) override
@@ -64,6 +70,9 @@ public:
     QHash<QString, QString> m_renamedIds;
     int m_nextId = 0;
     bool m_throwOnFindAll = false;
+    bool m_throwOnCreate = false;
+    bool m_throwOnRemove = false;
+    bool m_throwOnUpdateMetadata = false;
 };
 
 // --- Test class ---
@@ -91,6 +100,9 @@ private Q_SLOTS:
     void localPlaylistSelected_signal();
     void neteasePlaylistSelected_signal();
     void loadLocalPlaylists_repoException_doesNotCrash();
+    void createLocalPlaylist_repoException_setsError();
+    void deleteLocalPlaylist_repoException_setsError();
+    void renameLocalPlaylist_repoException_setsError();
 };
 
 void TestPlaylistViewModel::initialState()
@@ -217,6 +229,55 @@ void TestPlaylistViewModel::loadLocalPlaylists_repoException_doesNotCrash()
 
     // Local playlists should remain empty since the repo threw
     QVERIFY(vm.localPlaylists().isEmpty());
+}
+
+void TestPlaylistViewModel::createLocalPlaylist_repoException_setsError()
+{
+    MockPlaylistRepo playlistRepo;
+    playlistRepo.m_throwOnCreate = true;
+
+    PlaylistViewModel vm(&playlistRepo, nullptr);
+    QSignalSpy errorSpy(&vm, &PlaylistViewModel::errorChanged);
+
+    vm.createLocalPlaylist("New Playlist");
+
+    QVERIFY(vm.hasError());
+    QCOMPARE(vm.error().type(), ViewModelError::ErrorType::Database);
+    QVERIFY(errorSpy.count() >= 1);
+}
+
+void TestPlaylistViewModel::deleteLocalPlaylist_repoException_setsError()
+{
+    MockPlaylistRepo playlistRepo;
+    playlistRepo.m_throwOnRemove = true;
+
+    PlaylistViewModel vm(&playlistRepo, nullptr);
+    QSignalSpy errorSpy(&vm, &PlaylistViewModel::errorChanged);
+
+    vm.deleteLocalPlaylist("abc");
+
+    QVERIFY(vm.hasError());
+    QCOMPARE(vm.error().type(), ViewModelError::ErrorType::Database);
+    QVERIFY(errorSpy.count() >= 1);
+}
+
+void TestPlaylistViewModel::renameLocalPlaylist_repoException_setsError()
+{
+    MockPlaylistRepo playlistRepo;
+    playlistRepo.m_throwOnUpdateMetadata = true;
+    Playlist existing;
+    existing.id = "abc";
+    existing.name = "Old Name";
+    playlistRepo.m_playlists["abc"] = existing;
+
+    PlaylistViewModel vm(&playlistRepo, nullptr);
+    QSignalSpy errorSpy(&vm, &PlaylistViewModel::errorChanged);
+
+    vm.renameLocalPlaylist("abc", "New Name");
+
+    QVERIFY(vm.hasError());
+    QCOMPARE(vm.error().type(), ViewModelError::ErrorType::Database);
+    QVERIFY(errorSpy.count() >= 1);
 }
 
 QTEST_MAIN(TestPlaylistViewModel)

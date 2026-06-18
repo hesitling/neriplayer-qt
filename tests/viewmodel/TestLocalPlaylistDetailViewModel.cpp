@@ -42,14 +42,20 @@ public:
     }
     bool addSong(const QString &, const QString &, int) override
     {
+        if (m_throwOnAddSong)
+            throw std::runtime_error("addSong failed");
         return true;
     }
     void removeSong(const QString &, const QString &) override
     {
+        if (m_throwOnRemoveSong)
+            throw std::runtime_error("removeSong failed");
         m_removeSongCalled = true;
     }
     void reorderSongs(const QString &, const QStringList &) override
     {
+        if (m_throwOnReorderSongs)
+            throw std::runtime_error("reorderSongs failed");
         m_reorderCalled = true;
     }
     int songCount(const QString &) override
@@ -62,6 +68,9 @@ public:
     QHash<QString, QString> m_renamedIds;
     bool m_removeSongCalled = false;
     bool m_reorderCalled = false;
+    bool m_throwOnAddSong = false;
+    bool m_throwOnRemoveSong = false;
+    bool m_throwOnReorderSongs = false;
 };
 
 class MockSongRepo : public ISongRepository {
@@ -110,6 +119,9 @@ private Q_SLOTS:
     void rename();
     void playSong();
     void playAll();
+    void addSong_repoException_setsError();
+    void removeSong_repoException_setsError();
+    void reorderSongs_repoException_setsError();
 };
 
 void TestLocalPlaylistDetailViewModel::loadPlaylist_found()
@@ -233,6 +245,54 @@ void TestLocalPlaylistDetailViewModel::playAll()
     QCOMPARE(spy.count(), 1);
     QCOMPARE(spy.first().first().value<QVector<Song>>().size(), 2);
     QCOMPARE(spy.first().at(1).toInt(), 0);
+}
+
+void TestLocalPlaylistDetailViewModel::addSong_repoException_setsError()
+{
+    MockPlaylistRepo playlistRepo;
+    MockSongRepo songRepo;
+    playlistRepo.m_throwOnAddSong = true;
+
+    LocalPlaylistDetailViewModel vm(&playlistRepo, &songRepo);
+    QSignalSpy errorSpy(&vm, &LocalPlaylistDetailViewModel::errorChanged);
+
+    vm.addSong("song-1");
+
+    QVERIFY(vm.hasError());
+    QCOMPARE(vm.error().type(), ViewModelError::ErrorType::Database);
+    QVERIFY(errorSpy.count() >= 1);
+}
+
+void TestLocalPlaylistDetailViewModel::removeSong_repoException_setsError()
+{
+    MockPlaylistRepo playlistRepo;
+    MockSongRepo songRepo;
+    playlistRepo.m_throwOnRemoveSong = true;
+
+    LocalPlaylistDetailViewModel vm(&playlistRepo, &songRepo);
+    QSignalSpy errorSpy(&vm, &LocalPlaylistDetailViewModel::errorChanged);
+
+    vm.removeSong("song-1");
+
+    QVERIFY(vm.hasError());
+    QCOMPARE(vm.error().type(), ViewModelError::ErrorType::Database);
+    QVERIFY(errorSpy.count() >= 1);
+}
+
+void TestLocalPlaylistDetailViewModel::reorderSongs_repoException_setsError()
+{
+    MockPlaylistRepo playlistRepo;
+    MockSongRepo songRepo;
+    playlistRepo.m_throwOnReorderSongs = true;
+
+    LocalPlaylistDetailViewModel vm(&playlistRepo, &songRepo);
+    QSignalSpy errorSpy(&vm, &LocalPlaylistDetailViewModel::errorChanged);
+
+    vm.reorderSongs({"song-1", "song-2"});
+
+    QVERIFY(vm.hasError());
+    QCOMPARE(vm.error().type(), ViewModelError::ErrorType::Database);
+    QVERIFY(errorSpy.count() >= 1);
 }
 
 QTEST_MAIN(TestLocalPlaylistDetailViewModel)
