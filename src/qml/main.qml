@@ -35,16 +35,50 @@ ApplicationWindow {
             }
         }
 
-        // Placeholder player bar
-        Rectangle {
+        // Player bar
+        PlayerBar {
+            id: playerBar
             Layout.fillWidth: true
-            Layout.preferredHeight: 80
-            color: Material.dialogColor
+        }
+    }
 
-            Label {
-                anchors.centerIn: parent
-                text: "Player Bar (PR 2)"
-                opacity: 0.5
+    // Toast notification (overlay above player bar)
+    Toast {
+        id: toast
+        anchors.left: parent.left
+        anchors.right: parent.right
+        anchors.bottom: playerBar.top
+        anchors.bottomMargin: 8
+        anchors.leftMargin: 16
+        anchors.rightMargin: 16
+        z: 100
+    }
+
+    // Keyboard shortcuts
+    Shortcut {
+        sequence: "Space"
+        onActivated: {
+            if (playerVm.isPlaying) playerVm.pause()
+            else playerVm.resume()
+        }
+    }
+
+    Shortcut {
+        sequence: "Left"
+        onActivated: playerVm.seek(Math.max(0, playerVm.positionMs - 5000))
+    }
+
+    Shortcut {
+        sequence: "Right"
+        onActivated: playerVm.seek(Math.min(playerVm.durationMs, playerVm.positionMs + 5000))
+    }
+
+    // Wire toast to player errors
+    Connections {
+        target: playerVm
+        function onHasErrorChanged() {
+            if (playerVm.hasError) {
+                toast.show(playerVm.error.message)
             }
         }
     }

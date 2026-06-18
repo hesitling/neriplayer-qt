@@ -3,5 +3,10 @@
     <qresource prefix="/qml">
         <file>main.qml</file>
         <file>Sidebar.qml</file>
+        <file>PlayerBar.qml</file>
+        <file>NowPlayingInfo.qml</file>
+        <file>TransportControls.qml</file>
+        <file>VolumeControl.qml</file>
+        <file>Toast.qml</file>
     </qresource>
 </RCC>
