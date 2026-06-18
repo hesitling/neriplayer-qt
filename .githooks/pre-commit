@@ -1,0 +1,66 @@
+#!/usr/bin/env bash
+# Pre-commit hook: format check + test for NeriPlayer Qt
+#
+# - Checks clang-format on staged C++ files
+# - Runs full test suite if any src/ or tests/ files changed
+#
+# Skip with: git commit --no-verify
+set -euo pipefail
+
+BUILD_DIR="${JUST_BUILD_DIR:-build}"
+
+# ─── Color helpers ────────────────────────────────────────────────
+red()   { printf '\033[1;31m%s\033[0m\n' "$*"; }
+green() { printf '\033[1;32m%s\033[0m\n' "$*"; }
+dim()   { printf '\033[2m%s\033[0m\n' "$*"; }
+
+# ─── 1. Format check (staged C++ files only) ─────────────────────
+staged_cpp=$(git diff --cached --name-only --diff-filter=ACMR -- '*.h' '*.hpp' '*.cpp' '*.cc' || true)
+
+if [ -n "$staged_cpp" ]; then
+    echo "Checking formatting on staged files..."
+    dim "$(echo "$staged_cpp" | sed 's/^/  /')"
+
+    diff=$(echo "$staged_cpp" | xargs clang-format --dry-run --Werror --style=file 2>&1 || true)
+    if [ -n "$diff" ]; then
+        red "Format violations found:"
+        echo "$diff"
+        echo ""
+        echo "Fix with: just format"
+        echo "Or skip with: git commit --no-verify"
+        exit 1
+    fi
+    green "Format OK"
+else
+    dim "No staged C++ files — skipping format check"
+fi
+
+# ─── 2. Build + test (if source files changed) ───────────────────
+src_changed=$(git diff --cached --name-only --diff-filter=ACMR -- 'src/' 'tests/' '*.h' '*.hpp' '*.cpp' '*.cc' 'CMakeLists.txt' 'tests/CMakeLists.txt' || true)
+
+if [ -z "$src_changed" ]; then
+    dim "No source files changed — skipping tests"
+    exit 0
+fi
+
+echo ""
+echo "Source files changed — running build + test..."
+dim "$(echo "$src_changed" | sed 's/^/  /')"
+
+# Build
+if ! cmake -B "$BUILD_DIR" -DCMAKE_EXPORT_COMPILE_COMMANDS=ON >/dev/null 2>&1; then
+    red "CMake configure failed"
+    exit 1
+fi
+if ! cmake --build "$BUILD_DIR" -j$(nproc) 2>&1 | tail -5; then
+    red "Build failed"
+    exit 1
+fi
+green "Build OK"
+
+# Test
+if ! (cd "$BUILD_DIR" && ctest --output-on-failure -j$(nproc)); then
+    red "Tests failed"
+    exit 1
+fi
+green "Tests OK"

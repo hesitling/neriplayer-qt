@@ -2,7 +2,7 @@
 
 ## 1. Overview
 
-NeriPlayer Qt adopts a classic layered architecture design, dividing the application into presentation layer, business layer, data layer, and infrastructure layer. Each layer has clear responsibilities and well-defined dependencies.
+QeriPlayer Qt adopts a classic layered architecture design, dividing the application into presentation layer, business layer, data layer, and infrastructure layer. Each layer has clear responsibilities and well-defined dependencies.
 
 ## 2. Architecture Layers
 
@@ -43,15 +43,15 @@ The business layer handles the core business logic of the application.
 - `MainViewModel`: Main window ViewModel
 - `PlayerViewModel`: Player ViewModel
 - `SearchViewModel`: Search ViewModel
-- `PlayerService`: Playback service
-- `SearchService`: Search service
-- `SyncService`: Sync service
+- `PlaybackController`: Playback orchestration (queue, URL resolution, persistence)
 
 **Design Principles**:
 - Follow MVVM pattern
 - Use signals and slots for communication
 - No direct access to UI components
-- Access data through Repository
+- ViewModels access API clients and repositories directly
+- No dedicated service layer — following the Android QeriPlayer pattern where ViewModels coordinate repos and API clients
+- `PlaybackController` is the exception: it encapsulates complex playback orchestration (backend, queue, URL resolution, state persistence) and acts as a de facto service
 
 ### 2.3 Data Layer
 
@@ -113,11 +113,7 @@ View (UI Component)
     ↓
 ViewModel (Business Logic)
     ↓
-Service (Service Layer)
-    ↓
-Repository (Data Access)
-    ↓
-API/Storage (Data Source)
+Repository / API Client (Data Access)
     ↓
 Response Data
     ↓
@@ -125,6 +121,8 @@ ViewModel (Data Processing)
     ↓
 View (UI Update)
 ```
+
+Note: There is no dedicated service layer. ViewModels access repositories and API clients directly, following the Android QeriPlayer pattern. `PlaybackController` is the one exception — it encapsulates complex playback orchestration and lives in the `player/` module.
 
 ### 3.2 Playback Example
 
@@ -135,13 +133,15 @@ PlayerControlBar (UI)
     ↓
 PlayerViewModel::play()
     ↓
-PlayerService::play(song)
+PlaybackController::play(song)
     ↓
-AudioEngine::play(url)
+  resolves URL via IMusicPlatformPlugin
+    ↓
+IPlayerBackend::play(url)
     ↓
 Audio playback
     ↓
-PlayerService::onPlaybackStarted()
+PlaybackController emits playbackStateChanged signal
     ↓
 PlayerViewModel::updateState()
     ↓
@@ -178,7 +178,7 @@ auto *network = app.services()->service<NetworkManager>();
 
 ### 5.1 Downward Calls
 
-The presentation layer calls the business layer through ViewModel, and the business layer calls the data layer through Repository.
+The presentation layer calls the business layer through ViewModel, and the ViewModel directly accesses the data layer (repositories and API clients).
 
 ```cpp
 // Presentation layer calls business layer
@@ -186,9 +186,15 @@ void MainWindow::onPlayButtonClicked() {
     m_viewModel->play();
 }
 
-// Business layer calls data layer
+// ViewModel calls data layer directly
 void PlayerViewModel::play() {
-    m_playerService->play(m_currentSong);
+    m_playbackController->play(m_currentSong);
+}
+
+// ViewModel calls API client directly
+QCoro::Task<void> SearchViewModel::search(const QString &query) {
+    auto result = co_await m_neteaseClient->searchSongs(query);
+    // process results...
 }
 ```
 
@@ -197,12 +203,12 @@ void PlayerViewModel::play() {
 The data layer notifies the business layer through signals, and the business layer notifies the presentation layer through signals.
 
 ```cpp
-// Data layer notifies business layer
-connect(m_apiClient, &ApiClient::requestFinished,
-        this, &MusicRepository::onRequestFinished);
+// API client notifies ViewModel directly
+connect(m_neteaseClient, &NeteaseClient::requestFinished,
+        this, &SearchViewModel::onResultsReady);
 
-// Business layer notifies presentation layer
-connect(m_playerService, &PlayerService::stateChanged,
+// PlaybackController notifies ViewModel
+connect(m_playbackController, &PlaybackController::playbackStateChanged,
         this, &PlayerViewModel::onStateChanged);
 ```
 
@@ -213,29 +219,28 @@ connect(m_playerService, &PlayerService::stateChanged,
 ```
 1. User enters keywords in search box
 2. SearchView calls SearchViewModel::search()
-3. SearchViewModel calls SearchService::search()
-4. SearchService calls multiple API clients
+3. SearchViewModel calls API clients directly
    - NeteaseClient::searchSongs()
-   - BilibiliClient::searchVideos()
-   - YouTubeMusicClient::searchSongs()
-5. API clients return results
-6. SearchService merges results
-7. SearchViewModel updates data
-8. SearchView displays results
+   - BilibiliClient::searchVideos() (future)
+   - YouTubeMusicClient::searchSongs() (future)
+4. SearchViewModel merges results
+5. SearchView displays results
 ```
+
+Note: Multi-platform search aggregation lives in the ViewModel, not in a dedicated SearchService. This follows the Android QeriPlayer pattern (see HomeViewModel, NowPlayingViewModel).
 
 ### 6.2 Play Song
 
 ```
 1. User clicks a song
 2. SongListView calls PlayerViewModel::playSong()
-3. PlayerViewModel calls PlayerService::play()
-4. PlayerService resolves playback URL
+3. PlayerViewModel calls PlaybackController::play()
+4. PlaybackController resolves playback URL
    - If local song, play directly
-   - If online song, call API for URL
-5. PlayerService calls AudioEngine::play()
-6. AudioEngine starts playback
-7. PlayerService updates playback state
+   - If online song, call IMusicPlatformPlugin::getSongUrl()
+5. PlaybackController calls IPlayerBackend::play()
+6. Audio backend starts playback
+7. PlaybackController emits playbackStateChanged signal
 8. PlayerViewModel updates UI
 9. PlayerControlBar displays playback state
 ```
@@ -309,7 +314,7 @@ public:
 
 ## 8. Summary
 
-The layered architecture design gives NeriPlayer Qt a clear structure and good maintainability:
+The layered architecture design gives QeriPlayer Qt a clear structure and good maintainability:
 - **Separation of Responsibilities**: Each layer focuses on its own responsibilities
 - **Clear Dependencies**: Dependencies are well-defined, facilitating testing and maintenance
 - **Extensibility**: Easy to add new features and modules

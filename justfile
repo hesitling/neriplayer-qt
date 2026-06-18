@@ -1,4 +1,4 @@
-# justfile — NeriPlayer Qt task runner
+# justfile — QeriPlayer Qt task runner
 #
 # Usage:
 #   just              # show available commands
@@ -9,7 +9,7 @@
 #   just check        # format check (CI-friendly, no writes)
 #   just ci           # build + test + format check
 
-# Default build directory (override with: just build_dir=/tmp/neriplayer-build build)
+# Default build directory (override with: just build_dir=/tmp/qeriplayer-build build)
 # Or set JUST_BUILD_DIR env var for the session.
 build_dir := env_var_or_default("JUST_BUILD_DIR", "build")
 
@@ -63,7 +63,7 @@ test-list:
 format:
     #!/usr/bin/env bash
     set -euo pipefail
-    files=$(git diff --name-only --diff-filter=ACMR HEAD -- '*.h' '*.cpp' || true)
+    files=$(git diff --name-only --diff-filter=ACMR HEAD -- '*.h' '*.hpp' '*.cpp' '*.cc' || true)
     if [ -z "$files" ]; then
         echo "No changed files to format."
         exit 0
@@ -72,12 +72,31 @@ format:
     echo "$files" | sed 's/^/  /'
     echo "$files" | xargs clang-format -i --style=file
 
+# Format files changed since a ref: just format-against main
+[group('format')]
+format-against ref='HEAD~1':
+    #!/usr/bin/env bash
+    set -euo pipefail
+    base_ref='{{ref}}'
+    if ! git rev-parse --verify "$base_ref" >/dev/null 2>&1; then
+        echo "Error: ref '$base_ref' not found." >&2
+        exit 1
+    fi
+    files=$(git diff --name-only --diff-filter=ACMR "$base_ref" -- '*.h' '*.hpp' '*.cpp' '*.cc' || true)
+    if [ -z "$files" ]; then
+        echo "No changed C++ files since $base_ref."
+        exit 0
+    fi
+    echo "Formatting (since $base_ref):"
+    echo "$files" | sed 's/^/  /'
+    echo "$files" | xargs clang-format -i --style=file
+
 # Check formatting (no writes, exits non-zero on violation)
 [group('format')]
 check:
     #!/usr/bin/env bash
     set -euo pipefail
-    files=$(git diff --name-only --diff-filter=ACMR HEAD -- '*.h' '*.cpp' || true)
+    files=$(git diff --name-only --diff-filter=ACMR HEAD -- '*.h' '*.hpp' '*.cpp' '*.cc' || true)
     if [ -z "$files" ]; then
         echo "No changed files to check."
         exit 0
@@ -92,6 +111,11 @@ check:
     fi
     echo "All files formatted correctly."
 
+# Check formatting since a ref: just check-against main
+[group('format')]
+check-against ref='HEAD~1':
+    scripts/check-format.sh {{ref}}
+
 # Format a specific file: just format-file src/core/database/DatabaseManager.cpp
 [group('format')]
 format-file file:
@@ -104,6 +128,12 @@ format-file file:
 ci: build test check
 
 # ─── Utilities ────────────────────────────────────────────────────
+
+# Set up git hooks from .githooks/ (run once after clone)
+[group('util')]
+setup-hooks:
+    git config core.hooksPath .githooks
+    @echo "Git hooks path set to .githooks/"
 
 # Open compile_commands.json in build/ (for IDEs)
 [group('util')]

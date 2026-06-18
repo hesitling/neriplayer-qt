@@ -1,8 +1,8 @@
-# NeriPlayer Qt Module Design
+# QeriPlayer Qt Module Design
 
 ## Overview
 
-NeriPlayer Qt is a multi-platform music player built with Qt 6, C++20, and QCoro. Android NeriPlayer serves as the feature reference; the Qt client uses Qt-native module boundaries, domain models, and coroutine-based async APIs.
+QeriPlayer Qt is a multi-platform music player built with Qt 6, C++20, and QCoro. Android QeriPlayer serves as the feature reference; the Qt client uses Qt-native module boundaries, domain models, and coroutine-based async APIs.
 
 ## Module Structure
 
@@ -49,7 +49,7 @@ src/
 - [NetEase](api/netease.md) — NeteaseClient, NeteaseCrypto, NeteaseParser
 
 ### Application
-- [App Module](app.md) — NeriPlayerApplication, ServiceLocator
+- [App Module](app.md) — QeriPlayerApplication, ServiceLocator
 
 ## Architecture Layers
 
@@ -59,7 +59,7 @@ src/
 ├──────────────────────────────────────┤
 │           ViewModel Layer            │  (planned)
 ├──────────────────────────────────────┤
-│            Service Layer             │  (planned)
+│      PlaybackController (player/)    │  Playback orchestration
 ├──────────────────────────────────────┤
 │          Repository Layer            │  SongRepository, PlaylistRepository, ...
 ├──────────────────────────────────────┤
@@ -70,6 +70,8 @@ src/
 │            Core Layer                │  Network, Database, FileSystem, Crypto, Logger
 └──────────────────────────────────────┘
 ```
+
+Note: There is no dedicated service layer. ViewModels access repositories and API clients directly, following the Android QeriPlayer pattern. `PlaybackController` is the exception — it encapsulates complex playback orchestration.
 
 ## Technology Stack
 
@@ -89,5 +91,5 @@ src/
 - **Domain models in `domain/`** — shared across all layers, no QObject dependency.
 - **Interfaces in `IXxxRepository`** — dependency inversion for testability.
 - **QCoro for async** — all async functions return `QCoro::Task<T>`, use `co_await`/`co_return`.
-- **No globals** — `ServiceLocator` is owned by `NeriPlayerApplication`, passed via constructor injection.
+- **No globals** — `ServiceLocator` is owned by `QeriPlayerApplication`, passed via constructor injection.
 - **Platform-agnostic plugin interface** — `IMusicPlatformPlugin` defines the cross-platform contract.
