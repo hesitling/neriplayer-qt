@@ -126,7 +126,6 @@ target_link_libraries(TestSearchViewModel PRIVATE
     Qt6::Core
     Qt6::Test
     ${QERIPLAYER_QCORO_LIBRARIES}
-    QCoro6::Qml
     ${SPDLOG_LIBRARIES}
 )
 target_compile_definitions(TestSearchViewModel PRIVATE
@@ -169,7 +168,6 @@ target_link_libraries(TestPlaylistViewModel PRIVATE
     Qt6::WebSockets
     Qt6::Test
     ${QERIPLAYER_QCORO_LIBRARIES}
-    QCoro6::Qml
     ${SQLITE3_LIBRARIES}
     ${SPDLOG_LIBRARIES}
     OpenSSL::Crypto
@@ -198,7 +196,6 @@ target_link_libraries(TestLocalPlaylistDetailViewModel PRIVATE
     Qt6::Core
     Qt6::Test
     ${QERIPLAYER_QCORO_LIBRARIES}
-    QCoro6::Qml
     ${SPDLOG_LIBRARIES}
 )
 target_compile_definitions(TestLocalPlaylistDetailViewModel PRIVATE
@@ -242,7 +239,6 @@ target_link_libraries(TestNeteasePlaylistDetailViewModel PRIVATE
     Qt6::WebSockets
     Qt6::Test
     ${QERIPLAYER_QCORO_LIBRARIES}
-    QCoro6::Qml
     ${SQLITE3_LIBRARIES}
     ${SPDLOG_LIBRARIES}
     OpenSSL::Crypto
@@ -301,7 +297,6 @@ target_link_libraries(TestMainViewModel PRIVATE
     Qt6::Multimedia
     Qt6::Test
     ${QERIPLAYER_QCORO_LIBRARIES}
-    QCoro6::Qml
     ${SQLITE3_LIBRARIES}
     ${SPDLOG_LIBRARIES}
     OpenSSL::Crypto
