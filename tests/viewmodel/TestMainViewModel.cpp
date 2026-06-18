@@ -110,13 +110,16 @@ public:
 
 class MockPlaylistRepo : public IPlaylistRepository {
 public:
+    QVector<PlaylistSummary> summaries;
+    std::optional<Playlist> playlist;
+
     QVector<PlaylistSummary> findAll() override
     {
-        return {};
+        return summaries;
     }
     std::optional<Playlist> findById(const QString &) override
     {
-        return std::nullopt;
+        return playlist;
     }
     Playlist create(const QString &, MusicPlatform) override
     {
@@ -243,6 +246,8 @@ private Q_SLOTS:
     void initialState();
     void navigation_changesView();
     void searchRequestPlay_wiredToPlayer();
+    void openLocalPlaylist_createsDetailAndNavigates();
+    void navigateAway_clearsLocalDetail();
 };
 
 void TestMainViewModel::initialState()
@@ -284,9 +289,58 @@ void TestMainViewModel::searchRequestPlay_wiredToPlayer()
     song.name = "Test Song";
     Q_EMIT m_searchVm->requestPlay(song);
 
-    // The signal should be connected to playerVm->play()
-    // Since play is async, we just verify the connection exists
     QCOMPARE(spy.count(), 1);
+
+    delete vm;
+}
+
+void TestMainViewModel::openLocalPlaylist_createsDetailAndNavigates()
+{
+    Playlist playlist;
+    playlist.id = QStringLiteral("abc");
+    playlist.name = QStringLiteral("Road Trip");
+
+    Song song;
+    song.id = QStringLiteral("song-1");
+    song.name = QStringLiteral("Track 1");
+    playlist.songs = {song};
+    m_playlistRepo.playlist = playlist;
+
+    auto *vm = createViewModel();
+
+    QSignalSpy currentViewSpy(vm, &MainViewModel::currentViewChanged);
+    QSignalSpy detailSpy(vm, &MainViewModel::localPlaylistDetailChanged);
+
+    vm->openLocalPlaylist(QStringLiteral("abc"));
+
+    QCOMPARE(vm->currentView(), MainViewModel::View::LocalPlaylist);
+    QVERIFY(vm->localPlaylistDetail() != nullptr);
+    QCOMPARE(vm->localPlaylistDetail()->playlistId(), QStringLiteral("abc"));
+    QCOMPARE(vm->localPlaylistDetail()->playlistName(), QStringLiteral("Road Trip"));
+    QCOMPARE(vm->localPlaylistDetail()->songs()->count(), 1);
+    QVERIFY(currentViewSpy.count() >= 1);
+    QVERIFY(detailSpy.count() >= 1);
+
+    delete vm;
+}
+
+void TestMainViewModel::navigateAway_clearsLocalDetail()
+{
+    Playlist playlist;
+    playlist.id = QStringLiteral("abc");
+    playlist.name = QStringLiteral("Road Trip");
+    m_playlistRepo.playlist = playlist;
+
+    auto *vm = createViewModel();
+    vm->openLocalPlaylist(QStringLiteral("abc"));
+    QVERIFY(vm->localPlaylistDetail() != nullptr);
+
+    QSignalSpy detailSpy(vm, &MainViewModel::localPlaylistDetailChanged);
+    vm->navigateTo(MainViewModel::View::Library);
+
+    QCOMPARE(vm->currentView(), MainViewModel::View::Library);
+    QVERIFY(vm->localPlaylistDetail() == nullptr);
+    QVERIFY(detailSpy.count() >= 1);
 
     delete vm;
 }

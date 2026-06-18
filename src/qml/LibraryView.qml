@@ -57,6 +57,7 @@ Page {
                 }
 
                 Button {
+                    objectName: "newPlaylistButton"
                     text: "New Playlist"
                     visible: tabBar.currentIndex === 0
                     onClicked: createDialog.open()
@@ -66,6 +67,7 @@ Page {
 
         TabBar {
             id: tabBar
+            objectName: "libraryTabBar"
             Layout.fillWidth: true
             onCurrentIndexChanged: root.ensureRemoteLoaded(false)
 
@@ -205,6 +207,7 @@ Page {
 
     Dialog {
         id: createDialog
+        objectName: "createDialog"
         title: "Create Playlist"
         modal: true
         anchors.centerIn: parent
@@ -219,6 +222,7 @@ Page {
 
             TextField {
                 id: playlistNameField
+                objectName: "playlistNameField"
                 Layout.fillWidth: true
                 placeholderText: "Playlist name"
                 onAccepted: createButton.clicked()
@@ -241,6 +245,7 @@ Page {
 
                 Button {
                     id: createButton
+                    objectName: "createPlaylistButton"
                     text: "Create"
                     enabled: playlistNameField.text.trim().length > 0
                     onClicked: {
