@@ -147,6 +147,12 @@ void MainViewModel::wireDetailVmSignals()
         connect(
             m_localPlaylistDetail, &LocalPlaylistDetailViewModel::requestPlayPlaylist, m_playerVm,
             [this](const QVector<Song> &songs, int startIndex) { m_playerVm->loadQueueAndPlay(songs, startIndex); });
+        connect(m_localPlaylistDetail, &LocalPlaylistDetailViewModel::playlistUpdated, this,
+                [this]() { m_pendingTask = m_playlistVm->loadLocalPlaylists(); });
+        connect(m_localPlaylistDetail, &LocalPlaylistDetailViewModel::playlistDeleted, this, [this]() {
+            m_pendingTask = m_playlistVm->loadLocalPlaylists();
+            navigateTo(View::Library);
+        });
     }
     if (m_neteasePlaylistDetail) {
         connect(m_neteasePlaylistDetail, &NeteasePlaylistDetailViewModel::requestPlay, m_playerVm,

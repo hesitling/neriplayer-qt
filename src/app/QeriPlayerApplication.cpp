@@ -18,6 +18,7 @@
 #include "repo/SettingsRepository.h"
 #include "repo/SongRepository.h"
 #include "viewmodel/MainViewModel.h"
+#include "viewmodel/NeteasePlaylistLibraryClient.h"
 #include "viewmodel/PlayerViewModel.h"
 #include "viewmodel/PlaylistViewModel.h"
 #include "viewmodel/SearchViewModel.h"
@@ -181,7 +182,12 @@ bool QeriPlayerApplication::initializeUi()
     }
     auto *searchVm = new SearchViewModel(plugins, songRepo, this);
 
-    auto *playlistVm = new PlaylistViewModel(playlistRepo, neteaseClient, this);
+    if (neteaseClient != nullptr) {
+        m_playlistLibraryClient = std::make_unique<NeteasePlaylistLibraryClient>(neteaseClient);
+    } else {
+        m_playlistLibraryClient.reset();
+    }
+    auto *playlistVm = new PlaylistViewModel(playlistRepo, m_playlistLibraryClient.get(), this);
     auto *settingsVm = new SettingsViewModel(settingsRepo, neteaseClient, historyRepo, this);
     auto *mainVm
         = new MainViewModel(playerVm, searchVm, playlistVm, settingsVm, songRepo, playlistRepo, neteaseClient, this);

@@ -15,7 +15,6 @@ ApplicationWindow {
         anchors.fill: parent
         spacing: 0
 
-        // Main content area: sidebar + stack
         RowLayout {
             Layout.fillWidth: true
             Layout.fillHeight: true
@@ -35,14 +34,12 @@ ApplicationWindow {
             }
         }
 
-        // Player bar
         PlayerBar {
             id: playerBar
             Layout.fillWidth: true
         }
     }
 
-    // Toast notification (overlay above player bar)
     Toast {
         id: toast
         anchors.left: parent.left
@@ -54,12 +51,13 @@ ApplicationWindow {
         z: 100
     }
 
-    // Keyboard shortcuts
     Shortcut {
         sequence: "Space"
         onActivated: {
-            if (playerVm.isPlaying) playerVm.pause()
-            else playerVm.resume()
+            if (playerVm.isPlaying)
+                playerVm.pause()
+            else
+                playerVm.resume()
         }
     }
 
@@ -73,7 +71,6 @@ ApplicationWindow {
         onActivated: playerVm.seek(Math.min(playerVm.durationMs, playerVm.positionMs + 5000))
     }
 
-    // Wire toast to player errors
     Connections {
         target: playerVm
         function onErrorChanged() {
@@ -83,7 +80,6 @@ ApplicationWindow {
         }
     }
 
-    // Wire toast to search errors
     Connections {
         target: searchVm
         function onErrorChanged() {
@@ -93,7 +89,35 @@ ApplicationWindow {
         }
     }
 
-    // Placeholder pages
+    Connections {
+        target: playlistVm
+        function onErrorChanged() {
+            if (playlistVm.hasError) {
+                toast.show(playlistVm.error.message)
+            }
+        }
+    }
+
+    Connections {
+        target: mainVm.localPlaylistDetail
+        ignoreUnknownSignals: true
+        function onErrorChanged() {
+            if (mainVm.localPlaylistDetail && mainVm.localPlaylistDetail.hasError) {
+                toast.show(mainVm.localPlaylistDetail.error.message)
+            }
+        }
+    }
+
+    Connections {
+        target: mainVm.neteasePlaylistDetail
+        ignoreUnknownSignals: true
+        function onErrorChanged() {
+            if (mainVm.neteasePlaylistDetail && mainVm.neteasePlaylistDetail.hasError) {
+                toast.show(mainVm.neteasePlaylistDetail.error.message)
+            }
+        }
+    }
+
     Component {
         id: homePage
         Rectangle {
@@ -114,15 +138,17 @@ ApplicationWindow {
 
     Component {
         id: libraryPage
-        Rectangle {
-            color: "transparent"
-            Label {
-                anchors.centerIn: parent
-                text: "Library (PR 4)"
-                font.pixelSize: 24
-                opacity: 0.5
-            }
-        }
+        LibraryView {}
+    }
+
+    Component {
+        id: localPlaylistPage
+        LocalPlaylistDetailView {}
+    }
+
+    Component {
+        id: neteasePlaylistPage
+        NeteasePlaylistDetailView {}
     }
 
     Component {
@@ -138,32 +164,39 @@ ApplicationWindow {
         }
     }
 
-    // Navigation handler
-    // NOTE: Case values mirror MainViewModel::View enum (Home=0, Search=1, Library=2, Settings=5).
-    // If the enum order changes in C++, update these values to match.
+    Component.onCompleted: {
+        mainVm.initialize()
+    }
+
     Connections {
         target: mainVm
 
         function onCurrentViewChanged() {
-            var page;
+            var page
             switch (mainVm.currentView) {
-            case 0: // Home
-                page = homePage;
-                break;
-            case 1: // Search
-                page = searchPage;
-                break;
-            case 2: // Library
-                page = libraryPage;
-                break;
-            case 5: // Settings
-                page = settingsPage;
-                break;
+            case 0:
+                page = homePage
+                break
+            case 1:
+                page = searchPage
+                break
+            case 2:
+                page = libraryPage
+                break
+            case 3:
+                page = localPlaylistPage
+                break
+            case 4:
+                page = neteasePlaylistPage
+                break
+            case 5:
+                page = settingsPage
+                break
             default:
-                page = homePage;
-                break;
+                page = homePage
+                break
             }
-            contentStack.replace(page);
+            contentStack.replace(page)
         }
     }
 }
