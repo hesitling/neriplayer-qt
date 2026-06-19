@@ -265,6 +265,7 @@ private:
 
 private Q_SLOTS:
     void initialState();
+    void initialize_loadsLocalPlaylists();
     void navigation_changesView();
     void searchRequestPlay_wiredToPlayer();
     void openLocalPlaylist_createsDetailAndNavigates();
@@ -284,6 +285,23 @@ void TestMainViewModel::initialState()
     QVERIFY(vm->settingsViewModel() != nullptr);
     QVERIFY(vm->localPlaylistDetail() == nullptr);
     QVERIFY(vm->neteasePlaylistDetail() == nullptr);
+
+    delete vm;
+}
+
+void TestMainViewModel::initialize_loadsLocalPlaylists()
+{
+    PlaylistSummary summary;
+    summary.id = QStringLiteral("abc");
+    summary.name = QStringLiteral("Road Trip");
+    m_playlistRepo.summaries = {summary};
+
+    auto *vm = createViewModel();
+
+    vm->initialize();
+
+    QTRY_COMPARE(m_playlistVm->localPlaylists().size(), 1);
+    QTRY_COMPARE(m_playlistVm->localPlaylists().first().value<PlaylistSummary>().id, QStringLiteral("abc"));
 
     delete vm;
 }

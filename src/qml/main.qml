@@ -164,6 +164,10 @@ ApplicationWindow {
         }
     }
 
+    Component.onCompleted: {
+        mainVm.initialize()
+    }
+
     Connections {
         target: mainVm
 
