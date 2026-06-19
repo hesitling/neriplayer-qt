@@ -10,6 +10,10 @@
 
 #include <memory>
 
+namespace QeriPlayerQt {
+class IPlaylistLibraryClient;
+}
+
 class QQmlApplicationEngine;
 
 namespace QeriPlayerQt {
@@ -38,6 +42,7 @@ private:
 
     ServiceLocator m_services;
     std::unique_ptr<QQmlApplicationEngine> m_qmlEngine;
+    std::unique_ptr<IPlaylistLibraryClient> m_playlistLibraryClient;
 };
 
 } // namespace QeriPlayerQt
