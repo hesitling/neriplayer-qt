@@ -61,58 +61,24 @@ QCoro::QmlTask NeteasePlaylistDetailViewModel::loadPlaylist(const QString &playl
                   co_return;
               }
 
-              self->m_isLoading = true;
-              Q_EMIT self->isLoadingChanged();
-              self->m_hasError = false;
-              Q_EMIT self->errorChanged();
+              self->beginLoad();
 
               try {
-                  if (self->m_neteaseClient == nullptr) {
-                      self->m_isLoading = false;
-                      Q_EMIT self->isLoadingChanged();
-                      self->m_error = ViewModelError(ViewModelError::ErrorType::Api,
-                                                     QStringLiteral("NetEase client not available"));
-                      self->m_hasError = true;
-                      Q_EMIT self->errorChanged();
+                  if (!self->ensureClientAvailable()) {
                       co_return;
                   }
 
                   auto result = co_await self->m_neteaseClient->getPlaylistDetail(playlistId);
-                  if (!self) {
+                  if (!self || !self->finalizeLoad(result)) {
                       co_return;
                   }
 
-                  self->m_isLoading = false;
-                  Q_EMIT self->isLoadingChanged();
-
-                  if (result.isError()) {
-                      self->m_error = ViewModelError::fromApiError(result.error());
-                      self->m_hasError = true;
-                      Q_EMIT self->errorChanged();
-                      co_return;
-                  }
-
-                  const Playlist &playlist = result.data();
-                  self->m_headerName = playlist.name;
-                  self->m_headerCoverUrl = playlist.coverUrl.toString();
-                  self->m_headerTrackCount = playlist.songCount;
-
-                  Q_EMIT self->headerNameChanged();
-                  Q_EMIT self->headerCoverUrlChanged();
-                  Q_EMIT self->headerTrackCountChanged();
-
-                  self->m_songs->setSongs(playlist.songs);
-                  self->m_songRepo->saveBatch(playlist.songs);
+                  self->applyPlaylist(result.data());
               } catch (const std::exception &ex) {
                   if (!self) {
                       co_return;
                   }
-                  self->m_isLoading = false;
-                  Q_EMIT self->isLoadingChanged();
-                  self->m_error = ViewModelError(ViewModelError::ErrorType::Unknown, QString::fromUtf8(ex.what()));
-                  self->m_hasError = true;
-                  Q_EMIT self->errorChanged();
-                  Logger::get("viewmodel")->warn("Failed to load NetEase playlist: {}", ex.what());
+                  self->handleLoadException(ex, "playlist");
               }
           }());
     return m_pendingTask;
@@ -129,60 +95,24 @@ QCoro::QmlTask NeteasePlaylistDetailViewModel::loadAlbum(const QString &albumId)
                   co_return;
               }
 
-              self->m_isLoading = true;
-              Q_EMIT self->isLoadingChanged();
-              self->m_hasError = false;
-              Q_EMIT self->errorChanged();
+              self->beginLoad();
 
               try {
-                  if (self->m_neteaseClient == nullptr) {
-                      self->m_isLoading = false;
-                      Q_EMIT self->isLoadingChanged();
-                      self->m_error = ViewModelError(ViewModelError::ErrorType::Api,
-                                                     QStringLiteral("NetEase client not available"));
-                      self->m_hasError = true;
-                      Q_EMIT self->errorChanged();
+                  if (!self->ensureClientAvailable()) {
                       co_return;
                   }
 
                   auto result = co_await self->m_neteaseClient->getAlbumDetail(albumId);
-                  if (!self) {
+                  if (!self || !self->finalizeLoad(result)) {
                       co_return;
                   }
 
-                  self->m_isLoading = false;
-                  Q_EMIT self->isLoadingChanged();
-
-                  if (result.isError()) {
-                      self->m_error = ViewModelError::fromApiError(result.error());
-                      self->m_hasError = true;
-                      Q_EMIT self->errorChanged();
-                      co_return;
-                  }
-
-                  const QVector<Song> &songs = result.data();
-                  if (!songs.isEmpty()) {
-                      self->m_headerName = songs.first().album;
-                      self->m_headerCoverUrl = songs.first().coverUrl.toString();
-                      Q_EMIT self->headerNameChanged();
-                      Q_EMIT self->headerCoverUrlChanged();
-                  }
-
-                  self->m_headerTrackCount = songs.size();
-                  Q_EMIT self->headerTrackCountChanged();
-
-                  self->m_songs->setSongs(songs);
-                  self->m_songRepo->saveBatch(songs);
+                  self->applyAlbumSongs(result.data());
               } catch (const std::exception &ex) {
                   if (!self) {
                       co_return;
                   }
-                  self->m_isLoading = false;
-                  Q_EMIT self->isLoadingChanged();
-                  self->m_error = ViewModelError(ViewModelError::ErrorType::Unknown, QString::fromUtf8(ex.what()));
-                  self->m_hasError = true;
-                  Q_EMIT self->errorChanged();
-                  Logger::get("viewmodel")->warn("Failed to load NetEase album: {}", ex.what());
+                  self->handleLoadException(ex, "album");
               }
           }());
     return m_pendingTask;
@@ -225,12 +155,80 @@ QCoro::QmlTask NeteasePlaylistDetailViewModel::saveToLocal()
             }
         } catch (const std::exception &ex) {
             Logger::get("viewmodel")->warn("Failed to save playlist to local: {}", ex.what());
-            m_error = ViewModelError(ViewModelError::ErrorType::Unknown, QString::fromUtf8(ex.what()));
-            m_hasError = true;
-            Q_EMIT errorChanged();
+            setErrorState(ViewModelError(ViewModelError::ErrorType::Unknown, QString::fromUtf8(ex.what())));
         }
     }());
     return m_pendingTask;
+}
+
+void NeteasePlaylistDetailViewModel::beginLoad()
+{
+    m_isLoading = true;
+    Q_EMIT isLoadingChanged();
+    m_hasError = false;
+    m_error = ViewModelError();
+    Q_EMIT errorChanged();
+}
+
+bool NeteasePlaylistDetailViewModel::ensureClientAvailable()
+{
+    if (m_neteaseClient != nullptr) {
+        return true;
+    }
+
+    m_isLoading = false;
+    Q_EMIT isLoadingChanged();
+    setErrorState(ViewModelError(ViewModelError::ErrorType::Api, QStringLiteral("NetEase client not available")));
+    return false;
+}
+
+void NeteasePlaylistDetailViewModel::setErrorState(const ViewModelError &error)
+{
+    m_error = error;
+    m_hasError = true;
+    Q_EMIT errorChanged();
+}
+
+void NeteasePlaylistDetailViewModel::handleLoadException(const std::exception &ex, const char *entityName)
+{
+    m_isLoading = false;
+    Q_EMIT isLoadingChanged();
+    setErrorState(ViewModelError(ViewModelError::ErrorType::Unknown, QString::fromUtf8(ex.what())));
+    Logger::get("viewmodel")->warn("Failed to load NetEase {}: {}", entityName, ex.what());
+}
+
+void NeteasePlaylistDetailViewModel::applyPlaylist(const Playlist &playlist)
+{
+    m_headerName = playlist.name;
+    m_headerCoverUrl = playlist.coverUrl.toString();
+    m_headerTrackCount = playlist.songCount;
+
+    Q_EMIT headerNameChanged();
+    Q_EMIT headerCoverUrlChanged();
+    Q_EMIT headerTrackCountChanged();
+
+    m_songs->setSongs(playlist.songs);
+    m_songRepo->saveBatch(playlist.songs);
+}
+
+void NeteasePlaylistDetailViewModel::applyAlbumSongs(const QVector<Song> &songs)
+{
+    if (!songs.isEmpty()) {
+        m_headerName = songs.first().album;
+        m_headerCoverUrl = songs.first().coverUrl.toString();
+    } else {
+        m_headerName.clear();
+        m_headerCoverUrl.clear();
+    }
+
+    m_headerTrackCount = songs.size();
+
+    Q_EMIT headerNameChanged();
+    Q_EMIT headerCoverUrlChanged();
+    Q_EMIT headerTrackCountChanged();
+
+    m_songs->setSongs(songs);
+    m_songRepo->saveBatch(songs);
 }
 
 void NeteasePlaylistDetailViewModel::playSong(int index)

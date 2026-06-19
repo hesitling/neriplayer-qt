@@ -197,6 +197,7 @@ QCoro::Task<void> PlaylistViewModel::loadNeteasePlaylistsImpl()
 
     try {
         if (m_libraryClient == nullptr) {
+            Logger::get("viewmodel")->warn("Cannot load NetEase playlists: library client unavailable");
             m_error = ViewModelError(ViewModelError::ErrorType::Unknown, QStringLiteral("Library client unavailable"));
             m_hasError = true;
             m_isLoading = false;
@@ -247,6 +248,7 @@ QCoro::Task<void> PlaylistViewModel::loadNeteaseAlbumsImpl()
 
     try {
         if (m_libraryClient == nullptr) {
+            Logger::get("viewmodel")->warn("Cannot load NetEase albums: library client unavailable");
             m_error = ViewModelError(ViewModelError::ErrorType::Unknown, QStringLiteral("Library client unavailable"));
             m_hasError = true;
             m_isLoading = false;

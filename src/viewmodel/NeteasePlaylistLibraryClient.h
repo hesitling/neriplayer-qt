@@ -7,6 +7,8 @@
 #include "api/netease/NeteaseClient.h"
 #include "viewmodel/IPlaylistLibraryClient.h"
 
+#include <QtAssert>
+
 namespace QeriPlayerQt {
 
 class NeteasePlaylistLibraryClient : public IPlaylistLibraryClient {
@@ -14,6 +16,7 @@ public:
     explicit NeteasePlaylistLibraryClient(NeteaseClient *neteaseClient)
         : m_neteaseClient(neteaseClient)
     {
+        Q_ASSERT(m_neteaseClient != nullptr);
     }
 
     QCoro::Task<ApiResult<QVector<Playlist>>> getUserPlaylists(const QString &userId) override
